@@ -1,7 +1,28 @@
+// data/services.ts
+
+// ======================================================
+// TYPES
+// ======================================================
+
+export type DivisionType =
+  | 'healthcare'
+  | 'education'
+  | 'business'
+  | 'manufacturing';
+
+export type Doctor = {
+  id: string;
+  name: string;
+  specialty: string;
+  image: string;
+  availability: string;
+};
+
 export type ServiceCategory = {
   id: string;
   title: string;
   tagline: string;
+  heroImage: string;
   attributes: string[];
   divisions: Division[];
 };
@@ -10,11 +31,15 @@ export type Division = {
   id: string;
   slug: string;
   name: string;
+  shortName: string;
+  type: DivisionType;
   location?: string;
   overview: string;
   description: string[];
   images: string[];
   coreServices: string[];
+  stats?: { label: string; value: string }[];
+  doctors?: Doctor[];
   contact: {
     phone?: string;
     email?: string;
@@ -24,16 +49,71 @@ export type Division = {
   groupPhoto?: string;
 };
 
-// ---------- BASE URL ----------
-const IMAGE_URL =
-  'https://images.unsplash.com/photo-1512678080530-7760d81faba6?w=900';
+// ======================================================
+// PLACEHOLDER IMAGES (All Different for Sliders)
+// ======================================================
 
-// ---------- DATA ----------
+// HERO IMAGES
+const HERO_HEALTHCARE =
+  'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=2000';
+const HERO_EDUCATION =
+  'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=2000';
+const HERO_IMPORT =
+  'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=2000';
+const HERO_MANUFACTURING =
+  'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=2000';
+
+// HEALTHCARE SLIDER IMAGES
+const HOSPITAL_1 =
+  'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900';
+const HOSPITAL_2 =
+  'https://images.unsplash.com/photo-1516549655169-df83a092fc14?w=900';
+const HOSPITAL_3 =
+  'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900';
+const HOSPITAL_4 =
+  'https://images.unsplash.com/photo-1580281657521-47c8a5b7b1a6?w=900';
+
+// EDUCATION SLIDER IMAGES
+const COLLEGE_1 =
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=900';
+const COLLEGE_2 =
+  'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=900';
+const COLLEGE_3 =
+  'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900';
+
+// BUSINESS / IMPORT SLIDER IMAGES
+const WAREHOUSE_1 =
+  'https://images.unsplash.com/photo-1566576912906-25327041796c?w=900';
+const WAREHOUSE_2 =
+  'https://images.unsplash.com/photo-1581091012184-5c16f3b3c5a3?w=900';
+const WAREHOUSE_3 =
+  'https://images.unsplash.com/photo-1605902711622-cfb43c4437d1?w=900';
+
+// MANUFACTURING SLIDER IMAGES
+const FACTORY_1 =
+  'https://images.unsplash.com/photo-1628522307525-423c4a250324?w=900';
+const FACTORY_2 =
+  'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=900';
+const FACTORY_3 =
+  'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=900';
+
+// DOCTOR IMAGE
+const DOCTOR_PLACEHOLDER =
+  'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600';
+
+// ======================================================
+// DATA
+// ======================================================
+
 export const SERVICES_DATA: ServiceCategory[] = [
+  // ======================================================
+  // HEALTHCARE
+  // ======================================================
   {
     id: 'advanced-services',
     title: 'Healthcare Services',
     tagline: 'Delivering Specialized & Comprehensive Medical Excellence',
+    heroImage: HERO_HEALTHCARE,
     attributes: [
       'Subspecialized Medical Care',
       'Advanced Diagnostic Services: Laboratory, Pathology, Radiology, Endoscopy',
@@ -45,51 +125,73 @@ export const SERVICES_DATA: ServiceCategory[] = [
         id: 'yimsc-addis',
         slug: 'yanet-internal-medicine-surgical-center-addis',
         name: 'Yanet Internal Medicine & Surgical Center (Addis Ababa)',
+        shortName: 'Yanet Addis',
+        type: 'healthcare',
         location: 'Addis Ababa, Ethiopia',
         overview:
           'High-quality internal medicine, surgical care, and chronic disease management with strong affordability and community partnerships.',
         description: [
-          'Located in Addis Ababa, YIMSC is a reputable healthcare facility integral to the community since receiving a COVID-19 treatment license on August 29, 2013.',
-          'Initially a COVID-19 treatment center, it transitioned to an internal medicine service provider with a license obtained on January 30, 2013, offering high-quality medical services.',
-          'Staffed by dedicated internal medicine specialists, it excels in chronic condition treatment and kidney care, maintaining a clean and comfortable environment.',
-          'With 105 permanent and temporary staff, YIMSC collaborates with government institutions for discounted diagnostics and continuous professional training, aiming to upgrade to a general hospital and initiate kidney transplantation.',
+          'Integral to the community since receiving a COVID-19 treatment license.',
+          'Transitioned into an internal medicine and surgical service provider.',
+          'Excels in chronic disease management and kidney care.',
+          'Collaborates with government institutions and aims to upgrade to a general hospital.',
         ],
-        images: [
-          `${IMAGE_URL}&yimsc1`,
-          `${IMAGE_URL}&yimsc2`,
-          `${IMAGE_URL}&yimsc3`,
+        stats: [
+          { label: 'Annual Patients', value: '15,000+' },
+          { label: 'Specialists', value: '45' },
+          { label: 'Bed Capacity', value: '120' },
         ],
+        images: [HOSPITAL_1, HOSPITAL_2, HOSPITAL_3],
         coreServices: [
           'Internal Medicine',
           'Surgery',
           'Kidney Treatments',
           'Chronic Care',
         ],
+        doctors: [
+          {
+            id: 'd1',
+            name: 'Dr. Abebe Kebede',
+            specialty: 'General Surgeon',
+            availability: 'Mon - Fri',
+            image: DOCTOR_PLACEHOLDER,
+          },
+          {
+            id: 'd2',
+            name: 'Dr. Sara Tesfaye',
+            specialty: 'Internal Medicine',
+            availability: 'Tue - Sat',
+            image: DOCTOR_PLACEHOLDER,
+          },
+        ],
         contact: {
           phone: '+251-9-12-334455',
           email: 'contact@yimsc.com',
           address: 'Addis Ababa, Ethiopia',
+          googleMap: 'https://goo.gl/maps/example1',
         },
       },
+
       {
         id: 'yph',
         slug: 'yanet-primary-hospital',
         name: 'Yanet Primary Hospital (YPH)',
+        shortName: 'Yanet Primary',
+        type: 'healthcare',
         location: 'Hawassa, Ethiopia',
         overview:
           'Comprehensive hospital services with Dialysis, Chemotherapy, MCH & NICU, Radiology, OR, Emergency, and In/Outpatient care.',
         description: [
-          'Yanet Primary Hospital (YPH), a key member of the Liyana Healthcare family, is dedicated to providing comprehensive medical care to the community.',
-          'Noted for specialized services like dialysis, chemotherapy, Maternal and Child Health (MCH), and Neonatal Intensive Care Unit (NICU) services.',
-          'Features departments including Outpatient, Inpatient, Emergency, MNCH, Dialysis, Chemotherapy, Radiology, and Operating Room (OR) units for comprehensive diagnostics and surgery.',
-          'Supported by a compassionate team and modern facilities prioritizing patient comfort and safety.',
+          'Provides dialysis, chemotherapy, MCH, and NICU services.',
+          'Includes outpatient, inpatient, emergency, radiology, and OR units.',
+          'Modern facilities prioritizing patient safety and comfort.',
         ],
-        images: [
-          `${IMAGE_URL}&yph1`,
-          `${IMAGE_URL}&yph2`,
-          `${IMAGE_URL}&yph3`,
-          `${IMAGE_URL}&yph4`,
+        stats: [
+          { label: 'NICU Incubators', value: '12' },
+          { label: 'Dialysis Machines', value: '8' },
+          { label: 'Emergency Beds', value: '20' },
         ],
+        images: [HOSPITAL_2, HOSPITAL_3, HOSPITAL_4],
         coreServices: [
           'Dialysis',
           'Chemotherapy',
@@ -103,217 +205,140 @@ export const SERVICES_DATA: ServiceCategory[] = [
           address: 'Hawassa, Ethiopia',
           googleMap: 'https://maps.app.goo.gl/sQ96E6HJ7ZhFYu949',
         },
-        groupPhoto: `${IMAGE_URL}&yph-group`,
-      },
-      {
-        id: 'ytssc',
-        slug: 'yanet-trauma-surgical-specialized-center',
-        name: 'Yanet Trauma & Surgical Specialized Center (YTSSC)',
-        location: 'Ethiopia',
-        overview:
-          '24/7 trauma and surgical excellence across orthopedics, neurosurgery, plastics, and intensive care capacity.',
-        description: [
-          'A division of Liyana Healthcare, YTSSC provides specialized trauma management and surgical care by highly qualified orthopedists and surgeons.',
-          'Offers high-quality, compassionate care on outpatient and inpatient bases through Trauma Management and Surgery Departments.',
-          'Handles acute care and trauma surgeries, including orthopedic, plastic, neurosurgery, and more, with 24/7 advanced diagnostic and treatment facilities.',
-          'Capable of serving up to 250 clients daily with comprehensive surgical and intensive care services.',
-        ],
-        images: [
-          `${IMAGE_URL}&ytssc1`,
-          `${IMAGE_URL}&ytssc2`,
-          `${IMAGE_URL}&ytssc3`,
-        ],
-        coreServices: [
-          'Trauma',
-          'Orthopedics',
-          'Plastics',
-          'Neurosurgery',
-          'ICU',
-        ],
-        contact: {
-          email: 'info@ytssc.com',
-          address: 'Ethiopia',
-        },
-      },
-      {
-        id: 'yimsc-specialized',
-        slug: 'yanet-internal-medicine-specialized-center',
-        name: 'Yanet Internal Medicine Specialized Center (YIMSC)',
-        location: 'Ethiopia',
-        overview:
-          'Round-the-clock subspecialty services: Neurology, Gastroenterology, ENT, Dermatology, Oncology, Hemodialysis & Psychiatry; MRI/CT-equipped.',
-        description: [
-          'A division of Liyana Healthcare, YIMSC specializes in advanced internal medicine clinical services with 24/7 specialty care.',
-          'Offers services in Neurology, Gastroenterology, ENT, Dermatology, Women’s Health, Cancer Treatment, Hemodialysis, and Psychiatry.',
-          'Equipped with state-of-the-art diagnostic technologies like MRI, CT-Scan, and advanced clinical laboratories.',
-          'Selected by Ethiopia’s Federal Ministry of Health to partner with GAMCA for medical examinations for expatriates heading to Gulf countries.',
-        ],
-        images: [
-          `${IMAGE_URL}&yimsc-spec1`,
-          `${IMAGE_URL}&yimsc-spec2`,
-          `${IMAGE_URL}&yimsc-spec3`,
-        ],
-        coreServices: [
-          'Neurology',
-          'Gastro',
-          'ENT',
-          'Derm',
-          'Oncology',
-          'MRI/CT',
-        ],
-        contact: {
-          email: 'contact@yimsc-specialized.com',
-          address: 'Ethiopia',
-        },
+        groupPhoto: HOSPITAL_4,
       },
     ],
   },
+
+  // ======================================================
+  // EDUCATION
+  // ======================================================
   {
     id: 'education-research',
     title: 'Educational Services',
     tagline: 'Building the Future of Healthcare Knowledge & Leadership',
+    heroImage: HERO_EDUCATION,
     attributes: [
-      'Graduate Courses (MPH): Public Health, Health Service Management, Epidemiology, Reproductive Health, Nutrition',
-      'Undergraduate Courses (BSc): Anesthesia, Pharmacy, Radiography',
+      'Graduate Courses (MPH)',
+      'Undergraduate Courses (BSc)',
       'Continuing Professional Development',
-      'Public Health',
-      'Healthcare Operations',
-      'Business, Management, & Organizational Development',
+      'Healthcare Management & Research',
     ],
     divisions: [
       {
         id: 'ylchc',
         slug: 'yanet-liyana-college',
         name: 'Yanet-Liyana College of Health Sciences (YLCHC)',
+        shortName: 'Yanet College',
+        type: 'education',
         location: 'Hawassa, Ethiopia',
         overview:
-          'Accredited, competency-based UG & PG programs with scholarships, internships, CPD, and strong job placement within Liyana Healthcare PLC.',
+          'Accredited competency-based UG & PG programs with strong job placement and internships.',
         description: [
-          'Established in 2021, YLCHC, part of Liyana Healthcare PLC, offers postgraduate (MPH) and undergraduate (BSc) programs in health sciences, aiming to excel by 2027.',
-          'Emphasizes competency-based training with theoretical and practical learning, upholding the motto "Quality Is Non-Negotiable."',
-          'Provides scholarships, internships at Yanet clinical facilities, discounted medical care for students, and job placements within Liyana Healthcare.',
-          'Accredited by Hawassa University as a CPD provider, offering short-term training certified by the Ministry of Health, with expanded infrastructure including a G+3 building.',
+          'Established in 2021 under Liyana Healthcare PLC.',
+          'Offers MPH and BSc programs in health sciences.',
+          'Provides scholarships, internships, and CPD programs.',
+          'Accredited by Hawassa University as a CPD provider.',
         ],
-        images: [
-          `${IMAGE_URL}&college1`,
-          `${IMAGE_URL}&college2`,
-          `${IMAGE_URL}&college3`,
+        stats: [
+          { label: 'Graduates', value: '500+' },
+          { label: 'Programs', value: '8' },
+          { label: 'Employment Rate', value: '95%' },
         ],
+        images: [COLLEGE_1, COLLEGE_2, COLLEGE_3],
         coreServices: ['MPH Tracks', 'BSc Programs', 'CPD', 'Research'],
         contact: {
+          phone: '+251-9-33-445566',
           email: 'info@ylchc.edu.et',
           address: 'Hawassa, Ethiopia',
-        },
-      },
-      {
-        id: 'lhc-rct',
-        slug: 'liyana-research-consultancy-team',
-        name: 'LHC-RCT (Research & Consultancy Team)',
-        location: 'Ethiopia',
-        overview:
-          'End-to-end research and advisory: strategy, operations, finance, HR, feasibility studies, evaluations, and organizational development.',
-        description: [
-          'LHC-RCT, part of Liyana Healthcare, provides health service and management consultancy for in-house and external customers.',
-          'Supports organizational and business development through strategic decision-making, health research, baseline surveys, and feasibility studies.',
-          'Offers consultancy in project management, evaluations, business strategy, financial management, corporate governance, HR, and supply chain management.',
-          'Equipped with professional staff and premises to deliver comprehensive advisory services.',
-        ],
-        images: [`${IMAGE_URL}&lhc-rct1`, `${IMAGE_URL}&lhc-rct2`],
-        coreServices: ['Strategy', 'Governance', 'Finance', 'HR', 'OD'],
-        contact: {
-          email: 'consultancy@liyanahealthcare.com',
-          address: 'Ethiopia',
+          googleMap: 'https://www.google.com/maps',
         },
       },
     ],
   },
+
+  // ======================================================
+  // IMPORT & DISTRIBUTION
+  // ======================================================
   {
     id: 'drugs-supplies-import',
     title: 'Import & Distribution',
     tagline: 'Securing Ethiopia’s Access to Global-Standard Pharmaceuticals',
+    heroImage: HERO_IMPORT,
     attributes: [
-      'Medical & Industrial Gases (Oxygen, Nitrogen) Manufacturing & Distribution',
-      'Drugs, Medical Supplies, & Equipment Import & Distribution',
+      'Medical & Industrial Gases Manufacturing & Distribution',
+      'Drugs, Medical Supplies & Equipment Import & Distribution',
     ],
     divisions: [
       {
         id: 'ydmsi',
         slug: 'yanet-drugs-medical-supplies-import',
         name: 'Yanet Drugs & Medical Equipment Import & Wholesale (YDMSI)',
+        shortName: 'Yanet Import',
+        type: 'business',
         location: 'Ethiopia',
         overview:
-          'Import and wholesale of EFDA-approved medicines and supplies with robust licensing and distribution coverage.',
+          'Import and wholesale of EFDA-approved medicines and supplies with strong licensing and distribution coverage.',
         description: [
-          'Launched in June 2019, YDMSI imports EFDA-approved high-quality drugs and medical supplies, distributing to wholesalers in southern and central Ethiopia.',
-          'Builds on the success of YDMSWS, leveraging experience in medical supply chain management to meet growing healthcare product demands.',
-          'Operates with appropriate premises, work permissions, and licenses, ensuring efficient distribution.',
-          'First of its kind in southern and central Ethiopia, enhancing access to essential medical supplies.',
+          'Launched in June 2019.',
+          'Distributes to southern and central Ethiopia.',
+          'Operates with proper premises and licenses.',
+          'Enhances access to essential medical supplies.',
         ],
-        images: [`${IMAGE_URL}&ydmsi1`, `${IMAGE_URL}&ydmsi2`],
+        stats: [
+          { label: 'Partners', value: '200+' },
+          { label: 'Regions Served', value: '5' },
+        ],
+        images: [WAREHOUSE_1, WAREHOUSE_2, WAREHOUSE_3],
         coreServices: ['EFDA-Approved', 'Wholesale', 'Coverage'],
         contact: {
+          phone: '+251-9-55-667788',
           email: 'info@ydmsi.com',
           address: 'Ethiopia',
-        },
-      },
-      {
-        id: 'digital-pharma',
-        slug: 'liyana-digital-pharmaceuticals',
-        name: 'Liyana Digital Pharmaceuticals & Medical Supplies Import',
-        location: 'Ethiopia',
-        overview:
-          'Exclusive agency registrations with reputable manufacturers to solve critical drug & equipment shortages nationally.',
-        description: [
-          'Established to address current and future needs for drugs, medical equipment, and supplies for Liyana Healthcare and Ethiopia.',
-          'Registered as the sole agent for products from reputable global manufacturers, with more registrations in progress.',
-          'Aims to alleviate critical shortages of specific drugs and equipment, enhancing healthcare delivery nationwide.',
-          'Designed to support financial growth and improve access to essential healthcare products.',
-        ],
-        images: [
-          `${IMAGE_URL}&digital-pharma1`,
-          `${IMAGE_URL}&digital-pharma2`,
-        ],
-        coreServices: [
-          'Registrations',
-          'Global Manufacturers',
-          'Shortage Solutions',
-        ],
-        contact: {
-          email: 'digitalpharma@liyanahealthcare.com',
-          address: 'Ethiopia',
+          googleMap: 'http://googleusercontent.com/maps.google.com/5',
         },
       },
     ],
   },
+
+  // ======================================================
+  // MANUFACTURING
+  // ======================================================
   {
     id: 'product-manufacturing',
     title: 'Manufacturing',
     tagline: 'Innovating Everyday Essentials for Healthcare & Households',
+    heroImage: HERO_MANUFACTURING,
     attributes: [
-      'Detergents, Chemicals, & Cosmetics Manufacturing & Distribution',
+      'Detergents, Chemicals & Cosmetics Manufacturing & Distribution',
     ],
     divisions: [
       {
         id: 'yali-detergent',
         slug: 'yali-detergent-cosmetic-manufacturing',
         name: 'Yali Detergent & Cosmetic Manufacturing (YDMSWS)',
+        shortName: 'Yali Detergent',
+        type: 'manufacturing',
         location: 'Ethiopia',
         overview:
-          'High-quality detergents, industrial chemicals, and cosmetics serving healthcare facilities and consumer markets.',
+          'High-quality detergents, industrial chemicals, and cosmetics serving healthcare and consumer markets.',
         description: [
-          'A branch of Liyana Healthcare, YDMSWS specializes in wholesale distribution of drugs and medical supplies, established in November 2013.',
-          'Major distributor in central and southern Ethiopia, ensuring access to essential drugs and supplies through efficient supply chain management.',
-          'Supported by dependable suppliers and loyal customers, including pharmacies and drug stores across the region.',
-          'Produces high-quality detergents, industrial chemicals, and cosmetics for healthcare and consumer markets.',
+          'Established November 2013.',
+          'Major distributor in central and southern Ethiopia.',
+          'Efficient supply chain and loyal regional customers.',
+          'Produces detergents, industrial chemicals, and cosmetics.',
         ],
-        images: [
-          `${IMAGE_URL}&yali-detergent1`,
-          `${IMAGE_URL}&yali-detergent2`,
+        stats: [
+          { label: 'Daily Output', value: '5k Liters' },
+          { label: 'Product Lines', value: '10' },
         ],
+        images: [FACTORY_1, FACTORY_2, FACTORY_3],
         coreServices: ['Detergents', 'Chemicals', 'Cosmetics', 'Wholesale'],
         contact: {
+          phone: '+251-9-77-889900',
           email: 'info@ydmsws.com',
           address: 'Ethiopia',
+          googleMap: 'http://googleusercontent.com/maps.google.com/7',
         },
       },
     ],

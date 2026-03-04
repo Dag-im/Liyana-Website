@@ -2,11 +2,12 @@
 
 import { SERVICES_DATA } from '@/data/services';
 import { cn } from '@/lib/utils';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, Phone, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+// --- Types ---
 interface SimpleDropdownItem {
   label: string;
   href: string;
@@ -29,12 +30,15 @@ const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Refs for hover timing to prevent flickering
   const hoverTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
   const activeRef = useRef<string | null>(null);
   const prevActiveRef = useRef<string | null>(null);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
+  // --- Hover Logic ---
   const handleEnter = useCallback((label: string) => {
     if (hoverTimeouts.current[label]) {
       clearTimeout(hoverTimeouts.current[label]);
@@ -44,19 +48,22 @@ const NavBar = () => {
   }, []);
 
   const handleLeave = useCallback((label: string) => {
+    // Small delay to allow moving mouse from trigger to dropdown
     if (activeRef.current === label) {
       hoverTimeouts.current[label] = setTimeout(() => {
         if (activeRef.current === label) {
           setActiveDropdown(null);
         }
-      }, 150);
+      }, 200);
     }
   }, []);
 
+  // Sync refs
   useEffect(() => {
     activeRef.current = activeDropdown;
   }, [activeDropdown]);
 
+  // Cleanup timeouts on change
   useEffect(() => {
     if (activeDropdown && activeDropdown !== prevActiveRef.current) {
       Object.keys(hoverTimeouts.current).forEach((key) => {
@@ -68,13 +75,14 @@ const NavBar = () => {
     prevActiveRef.current = activeDropdown;
   }, [activeDropdown]);
 
+  // Scroll Detection
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- Build the dynamic Services dropdown ---
+  // --- Data Construction ---
   const servicesDropdown: SectionDropdownItem[] = SERVICES_DATA.map(
     (category) => ({
       section: category.title,
@@ -85,8 +93,8 @@ const NavBar = () => {
     })
   );
 
+  // Updated Nav Items (Removed Home & Careers)
   const navItems: NavItem[] = [
-    { label: 'Home', href: '/' },
     {
       label: 'About Us',
       dropdown: [
@@ -107,7 +115,7 @@ const NavBar = () => {
       ],
     },
     {
-      label: 'Media and Insights',
+      label: 'Media & Insights',
       dropdown: [
         { label: 'News & Events', href: '/news-events' },
         { label: 'Blogs', href: '/blog' },
@@ -115,140 +123,242 @@ const NavBar = () => {
       ],
     },
     { label: 'Testimonials', href: '/testimonials' },
-    { label: 'Careers', href: '/careers' },
     { label: 'Contact', href: '/contact' },
   ];
 
+  // Type Guards
   const isSectionDropdownItem = (
     item: DropdownItem
   ): item is SectionDropdownItem => 'section' in item;
+
   const isSimpleDropdownItem = (
     item: DropdownItem
   ): item is SimpleDropdownItem => 'label' in item && 'href' in item;
 
-  const getGridColumns = (itemCount: number) => {
-    if (itemCount >= 5) return 'grid-cols-3';
-    if (itemCount >= 3) return 'grid-cols-2';
-    return 'grid-cols-1';
-  };
-
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 w-full z-50 bg-white transition-all duration-300 border-b py-2',
-        scrolled && 'shadow-sm'
+        'fixed top-0 left-0 w-full z-50 transition-all duration-500 border-b',
+        scrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-slate-200 py-2'
+          : 'bg-white border-transparent py-4'
       )}
     >
-      <div className="mx-auto flex items-center justify-between px-4 py-3 max-w-[1400px]">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+      <div className="mx-auto flex items-center justify-between px-6 lg:px-12 max-w-[1600px]">
+        {/* 1. LOGO AREA */}
+        <Link href="/" className="flex items-center gap-2 relative z-50">
+          {/* Replace with your actual Logo Image */}
           <Image
             src="/images/logo.png"
-            alt="Liyana Healthcare Logo"
-            width={120}
-            height={120}
+            alt="Liyana Healthcare"
+            width={140}
+            height={50}
+            className="w-auto h-10 lg:h-12 object-contain"
             priority
           />
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-6 text-[0.85rem] font-bold text-[#00a4d3] flex-wrap">
+        {/* 2. DESKTOP NAVIGATION */}
+        <nav className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => {
-            if (!item.dropdown) {
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href || ''}
-                  className="hover:text-[#00a4d3]/60 transition"
-                >
-                  {item.label}
-                </Link>
-              );
-            }
+            const isMegaMenu = item.label === 'Services';
+            const isActive = activeDropdown === item.label;
 
-            const isMultiSection =
-              item.dropdown.length > 2 &&
-              item.dropdown.every(isSectionDropdownItem);
-            const gridCols = getGridColumns(item.dropdown.length);
-
-            const trigger = item.href ? (
-              <Link
-                href={item.href}
-                className="flex items-center gap-1 hover:text-[#00a4d3]/60 transition"
-                onMouseEnter={() => handleEnter(item.label)}
-                onMouseLeave={() => handleLeave(item.label)}
+            // Trigger Button/Link
+            const TriggerContent = (
+              <span
+                className={cn(
+                  'flex items-center gap-1.5 text-sm font-semibold tracking-wide transition-colors duration-200',
+                  isActive
+                    ? 'text-cyan-600'
+                    : 'text-slate-700 hover:text-cyan-600'
+                )}
               >
                 {item.label}
-                <ChevronDown size={12} />
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className="flex items-center gap-1 hover:text-[#00a4d3]/60 transition bg-transparent border-none cursor-pointer p-0"
-                onMouseEnter={() => handleEnter(item.label)}
-                onMouseLeave={() => handleLeave(item.label)}
-                onClick={() =>
-                  setActiveDropdown(
-                    activeDropdown === item.label ? null : item.label
-                  )
-                }
-              >
-                {item.label}
-                <ChevronDown size={12} />
-              </button>
+                {item.dropdown && (
+                  <ChevronDown
+                    size={14}
+                    className={cn(
+                      'transition-transform duration-300',
+                      isActive && 'rotate-180'
+                    )}
+                  />
+                )}
+              </span>
             );
 
             return (
-              <div key={item.label} className="relative">
-                {trigger}
-                {activeDropdown === item.label && (
+              <div
+                key={item.label}
+                className="relative h-full flex items-center"
+                onMouseEnter={() => handleEnter(item.label)}
+                onMouseLeave={() => handleLeave(item.label)}
+              >
+                {item.href ? (
+                  <Link href={item.href} className="py-2">
+                    {TriggerContent}
+                  </Link>
+                ) : (
+                  <button className="bg-transparent border-none py-2 cursor-pointer focus:outline-none">
+                    {TriggerContent}
+                  </button>
+                )}
+
+                {/* DROPDOWN MENU */}
+                {isActive && item.dropdown && (
                   <div
-                    onMouseEnter={() => handleEnter(item.label)}
-                    onMouseLeave={() => handleLeave(item.label)}
                     className={cn(
-                      'absolute top-full left-0 mt-2 bg-white border rounded-md shadow-lg z-10 p-4',
-                      item.label === 'Services'
-                        ? 'grid grid-cols-4 gap-4 w-fit max-w-[1200px]'
-                        : isMultiSection
-                        ? `grid ${gridCols} gap-4 w-fit max-w-[900px]`
-                        : 'w-44'
+                      'absolute top-[calc(100%+0.5rem)] bg-white shadow-xl rounded-sm border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200',
+                      // Mega Menu Layout vs Standard Dropdown
+                      isMegaMenu
+                        ? '-left-12 w-[900px] grid grid-cols-4 gap-0'
+                        : 'left-0 w-64 flex flex-col'
                     )}
-                    style={{
-                      gridTemplateColumns:
-                        item.label === 'Services'
-                          ? 'repeat(4, minmax(160px, 1fr))'
-                          : isMultiSection
-                          ? `repeat(${Math.min(
-                              item.dropdown.length,
-                              3
-                            )}, minmax(160px, 1fr))`
-                          : undefined,
-                    }}
                   >
-                    {item.dropdown.map((sub, index) => (
+                    {/* Brand Strip Top Border */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d62839] to-[#7f3aaf] z-10" />
+
+                    {/* Dropdown Items Loop */}
+                    {item.dropdown.map((sub, idx) => (
                       <div
-                        key={
-                          isSectionDropdownItem(sub)
-                            ? sub.section
-                            : (sub as SimpleDropdownItem).label
-                        }
-                        style={
-                          item.label === 'Services' && index >= 4
-                            ? { gridColumn: `${(index % 4) + 1}` }
-                            : {}
-                        }
+                        key={idx}
+                        className={cn(
+                          isMegaMenu
+                            ? 'p-6 border-r border-slate-50 last:border-r-0'
+                            : 'px-0 py-0'
+                        )}
                       >
                         {isSectionDropdownItem(sub) ? (
-                          <div className="flex flex-col">
-                            <span className="block text-xs font-semibold text-gray-500 mb-2 whitespace-nowrap">
+                          // Section with sub-items (Used in Mega Menu)
+                          <div className="flex flex-col h-full">
+                            <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
                               {sub.section}
                             </span>
-                            <div className="flex flex-col space-y-1">
+                            <div className="flex flex-col space-y-2">
                               {sub.items.map((subItem) => (
                                 <Link
                                   key={subItem.label}
                                   href={subItem.href}
-                                  className="block px-2 py-1 text-xs font-medium text-[#00a4d3] hover:text-[#00a4d3]/60 hover:bg-[#f0f9ff] transition whitespace-normal break-words max-w-[300px]"
+                                  className="text-sm font-medium text-slate-700 hover:text-cyan-600 hover:translate-x-1 transition-all duration-200 block"
+                                >
+                                  {subItem.label}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          // Simple Link Item (Used in Standard Dropdown)
+                          isSimpleDropdownItem(sub) && (
+                            <Link
+                              href={sub.href}
+                              className="block px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-cyan-600 transition-colors border-b border-slate-50 last:border-none"
+                            >
+                              {sub.label}
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Mega Menu Footer (Optional Visual Balance) */}
+                    {isMegaMenu && (
+                      <div className="col-span-4 bg-slate-50 p-3 text-center text-xs text-slate-400 border-t border-slate-100">
+                        Comprehensive Healthcare Solutions by Liyana Group
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* 3. CTA & MOBILE TOGGLE */}
+        <div className="flex items-center gap-4">
+          {/* Desktop CTA */}
+          <Link
+            href="/contact"
+            className="hidden lg:flex items-center gap-2 rounded-sm bg-gradient-to-r from-[#d62839] to-[#7f3aaf] text-white hover:brightness-110 transition-all shadow-md py-2.5 px-6 font-bold text-sm tracking-wide"
+          >
+            <Phone size={16} />
+            <span>Contact Us</span>
+          </Link>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+            onClick={toggleMenu}
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* 4. MOBILE MENU DRAWER */}
+      <div
+        className={cn(
+          'lg:hidden fixed inset-x-0 top-[72px] bg-white border-b border-slate-200 shadow-2xl transition-all duration-300 ease-in-out overflow-hidden z-40',
+          isOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        <nav className="flex flex-col px-6 py-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          {navItems.map((item) => {
+            const hasDropdown = item.dropdown && item.dropdown.length > 0;
+            const isActive = activeDropdown === item.label;
+
+            return (
+              <div
+                key={item.label}
+                className="border-b border-slate-100 pb-3 last:border-0"
+              >
+                <div className="flex justify-between items-center w-full">
+                  {item.href && !hasDropdown ? (
+                    <Link
+                      href={item.href}
+                      className="text-lg font-bold text-slate-800"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        setActiveDropdown(isActive ? null : item.label)
+                      }
+                      className="flex items-center justify-between w-full text-lg font-bold text-slate-800 bg-transparent border-none"
+                    >
+                      {item.label}
+                      {hasDropdown && (
+                        <ChevronDown
+                          size={18}
+                          className={cn(
+                            'text-slate-400 transition-transform',
+                            isActive && 'rotate-180'
+                          )}
+                        />
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {/* Mobile Dropdown Content */}
+                {isActive && hasDropdown && (
+                  <div className="mt-4 pl-2 space-y-4 animate-in fade-in slide-in-from-top-2">
+                    {item.dropdown!.map((sub, idx) => (
+                      <div key={idx}>
+                        {isSectionDropdownItem(sub) ? (
+                          <div className="mb-4">
+                            <span className="block text-xs font-bold text-cyan-600 uppercase mb-2">
+                              {sub.section}
+                            </span>
+                            <div className="flex flex-col space-y-2 border-l-2 border-slate-100 pl-3">
+                              {sub.items.map((subItem) => (
+                                <Link
+                                  key={subItem.label}
+                                  href={subItem.href}
+                                  className="text-sm text-slate-600 font-medium py-1"
+                                  onClick={() => setIsOpen(false)}
                                 >
                                   {subItem.label}
                                 </Link>
@@ -259,7 +369,8 @@ const NavBar = () => {
                           isSimpleDropdownItem(sub) && (
                             <Link
                               href={sub.href}
-                              className="block px-3 py-1.5 text-sm text-[#00a4d3] hover:text-[#00a4d3]/60 hover:bg-[#f0f9ff] transition whitespace-normal break-words max-w-[250px]"
+                              className="block text-sm text-slate-600 font-medium py-2 border-l-2 border-slate-100 pl-3"
+                              onClick={() => setIsOpen(false)}
                             >
                               {sub.label}
                             </Link>
@@ -272,140 +383,18 @@ const NavBar = () => {
               </div>
             );
           })}
-        </nav>
 
-        {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center">
-          <Link
-            href="/contact"
-            className="rounded-xl bg-gradient-to-r from-[#d62839] to-[#7f3aaf] text-white hover:shadow-[0_0_30px_rgba(214,40,57,0.6)] transition drop-shadow-md py-2 px-3 font-semibold"
-          >
-            Call Us
-          </Link>
-        </div>
-
-        {/* Mobile Toggle */}
-        <button
-          className="lg:hidden text-gray-900 focus:outline-none"
-          onClick={toggleMenu}
-          aria-label={isOpen ? 'Close menu' : 'Open menu'}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="lg:hidden bg-white border-t shadow-md">
-          <nav className="flex flex-col px-6 py-4 space-y-1.5">
-            {navItems.map((item) => {
-              if (!item.dropdown) {
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href || ''}
-                    className="text-[#00a4d3] font-bold hover:text-[#00a4d3]/60 transition"
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
-
-              const isMultiSection =
-                item.dropdown.length > 2 &&
-                item.dropdown.every(isSectionDropdownItem);
-              const mobileGridCols = isMultiSection
-                ? 'grid-cols-1 md:grid-cols-2'
-                : 'grid-cols-1';
-
-              return (
-                <div key={item.label}>
-                  <div className="flex justify-between items-center w-full">
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className="text-[#00a4d3] font-bold hover:text-[#00a4d3]/60 transition"
-                      >
-                        {item.label}
-                      </Link>
-                    ) : (
-                      <span className="text-[#00a4d3] font-bold">
-                        {item.label}
-                      </span>
-                    )}
-                    <button
-                      onClick={() =>
-                        setActiveDropdown(
-                          activeDropdown === item.label ? null : item.label
-                        )
-                      }
-                      className="text-[#00a4d3] bg-transparent border-none p-0"
-                    >
-                      <ChevronDown
-                        size={16}
-                        className={cn(
-                          'transition-transform',
-                          activeDropdown === item.label && 'rotate-180'
-                        )}
-                      />
-                    </button>
-                  </div>
-                  {activeDropdown === item.label && (
-                    <div
-                      className={cn(
-                        'mt-2 ml-3 grid gap-4 w-full',
-                        mobileGridCols
-                      )}
-                    >
-                      {item.dropdown.map((sub) => (
-                        <div
-                          key={
-                            isSectionDropdownItem(sub)
-                              ? sub.section
-                              : (sub as SimpleDropdownItem).label
-                          }
-                        >
-                          {isSectionDropdownItem(sub) ? (
-                            <>
-                              <span className="block text-xs font-semibold text-gray-500">
-                                {sub.section}
-                              </span>
-                              {sub.items.map((subItem) => (
-                                <Link
-                                  key={subItem.label}
-                                  href={subItem.href}
-                                  className="text-[#00a4d3] text-sm hover:text-[#00a4d3]/60 transition block py-1 whitespace-normal break-words"
-                                >
-                                  {subItem.label}
-                                </Link>
-                              ))}
-                            </>
-                          ) : (
-                            isSimpleDropdownItem(sub) && (
-                              <Link
-                                href={sub.href}
-                                className="text-[#00a4d3] text-sm hover:text-[#00a4d3]/60 transition block py-1 whitespace-normal break-words"
-                              >
-                                {sub.label}
-                              </Link>
-                            )
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="pt-4 pb-8">
             <Link
               href="/contact"
-              className="mt-4 rounded-xl bg-gradient-to-r from-[#d62839] to-[#7f3aaf] text-white hover:shadow-[0_0_30px_rgba(214,40,57,0.6)] transition drop-shadow-md py-2 px-4 font-semibold text-center"
+              className="w-full flex justify-center items-center gap-2 rounded-sm bg-slate-900 text-white py-3 font-bold uppercase tracking-widest text-xs"
+              onClick={() => setIsOpen(false)}
             >
-              Get Started
+              Get In Touch
             </Link>
-          </nav>
-        </div>
-      )}
+          </div>
+        </nav>
+      </div>
     </header>
   );
 };
