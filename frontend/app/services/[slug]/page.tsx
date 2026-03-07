@@ -21,6 +21,63 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo, useState } from 'react';
 
+// ---------- DIVISION LOGO COMPONENT ----------
+// Renders the division logo if available, otherwise falls back to a
+// monogram badge built from the division shortName.
+
+function DivisionLogo({
+  division,
+  size = 'md',
+  theme = 'light',
+}: {
+  division: Division;
+  size?: 'sm' | 'md' | 'lg';
+  theme?: 'light' | 'dark';
+}) {
+  const sizeMap = {
+    sm: { wrapper: 'w-9 h-9', text: 'text-[10px]', img: 32 },
+    md: { wrapper: 'w-14 h-14', text: 'text-xs', img: 56 },
+    lg: { wrapper: 'w-20 h-20', text: 'text-sm', img: 80 },
+  };
+  const s = sizeMap[size];
+
+  const initials = division.shortName
+    .split(/[\s-]+/)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 3)
+    .toUpperCase();
+
+  if (division.logo) {
+    return (
+      <div
+        className={`${s.wrapper} relative shrink-0 flex items-center justify-center`}
+      >
+        <Image
+          src={division.logo}
+          alt={`${division.shortName} logo`}
+          width={s.img}
+          height={s.img}
+          className="object-contain w-full h-full"
+        />
+      </div>
+    );
+  }
+
+  // Fallback monogram
+  return (
+    <div
+      className={`${s.wrapper} shrink-0 flex items-center justify-center rounded-lg font-bold tracking-wide ${
+        theme === 'dark'
+          ? 'bg-white/10 border border-white/20 text-white'
+          : 'bg-cyan-50 border border-cyan-200 text-cyan-800'
+      } ${s.text}`}
+    >
+      {initials}
+    </div>
+  );
+}
+
 // ---------- SUB-COMPONENTS ----------
 
 const SectionTitle = ({
@@ -32,14 +89,14 @@ const SectionTitle = ({
 }) => (
   <div className="mb-12">
     {subtitle && (
-      <span className="block text-cyan-500 font-bold text-xs uppercase tracking-widest mb-2">
+      <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
         {subtitle}
       </span>
     )}
-    <h2 className="text-3xl md:text-4xl font-light text-slate-900">
+    <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
       {children}
     </h2>
-    <div className="h-1 w-20 bg-gradient-to-r from-cyan-500 to-transparent mt-4 rounded-full" />
+    <div className="h-[2px] w-10 bg-cyan-600 mt-5 rounded-full" />
   </div>
 );
 
@@ -53,7 +110,7 @@ type BookingSelection = {
   image?: string;
 };
 
-export function BookingWizard({
+function BookingWizard({
   isOpen,
   onClose,
   division,
@@ -139,13 +196,13 @@ export function BookingWizard({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]"
+            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+            className="relative w-full max-w-lg bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xl shadow-slate-900/20 flex flex-col max-h-[85vh]"
           >
             {/* HEADER */}
             <div className="bg-white p-5 border-b border-slate-100 flex justify-between items-center shrink-0 z-10">
@@ -153,27 +210,30 @@ export function BookingWizard({
                 {step === 2 && (
                   <button
                     onClick={handleBack}
-                    className="p-1 rounded-full hover:bg-slate-100 transition-colors"
+                    className="p-1.5 rounded-md hover:bg-slate-100 transition-colors"
                   >
                     <ChevronLeft size={20} className="text-slate-600" />
                   </button>
                 )}
-                <div>
-                  <h3 className="font-bold text-slate-900 text-lg leading-tight">
-                    {step === 1 && 'Book Appointment'}
-                    {step === 2 && 'Contact Details'}
-                    {step === 3 && 'Booking Confirmed'}
-                  </h3>
-                  {step < 3 && (
-                    <p className="text-xs text-slate-400 font-medium">
-                      Step {step} of 2
-                    </p>
-                  )}
+                <div className="flex items-center gap-3">
+                  <DivisionLogo division={division} size="sm" />
+                  <div>
+                    <h3 className="font-semibold text-slate-900 text-base leading-tight">
+                      {step === 1 && 'Book Appointment'}
+                      {step === 2 && 'Contact Details'}
+                      {step === 3 && 'Booking Confirmed'}
+                    </h3>
+                    {step < 3 && (
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">
+                        {division.shortName} · Step {step} of 2
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 bg-slate-50 rounded-full hover:bg-red-50 hover:text-red-500 transition-colors text-slate-400"
+                className="p-2 bg-slate-50 rounded-md hover:bg-slate-100 transition-colors text-slate-400"
               >
                 <X size={18} />
               </button>
@@ -183,11 +243,11 @@ export function BookingWizard({
             <div className="flex-1 overflow-y-auto p-0">
               {step === 1 && (
                 <div className="flex flex-col h-full">
-                  <div className="p-5 pb-2 sticky top-0 bg-white z-10">
+                  <div className="p-5 pb-2 sticky top-0 bg-white z-10 border-b border-slate-50">
                     <div className="relative">
                       <Search
-                        className="absolute left-3 top-3.5 text-slate-400"
-                        size={18}
+                        className="absolute left-3.5 top-3.5 text-slate-400"
+                        size={16}
                       />
                       <input
                         autoFocus
@@ -195,33 +255,34 @@ export function BookingWizard({
                         placeholder="Search doctor, specialty, or service..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 transition-all text-sm"
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-all text-sm"
                       />
                     </div>
                   </div>
-                  <div className="p-5 pt-2 space-y-6">
+
+                  <div className="p-5 pt-4 space-y-6">
                     {filteredOptions.showGeneral && (
                       <button
                         onClick={() =>
                           setSelection(filteredOptions.generalOption)
                         }
-                        className={`w-full p-4 rounded-xl border text-left flex items-center gap-4 transition-all group ${
+                        className={`w-full p-4 rounded-lg border text-left flex items-center gap-4 transition-all group ${
                           selection?.id === 'general-booking'
-                            ? 'border-cyan-500 bg-cyan-50 ring-1 ring-cyan-500'
-                            : 'border-slate-100 bg-white hover:border-cyan-200 hover:shadow-md'
+                            ? 'border-cyan-600 bg-cyan-50/60 ring-1 ring-cyan-600/20'
+                            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                         }`}
                       >
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                          className={`w-10 h-10 rounded-md flex items-center justify-center shrink-0 ${
                             selection?.id === 'general-booking'
-                              ? 'bg-cyan-200 text-cyan-800'
-                              : 'bg-slate-100 text-slate-500'
+                              ? 'bg-cyan-100 text-cyan-700'
+                              : 'bg-slate-50 text-slate-400 border border-slate-200'
                           }`}
                         >
-                          <Calendar size={20} />
+                          <Calendar size={18} />
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 text-sm">
+                          <p className="font-semibold text-slate-900 text-sm">
                             General Booking
                           </p>
                           <p className="text-xs text-slate-500 mt-0.5">
@@ -229,28 +290,28 @@ export function BookingWizard({
                           </p>
                         </div>
                         {selection?.id === 'general-booking' && (
-                          <Check size={18} className="ml-auto text-cyan-600" />
+                          <Check size={16} className="ml-auto text-cyan-600" />
                         )}
                       </button>
                     )}
 
                     {filteredOptions.doctors.length > 0 && (
                       <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">
                           Specialists
                         </p>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {filteredOptions.doctors.map((doc) => (
                             <button
                               key={doc.id}
                               onClick={() => setSelection(doc)}
-                              className={`w-full p-3 rounded-xl border text-left flex items-center gap-4 transition-all group ${
+                              className={`w-full p-3 rounded-lg border text-left flex items-center gap-3 transition-all ${
                                 selection?.id === doc.id
-                                  ? 'border-cyan-500 bg-cyan-50 ring-1 ring-cyan-500'
-                                  : 'border-slate-100 bg-white hover:border-cyan-200 hover:shadow-md'
+                                  ? 'border-cyan-600 bg-cyan-50/60 ring-1 ring-cyan-600/20'
+                                  : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                               }`}
                             >
-                              <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 bg-slate-200">
+                              <div className="relative w-10 h-10 rounded-md overflow-hidden shrink-0 bg-cyan-100 border border-slate-200/60">
                                 {doc.image ? (
                                   <Image
                                     src={doc.image}
@@ -259,11 +320,11 @@ export function BookingWizard({
                                     className="object-cover"
                                   />
                                 ) : (
-                                  <User className="m-auto text-slate-400" />
+                                  <User className="m-auto text-slate-400 h-full w-5" />
                                 )}
                               </div>
                               <div className="flex-1">
-                                <p className="font-bold text-slate-900 text-sm">
+                                <p className="font-semibold text-slate-900 text-sm">
                                   {doc.label}
                                 </p>
                                 <p className="text-xs text-cyan-600 font-medium mt-0.5">
@@ -271,7 +332,7 @@ export function BookingWizard({
                                 </p>
                               </div>
                               {selection?.id === doc.id && (
-                                <Check size={18} className="text-cyan-600" />
+                                <Check size={16} className="text-cyan-600" />
                               )}
                             </button>
                           ))}
@@ -281,29 +342,29 @@ export function BookingWizard({
 
                     {filteredOptions.services.length > 0 && (
                       <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">
                           Departments
                         </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           {filteredOptions.services.map((svc) => (
                             <button
                               key={svc.id}
                               onClick={() => setSelection(svc)}
-                              className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between h-20 ${
+                              className={`p-4 rounded-lg border text-left transition-all flex flex-col justify-between h-24 ${
                                 selection?.id === svc.id
-                                  ? 'border-cyan-500 bg-cyan-50 ring-1 ring-cyan-500'
-                                  : 'border-slate-100 bg-white hover:border-cyan-200 hover:shadow-md'
+                                  ? 'border-cyan-600 bg-cyan-50/60 ring-1 ring-cyan-600/20'
+                                  : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                               }`}
                             >
-                              <span className="font-bold text-sm text-slate-700">
+                              <span className="font-semibold text-sm text-slate-800 leading-snug">
                                 {svc.label}
                               </span>
-                              <div className="flex justify-between items-end">
-                                <span className="text-[10px] text-slate-400 uppercase font-bold">
+                              <div className="flex justify-between items-end w-full">
+                                <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">
                                   Service
                                 </span>
                                 {selection?.id === svc.id && (
-                                  <Check size={16} className="text-cyan-600" />
+                                  <Check size={14} className="text-cyan-600" />
                                 )}
                               </div>
                             </button>
@@ -317,56 +378,58 @@ export function BookingWizard({
 
               {step === 2 && selection && (
                 <div className="p-6 space-y-6">
-                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-cyan-600 shadow-sm shrink-0">
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg flex items-center gap-4">
+                    <div className="w-10 h-10 bg-white border border-slate-200 rounded-md flex items-center justify-center text-cyan-600 shrink-0">
                       {selection.type === 'doctor' ? (
-                        <Stethoscope size={20} />
+                        <Stethoscope size={18} />
                       ) : (
-                        <Calendar size={20} />
+                        <Calendar size={18} />
                       )}
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">
                         Booking Request For
                       </p>
-                      <p className="font-bold text-slate-900">
+                      <p className="font-semibold text-slate-900 text-sm">
                         {selection.label}
                       </p>
                       {selection.subLabel && (
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 mt-0.5">
                           {selection.subLabel}
                         </p>
                       )}
                     </div>
                   </div>
+
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
                         Full Name <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <User
-                          size={18}
-                          className="absolute left-3 top-3.5 text-slate-400"
+                          size={15}
+                          className="absolute left-3.5 top-3 text-slate-400"
                         />
                         <input
                           value={formData.name}
                           onChange={(e) =>
                             setFormData({ ...formData, name: e.target.value })
                           }
-                          placeholder="Full Name"
-                          className="w-full pl-10 p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                          placeholder="John Doe"
+                          className="w-full pl-10 p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-colors text-sm"
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase">
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
                         Phone Number <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <Phone
-                          size={18}
-                          className="absolute left-3 top-3.5 text-slate-400"
+                          size={15}
+                          className="absolute left-3.5 top-3 text-slate-400"
                         />
                         <input
                           type="tel"
@@ -374,22 +437,23 @@ export function BookingWizard({
                           onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
                           }
-                          placeholder="0911..."
-                          className="w-full pl-10 p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                          placeholder="+1 (555) 000-0000"
+                          className="w-full pl-10 p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-colors text-sm"
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase">
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
                         Email Address{' '}
-                        <span className="text-slate-400 font-normal lowercase">
+                        <span className="text-slate-400 font-normal">
                           (optional)
                         </span>
                       </label>
                       <div className="relative">
                         <Globe
-                          size={18}
-                          className="absolute left-3 top-3.5 text-slate-400"
+                          size={15}
+                          className="absolute left-3.5 top-3 text-slate-400"
                         />
                         <input
                           type="email"
@@ -397,8 +461,8 @@ export function BookingWizard({
                           onChange={(e) =>
                             setFormData({ ...formData, email: e.target.value })
                           }
-                          placeholder="name@email.com"
-                          className="w-full pl-10 p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                          placeholder="name@company.com"
+                          className="w-full pl-10 p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-colors text-sm"
                         />
                       </div>
                     </div>
@@ -407,22 +471,29 @@ export function BookingWizard({
               )}
 
               {step === 3 && selection && (
-                <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 animate-bounce">
-                    <Check size={40} />
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                  <div className="w-14 h-14 bg-green-50 border border-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                    <Check size={28} />
                   </div>
-                  <h4 className="text-2xl font-bold text-slate-900 mb-2">
-                    Request Received!
+                  <h4 className="text-xl font-semibold text-slate-900 mb-2">
+                    Request Received
                   </h4>
                   <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto mb-8">
-                    Thank you, <strong>{formData.name}</strong>. <br /> <br />{' '}
-                    We have received your request for{' '}
-                    <strong>{selection.label}</strong>. Our team will call you
-                    at{' '}
-                    <span className="font-mono font-bold text-slate-700">
+                    Thank you,{' '}
+                    <strong className="font-semibold text-slate-700">
+                      {formData.name}
+                    </strong>
+                    .
+                    <br />
+                    <br /> We have received your request for{' '}
+                    <strong className="font-semibold text-slate-700">
+                      {selection.label}
+                    </strong>
+                    . Our team will contact you at{' '}
+                    <span className="font-medium text-slate-800">
                       {formData.phone}
                     </span>{' '}
-                    shortly to confirm the time.
+                    shortly to confirm the schedule.
                   </p>
                 </div>
               )}
@@ -430,17 +501,23 @@ export function BookingWizard({
 
             {/* FOOTER */}
             {step < 3 && (
-              <div className="p-5 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
+              <div className="p-5 border-t border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-2">
+                  <DivisionLogo division={division} size="sm" />
+                  <span className="text-xs font-medium text-slate-400">
+                    {division.shortName}
+                  </span>
+                </div>
                 <button
                   onClick={handleNext}
                   disabled={
                     (step === 1 && !selection) ||
                     (step === 2 && (!formData.name || !formData.phone))
                   }
-                  className="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-slate-200"
+                  className="px-5 py-2.5 bg-cyan-700 text-white text-sm font-semibold rounded-lg hover:bg-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
-                  {step === 1 ? 'Next Step' : 'Confirm Request'}
-                  <ArrowRight size={16} />
+                  {step === 1 ? 'Continue' : 'Confirm Request'}
+                  <ArrowRight size={15} />
                 </button>
               </div>
             )}
@@ -448,7 +525,7 @@ export function BookingWizard({
               <div className="p-5 border-t border-slate-100 bg-slate-50 flex justify-center shrink-0">
                 <button
                   onClick={onClose}
-                  className="text-slate-500 hover:text-slate-900 font-bold text-sm"
+                  className="text-slate-500 hover:text-slate-800 font-medium text-sm transition-colors"
                 >
                   Close Window
                 </button>
@@ -485,6 +562,7 @@ export default function DivisionDetailPage({
   // Logic
   const isHealthcare = division.type === 'healthcare';
   const isEdu = division.type === 'education';
+
   const [modalOpen, setModalOpen] = useState(false);
 
   // --- HERO SLIDER LOGIC ---
@@ -500,7 +578,7 @@ export default function DivisionDetailPage({
   }, [division]);
 
   return (
-    <div className="bg-white min-h-screen font-sans text-slate-900 selection:bg-cyan-100 selection:text-cyan-900 pt-10">
+    <div className="bg-white min-h-screen font-sans text-slate-900 selection:bg-cyan-100 selection:text-cyan-900">
       <BookingWizard
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -508,7 +586,7 @@ export default function DivisionDetailPage({
       />
 
       {/* 1. IMMERSIVE HERO */}
-      <div className="relative h-[95vh] w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-24">
+      <div className="relative h-[90vh] w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-20">
         {/* Background Image Slider */}
         <div className="absolute inset-0 bg-slate-900">
           <AnimatePresence mode="popLayout">
@@ -524,66 +602,99 @@ export default function DivisionDetailPage({
                 src={division.images[currentHeroIndex]}
                 alt={`${division.name} Hero ${currentHeroIndex + 1}`}
                 fill
-                className="object-cover"
+                className="object-cover opacity-70"
                 priority={currentHeroIndex === 0}
               />
             </motion.div>
           </AnimatePresence>
-
-          {/* Advanced Gradient Overlay (Sits on top of the images) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-900/90 via-gray-900/50 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-cyan-900 via-transparent to-transparent z-10" />
+          {/* Refined gradient overlays for a darker, more corporate look */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/65 to-slate-900/20 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-900/20 z-10" />
         </div>
 
         {/* Hero Content */}
         <div className="relative z-20 max-w-7xl w-full mx-auto px-6 grid lg:grid-cols-12 gap-12 items-end">
           {/* Text Area */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="lg:col-span-8 space-y-6"
           >
-            <div className="flex items-center gap-3">
-              <span className="px-3 py-1 bg-cyan-500 text-white text-xs font-bold uppercase tracking-wider rounded-md">
-                {division.type} Division
-              </span>
-              <span className="flex items-center gap-1 text-slate-300 text-xs font-bold uppercase tracking-wider">
-                <MapPin size={12} className="text-cyan-400" />
-                {division.location}
-              </span>
+            {/* Logo + Identity Bar */}
+            <div className="flex items-center gap-4">
+              {/* Division Logo */}
+              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md overflow-hidden p-2 shrink-0">
+                {division.logo ? (
+                  <Image
+                    src={division.logo}
+                    alt={`${division.shortName} logo`}
+                    width={48}
+                    height={48}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-sm tracking-wide">
+                    {division.shortName
+                      .split(/[\s-]+/)
+                      .map((w) => w[0])
+                      .join('')
+                      .slice(0, 3)
+                      .toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-[11px] font-bold uppercase tracking-widest rounded">
+                  {division.type} Division
+                </span>
+                <span className="hidden sm:flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-widest">
+                  <MapPin size={11} className="text-cyan-400" />
+                  {division.location}
+                </span>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] tracking-tight">
               {division.name}
             </h1>
-            <p className="text-lg md:text-xl text-slate-300 max-w-2xl leading-relaxed font-light">
+
+            <p className="text-base text-slate-300 max-w-2xl leading-relaxed font-normal">
               {division.overview}
             </p>
 
-            <div className="pt-4 flex flex-wrap gap-4">
+            {/* Slim location pill on mobile */}
+            <p className="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-widest sm:hidden">
+              <MapPin size={11} className="text-cyan-400" />
+              {division.location}
+            </p>
+
+            <div className="pt-2 flex flex-wrap gap-3">
               {/* PRIMARY CTA: Only for Healthcare */}
               {isHealthcare && (
                 <button
                   onClick={() => setModalOpen(true)}
-                  className="px-8 py-4 bg-white text-slate-900 text-sm font-bold rounded-full hover:bg-cyan-500 hover:text-white transition-all shadow-lg shadow-white/10 flex items-center gap-2 group"
+                  className="px-6 py-3 bg-white text-slate-900 text-sm font-semibold rounded-lg hover:bg-cyan-500 hover:text-white transition-all flex items-center gap-2 group shadow-lg shadow-black/20"
                 >
                   <Calendar
-                    size={18}
+                    size={15}
                     className="text-cyan-600 group-hover:text-white transition-colors"
                   />
                   Book Appointment
                   <ArrowRight
-                    size={16}
+                    size={15}
                     className="group-hover:translate-x-1 transition-transform ml-1"
                   />
                 </button>
               )}
-              {/* SECONDARY CTA: Phone (Always Visible) */}
+
+              {/* SECONDARY CTA: Phone */}
               <a
                 href={`tel:${division.contact.phone}`}
-                className="px-8 py-4 bg-transparent border border-white/30 text-white text-sm font-bold rounded-full hover:bg-white/10 transition-all flex items-center gap-2 backdrop-blur-sm"
+                className="px-6 py-3 bg-white/8 border border-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/15 transition-all flex items-center gap-2 backdrop-blur-md"
               >
-                <Phone size={18} />
+                <Phone size={15} />
                 {division.contact.phone}
               </a>
             </div>
@@ -591,94 +702,179 @@ export default function DivisionDetailPage({
 
           {/* Glass Stats Card (Desktop Only) */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             className="hidden lg:block lg:col-span-4"
           >
             {division.stats && (
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl space-y-8">
+              <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl space-y-7 shadow-2xl">
+                {/* Logo inside stats card */}
+                <div className="flex items-center gap-3 pb-5 border-b border-white/10">
+                  <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden p-1.5">
+                    {division.logo ? (
+                      <Image
+                        src={division.logo}
+                        alt={division.shortName}
+                        width={32}
+                        height={32}
+                        className="object-contain w-full h-full"
+                      />
+                    ) : (
+                      <span className="text-white font-bold text-xs">
+                        {division.shortName
+                          .split(/[\s-]+/)
+                          .map((w) => w[0])
+                          .join('')
+                          .slice(0, 3)
+                          .toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm leading-tight">
+                      {division.shortName}
+                    </p>
+                    <p className="text-slate-400 text-[11px] font-medium mt-0.5 uppercase tracking-wider">
+                      Key Metrics
+                    </p>
+                  </div>
+                </div>
+
                 {division.stats.map((stat, i) => (
                   <div
                     key={i}
-                    className="border-b border-white/10 last:border-0 pb-6 last:pb-0"
+                    className="border-b border-white/8 last:border-0 pb-6 last:pb-0"
                   >
-                    <p className="text-3xl font-bold text-white mb-1">
+                    <p className="text-3xl font-semibold text-white mb-1 tracking-tight">
                       {stat.value}
                     </p>
-                    <p className="text-xs text-cyan-400 font-bold uppercase tracking-widest">
+                    <p className="text-[11px] text-cyan-400 font-semibold uppercase tracking-widest">
                       {stat.label}
                     </p>
                   </div>
                 ))}
-                <div className="pt-2">
-                  <div className="text-xs text-slate-400 leading-tight">
-                    Metrics verified by {new Date().getFullYear()} Annual
-                    Report.
+                <div className="pt-1">
+                  <div className="text-[10px] text-slate-500 leading-tight font-medium uppercase tracking-wider">
+                    Metrics verified by {new Date().getFullYear()} Annual Report
                   </div>
                 </div>
               </div>
             )}
           </motion.div>
         </div>
+
+        {/* Hero image dots indicator */}
+        {division.images.length > 1 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+            {division.images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentHeroIndex(i)}
+                className={`rounded-full transition-all duration-300 ${
+                  i === currentHeroIndex
+                    ? 'w-5 h-1.5 bg-white'
+                    : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/60'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      <main className="max-w-7xl mx-auto px-6 py-24 space-y-32">
-        {/* 2. ABOUT US SECTION (Renamed from Mission) */}
+      <main className="max-w-7xl mx-auto px-6 py-20 space-y-28">
+        {/* 2. ABOUT US SECTION */}
         <section className="grid md:grid-cols-2 gap-16 items-center">
           <div>
+            {/* Logo + Name lockup above section title */}
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-slate-100">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden p-2 shrink-0">
+                {division.logo ? (
+                  <Image
+                    src={division.logo}
+                    alt={`${division.shortName} logo`}
+                    width={40}
+                    height={40}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <span className="text-cyan-700 font-bold text-xs tracking-wide">
+                    {division.shortName
+                      .split(/[\s-]+/)
+                      .map((w) => w[0])
+                      .join('')
+                      .slice(0, 3)
+                      .toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 text-sm leading-tight">
+                  {division.shortName}
+                </p>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5 uppercase tracking-widest">
+                  {division.type} · {division.location}
+                </p>
+              </div>
+            </div>
+
             <SectionTitle subtitle="About Us">
               Who We Are <br /> & What We Do
             </SectionTitle>
-            <div className="space-y-6 text-lg text-slate-600 font-light leading-relaxed">
+            <div className="space-y-5 text-[16px] text-slate-600 font-normal leading-relaxed">
               {division.description.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </div>
-            <div className="mt-8 flex gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-medium text-slate-700">
-                <Globe size={16} className="text-cyan-500" />
+
+            <div className="mt-8 flex gap-3">
+              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200 shadow-sm shadow-slate-900/5 rounded-lg text-sm font-medium text-slate-700">
+                <Globe size={16} className="text-cyan-600" />
                 International Standards
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-medium text-slate-700">
-                <Award size={16} className="text-cyan-500" />
+              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200 shadow-sm shadow-slate-900/5 rounded-lg text-sm font-medium text-slate-700">
+                <Award size={16} className="text-cyan-600" />
                 Certified Care
               </div>
             </div>
           </div>
-          <div className="relative h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-slate-50">
-            {/* Show the second image if available, else first */}
+
+          <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl shadow-slate-900/8 border border-slate-100">
             <Image
               src={
                 division.images[0] || division.images[1] || division.images[2]
-              } // Fallback to first image if second is missing
+              }
               alt="Interior"
               fill
               className="object-cover"
             />
-            {/* Visual Stats for Mobile (If desktop hidden) */}
-            <div className="lg:hidden absolute inset-0 bg-black/20" />
+            <div className="lg:hidden absolute inset-0 bg-slate-900/10" />
           </div>
         </section>
 
         {/* 3. SERVICES GRID */}
-        <section className="bg-slate-50 -mx-6 px-6 py-24 md:rounded-[3rem]">
+        <section className="bg-slate-50 -mx-6 px-6 py-20 md:rounded-2xl border border-slate-100">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <SectionTitle subtitle="Capabilities">
-                {isEdu ? 'Academic Programs' : 'Clinical Specialties'}
-              </SectionTitle>
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+                Capabilities
+              </span>
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
+                {isHealthcare ? 'Clinical Specialties' : 'What we Offer'}
+              </h2>
+              <div className="h-[2px] w-10 bg-cyan-600 mt-5 mx-auto rounded-full" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {division.coreServices.map((service, i) => (
                 <div
                   key={i}
-                  className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                  className="bg-white p-7 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:shadow-slate-900/5 hover:-translate-y-0.5 transition-all duration-300 group"
                 >
-                  <div className="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                    <Check size={24} />
+                  <div className="w-10 h-10 bg-slate-50 border border-slate-200 text-cyan-600 rounded-full flex items-center justify-center mb-5 group-hover:bg-cyan-600 group-hover:text-white group-hover:border-cyan-600 transition-colors">
+                    <Check size={18} />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                  <h3 className="text-base font-semibold text-slate-900 mb-2">
                     {service}
                   </h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
@@ -694,18 +890,18 @@ export default function DivisionDetailPage({
         {/* 4. TEAM (CONDITIONAL) */}
         {!isEdu && division.doctors && (
           <section>
-            <div className="flex justify-between items-end mb-12">
+            <div className="flex justify-between items-end mb-10">
               <SectionTitle subtitle="Experts">
                 Meet Our Specialists
               </SectionTitle>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
               {division.doctors.map((doc) => (
                 <div
                   key={doc.id}
-                  className="group relative rounded-3xl overflow-hidden bg-slate-100 aspect-[3/4]"
+                  className="group relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200 aspect-[3/4]"
                 >
-                  <div className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
                     <Image
                       src={doc.image}
                       alt={doc.name}
@@ -713,14 +909,15 @@ export default function DivisionDetailPage({
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6 text-white w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-1">
+                    <p className="text-cyan-400 text-[11px] font-bold uppercase tracking-widest mb-1.5">
                       {doc.specialty}
                     </p>
-                    <h4 className="text-2xl font-bold mb-3">{doc.name}</h4>
-                    <div className="flex items-center gap-2 text-xs text-slate-300 border-t border-white/20 pt-3 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                      <Clock size={12} /> {doc.availability}
+                    <h4 className="text-xl font-semibold mb-3">{doc.name}</h4>
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-300 border-t border-white/20 pt-3 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                      <Clock size={13} />
+                      {doc.availability}
                     </div>
                   </div>
                 </div>
@@ -730,78 +927,120 @@ export default function DivisionDetailPage({
         )}
 
         {/* 5. CONTACT / FOOTER MICROSITE */}
-        <section className="relative rounded-[3rem] overflow-hidden bg-slate-900 text-white">
+        <section className="relative rounded-2xl overflow-hidden bg-slate-900 text-white border border-slate-800 shadow-xl shadow-slate-900/10">
           <div className="grid lg:grid-cols-2">
-            <div className="p-12 md:p-24 space-y-10">
-              <div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  Visit {division.shortName}
-                </h2>
-                <p className="text-slate-400 text-lg">
-                  We are here to assist you.
-                </p>
+            <div className="p-10 md:p-16 lg:p-20 space-y-10">
+              {/* Contact section logo lockup */}
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden p-2.5 shrink-0">
+                  {division.logo ? (
+                    <Image
+                      src={division.logo}
+                      alt={`${division.shortName} logo`}
+                      width={44}
+                      height={44}
+                      className="object-contain w-full h-full"
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-sm tracking-wide">
+                      {division.shortName
+                        .split(/[\s-]+/)
+                        .map((w) => w[0])
+                        .join('')
+                        .slice(0, 3)
+                        .toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                    Visit {division.shortName}
+                  </h2>
+                  <p className="text-slate-400 text-sm font-medium mt-0.5">
+                    We are here to assist you.
+                  </p>
+                </div>
               </div>
+
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <MapPin className="text-cyan-500 mt-1" />
+                  <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="text-cyan-400" size={16} />
+                  </div>
                   <div>
-                    <p className="text-sm text-slate-400 uppercase font-bold tracking-wider mb-1">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
                       Address
                     </p>
-                    <p className="text-xl">{division.contact.address}</p>
+                    <p className="text-base font-medium">
+                      {division.contact.address}
+                    </p>
                     <a
                       href={division.contact.googleMap}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 mt-2 text-cyan-400 text-sm font-bold hover:text-white transition-colors"
+                      className="inline-flex items-center gap-1.5 mt-2 text-cyan-400 text-sm font-semibold hover:text-white transition-colors"
                     >
-                      Open in Google Maps <ArrowRight size={14} />
+                      Open in Google Maps <ArrowRight size={13} />
                     </a>
                   </div>
                 </div>
+
                 <div className="h-px bg-slate-800 w-full" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div>
-                    <p className="text-sm text-slate-400 uppercase font-bold tracking-wider mb-1">
-                      Phone
-                    </p>
-                    <a
-                      href={`tel:${division.contact.phone}`}
-                      className="text-lg font-medium hover:text-cyan-400 transition-colors"
-                    >
-                      {division.contact.phone}
-                    </a>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Phone className="text-cyan-400" size={15} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
+                        Phone
+                      </p>
+                      <a
+                        href={`tel:${division.contact.phone}`}
+                        className="text-sm font-medium hover:text-cyan-400 transition-colors"
+                      >
+                        {division.contact.phone}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-400 uppercase font-bold tracking-wider mb-1">
-                      Email
-                    </p>
-                    <a
-                      href={`mailto:${division.contact.email}`}
-                      className="text-lg font-medium hover:text-cyan-400 transition-colors"
-                    >
-                      {division.contact.email}
-                    </a>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Globe className="text-cyan-400" size={15} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
+                        Email
+                      </p>
+                      <a
+                        href={`mailto:${division.contact.email}`}
+                        className="text-sm font-medium hover:text-cyan-400 transition-colors"
+                      >
+                        {division.contact.email}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
+
               {/* FOOTER CTA */}
               {isHealthcare && (
                 <button
                   onClick={() => setModalOpen(true)}
-                  className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-2xl transition-colors mt-8"
+                  className="w-full py-3.5 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-colors text-sm tracking-wide"
                 >
                   Schedule Appointment
                 </button>
               )}
             </div>
-            {/* Map Visual / Image */}
-            <div className="relative h-96 lg:h-auto bg-slate-800 group overflow-hidden">
+
+            {/* Map Visual */}
+            <div className="relative h-80 lg:h-auto bg-slate-800 group overflow-hidden border-l border-slate-800">
               <Image
                 src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"
                 alt="Map"
                 fill
-                className="object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+                className="object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
               />
               <a
                 href={division.contact.googleMap}
@@ -809,8 +1048,8 @@ export default function DivisionDetailPage({
                 rel="noopener noreferrer"
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-full hover:bg-cyan-600 hover:border-cyan-600 transition-all cursor-pointer group-hover:scale-110">
-                  <MapPin size={32} className="text-white" />
+                <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-4 rounded-full hover:bg-cyan-600 hover:border-cyan-600 transition-all cursor-pointer group-hover:scale-110 shadow-xl">
+                  <MapPin size={26} className="text-white" />
                 </div>
               </a>
             </div>
@@ -818,12 +1057,40 @@ export default function DivisionDetailPage({
         </section>
       </main>
 
-      {/* Simple Global Footer specific to division */}
-      <footer className="py-8 text-center border-t border-slate-100">
-        <p className="text-slate-400 text-sm">
-          © {new Date().getFullYear()} {division.name}. Part of Liyana
-          Healthcare Group.
-        </p>
+      {/* Division Footer */}
+      <footer className="py-8 border-t border-slate-100 bg-white">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between flex-wrap gap-4">
+          {/* Logo + name */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden p-1.5">
+              {division.logo ? (
+                <Image
+                  src={division.logo}
+                  alt={division.shortName}
+                  width={24}
+                  height={24}
+                  className="object-contain w-full h-full"
+                />
+              ) : (
+                <span className="text-cyan-700 font-bold text-[10px]">
+                  {division.shortName
+                    .split(/[\s-]+/)
+                    .map((w) => w[0])
+                    .join('')
+                    .slice(0, 3)
+                    .toUpperCase()}
+                </span>
+              )}
+            </div>
+            <p className="text-slate-600 text-sm font-medium">
+              {division.shortName}
+            </p>
+          </div>
+          <p className="text-slate-400 text-sm">
+            © {new Date().getFullYear()} {division.name}. Part of Liyana
+            Healthcare Group.
+          </p>
+        </div>
       </footer>
     </div>
   );

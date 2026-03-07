@@ -1,7 +1,8 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { motion, Transition, Variants } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   Eye,
   Leaf,
@@ -12,7 +13,7 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import { ReactElement } from 'react';
+import { ReactElement, useLayoutEffect, useRef } from 'react';
 
 // ---------- TYPES ----------
 interface CoreValue {
@@ -33,13 +34,13 @@ const missionVision: { mission: MissionVision; vision: MissionVision } = {
     title: 'Our Mission',
     description:
       'To empower businesses and individuals through innovative solutions, exceptional service, and unwavering commitment to excellence, while creating sustainable value for all our stakeholders.',
-    icon: <Target size={36} className="text-cyan-600" />,
+    icon: <Target size={32} className="text-cyan-700" />,
   },
   vision: {
     title: 'Our Vision',
     description:
       'To be the leading force in our industry, recognized for innovation, integrity, and impact, while building a future where technology serves humanity and creates lasting positive change.',
-    icon: <Eye size={36} className="text-cyan-600" />,
+    icon: <Eye size={32} className="text-cyan-700" />,
   },
 };
 
@@ -48,61 +49,90 @@ const coreValues: CoreValue[] = [
     title: 'Excellence',
     description:
       'We strive for the highest standards in everything we do, delivering exceptional quality and results.',
-    icon: <Star size={28} className="text-cyan-600" />,
+    icon: <Star size={24} className="text-cyan-700" />,
   },
   {
     title: 'Innovation',
     description:
       'We embrace new ideas and technologies to create cutting-edge solutions for our clients.',
-    icon: <Rocket size={28} className="text-cyan-600" />,
+    icon: <Rocket size={24} className="text-cyan-700" />,
   },
   {
     title: 'Integrity',
     description:
       'We maintain the highest ethical standards and build trust through honest, transparent relationships.',
-    icon: <ShieldCheck size={28} className="text-cyan-600" />,
+    icon: <ShieldCheck size={24} className="text-cyan-700" />,
   },
   {
     title: 'Collaboration',
     description:
       'We believe in the power of teamwork and partnerships to achieve extraordinary outcomes.',
-    icon: <Users size={28} className="text-cyan-600" />,
+    icon: <Users size={24} className="text-cyan-700" />,
   },
   {
     title: 'Sustainability',
     description:
       'We are committed to environmental responsibility and long-term value creation.',
-    icon: <Leaf size={28} className="text-cyan-600" />,
+    icon: <Leaf size={24} className="text-cyan-700" />,
   },
   {
     title: 'Customer Focus',
     description:
       'We put our clients first, understanding their needs and exceeding their expectations.',
-    icon: <UserCheck size={28} className="text-cyan-600" />,
+    icon: <UserCheck size={24} className="text-cyan-700" />,
   },
 ];
 
-// ---------- MOTION VARIANTS ----------
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (custom: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: custom * 0.08,
-      duration: 0.5,
-      ease: 'easeOut',
-    } as Transition,
-  }),
-};
-
 // ---------- COMPONENT ----------
 export default function MissionVisionValuesSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    const ctx = gsap.context(() => {
+      // Fade in Mission/Vision
+      gsap.from('.gsap-mv-card', {
+        scrollTrigger: {
+          trigger: '.gsap-mv-container',
+          start: 'top 85%',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power2.out',
+        clearProps: 'all',
+      });
+
+      // Fade in Core Values
+      gsap.from('.gsap-value-card', {
+        scrollTrigger: {
+          trigger: '.gsap-values-container',
+          start: 'top 85%',
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+        clearProps: 'all',
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative py-24 px-4 bg-gray-50 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative pt-10 pb-24 px-6 bg-white selection:bg-cyan-100 selection:text-cyan-900 border-t border-slate-200"
+    >
       <div className="relative max-w-7xl mx-auto">
         {/* Section Heading */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-20 max-w-3xl mx-auto">
           <SectionHeading
             variant="large"
             align="center"
@@ -111,71 +141,61 @@ export default function MissionVisionValuesSection() {
           >
             Our Mission, Vision & Values
           </SectionHeading>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 leading-relaxed">
             Discover the driving force behind our organization and the
-            principles that guide our every decision.
+            principles that guide our every strategic decision.
           </p>
         </div>
 
         {/* Mission & Vision Cards */}
-        <div className="grid lg:grid-cols-2 gap-16 mb-24">
+        <div className="gsap-mv-container grid lg:grid-cols-2 gap-8 mb-32">
           {[missionVision.mission, missionVision.vision].map((item, idx) => (
-            <motion.div
+            <div
               key={idx}
-              custom={idx + 1}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="relative bg-white rounded-3xl shadow-lg p-10 pt-20 text-center hover:shadow-2xl transition-shadow duration-300"
+              className="gsap-mv-card bg-slate-50 border border-slate-200 p-10 md:p-12 flex flex-col md:flex-row gap-8 items-start"
             >
-              {/* Icon circle */}
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-cyan-200 to-cyan-500 flex items-center justify-center shadow-md">
+              <div className="shrink-0 p-4 bg-white border border-slate-200 shadow-sm rounded-sm">
                 {item.icon}
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 mt-4">
-                {item.title}
-              </h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {item.description}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Core Values Heading */}
-        <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold text-gray-800 mb-4">Core Values</h3>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            The fundamental principles that shape our culture and drive our
-            success.
-          </p>
-        </div>
-
-        {/* Core Values Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-14">
-          {coreValues.map((value, idx) => (
-            <motion.div
-              key={idx}
-              custom={idx + 1}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="relative bg-white rounded-2xl shadow-md p-8 pt-20 text-center hover:shadow-xl transition-shadow duration-300"
-            >
-              {/* Icon circle */}
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-cyan-200 to-cyan-500 flex items-center justify-center shadow-md">
-                {value.icon}
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+                  {item.title}
+                </h3>
+                <p className="text-slate-600 text-lg leading-relaxed">
+                  {item.description}
+                </p>
               </div>
-              <h4 className="text-xl font-semibold text-gray-800 mb-3 mt-4">
-                {value.title}
-              </h4>
-              <p className="text-gray-600 text-base leading-relaxed">
-                {value.description}
-              </p>
-            </motion.div>
+            </div>
           ))}
+        </div>
+
+        {/* Core Values Section */}
+        <div className="gsap-values-container">
+          <div className="mb-12 flex items-center gap-6">
+            <h3 className="text-3xl font-bold text-slate-900 whitespace-nowrap">
+              Core Values
+            </h3>
+            <div className="h-[1px] w-full bg-slate-200" />
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-center md:text-left">
+            {coreValues.map((value, idx) => (
+              <div
+                key={idx}
+                className="gsap-value-card bg-white border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow group"
+              >
+                <div className="mb-6 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm group-hover:bg-cyan-50 group-hover:border-cyan-100 transition-colors">
+                  {value.icon}
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 mb-3">
+                  {value.title}
+                </h4>
+                <p className="text-slate-600 leading-relaxed text-sm">
+                  {value.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -1,12 +1,11 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Award, Calendar, Lightbulb, MapPin } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'motion/react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 export interface TimelineItem {
   id: string;
@@ -32,63 +31,51 @@ const Timeline = ({
   title,
   subtitle,
 }: TimelineProps) => {
-  const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(0);
 
-  useEffect(() => {
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect();
-      setHeight(rect.height);
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
     }
-  }, [ref]);
 
-  // Scroll tracking
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start 10%', 'end 50%'],
-  });
+    const ctx = gsap.context(() => {
+      gsap.from('.timeline-item', {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 85%',
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power2.out',
+        clearProps: 'all',
+      });
+    }, containerRef);
 
-  const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
-  const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-
-  const getCategoryColor = (category?: string) => {
-    switch (category) {
-      case 'milestone':
-        return 'from-blue-600 to-blue-400';
-      case 'achievement':
-        return 'from-emerald-600 to-emerald-400';
-      case 'expansion':
-        return 'from-purple-600 to-purple-400';
-      case 'innovation':
-        return 'from-amber-600 to-amber-400';
-      default:
-        return 'from-gray-600 to-gray-400';
-    }
-  };
+    return () => ctx.revert();
+  }, [items]);
 
   const getCategoryIcon = (category?: string) => {
     switch (category) {
-      case 'milestone':
-        return <Calendar className="w-5 h-5" />;
       case 'achievement':
-        return <Award className="w-5 h-5" />;
+        return <Award className="w-5 h-5 text-cyan-600" />;
       case 'expansion':
-        return <MapPin className="w-5 h-5" />;
+        return <MapPin className="w-5 h-5 text-cyan-600" />;
       case 'innovation':
-        return <Lightbulb className="w-5 h-5" />;
+        return <Lightbulb className="w-5 h-5 text-cyan-600" />;
       default:
-        return <Calendar className="w-5 h-5" />;
+        return <Calendar className="w-5 h-5 text-cyan-600" />;
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-white dark:bg-neutral-950 font-sans ${className}`}
+      className={`w-full bg-slate-50 py-24 selection:bg-cyan-100 selection:text-cyan-900 ${className}`}
     >
       {/* Header */}
-      <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
+      <div className="max-w-4xl mx-auto px-6 mb-20 text-center">
         {title && (
           <SectionHeading
             variant="large"
@@ -100,112 +87,104 @@ const Timeline = ({
           </SectionHeading>
         )}
         {subtitle && (
-          <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-2xl mx-auto text-center">
+          <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
             {subtitle}
           </p>
         )}
       </div>
 
       {/* Timeline body */}
-      <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-start pt-10 md:pt-40 md:gap-10 relative"
-          >
-            {/* Sticky year + dot */}
-            <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-              {/* Timeline Dot */}
-              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-white dark:bg-black flex items-center justify-center">
-                <div className="h-4 w-4 rounded-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700" />
-              </div>
+      <div className="relative max-w-5xl mx-auto px-6">
+        {/* Main Vertical Line */}
+        <div className="absolute left-[39px] md:left-[50%] top-0 bottom-0 w-[2px] bg-slate-200 transform md:-translate-x-1/2" />
 
-              {/* Year badge (desktop) */}
-              <Badge
-                className={`hidden md:flex items-center gap-2 bg-gradient-to-r ${getCategoryColor(
-                  item.category
-                )} text-white px-5 py-2 rounded-xl shadow-xl md:ml-20`}
+        <div className="space-y-16 md:space-y-24">
+          {items.map((item, index) => {
+            const isEven = index % 2 === 0;
+
+            return (
+              <div
+                key={item.id}
+                className={`timeline-item relative flex flex-col md:flex-row items-start md:justify-between w-full group`}
               >
-                {getCategoryIcon(item.category)}
-                <span className="font-bold text-lg">{item.year}</span>
-              </Badge>
-            </div>
+                {/* Center Node (Dot) */}
+                <div className="absolute left-[31px] md:left-[50%] md:-translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-full z-10 group-hover:bg-cyan-600 group-hover:scale-125 transition-all duration-300 mt-1.5 md:mt-0 md:top-[28px]" />
 
-            {/* Timeline content */}
-            <div className="relative pl-20 pr-4 md:pl-4 w-full">
-              {/* Year (mobile) */}
-              <Badge
-                className={`md:hidden mb-4 flex items-center gap-2 bg-gradient-to-r ${getCategoryColor(
-                  item.category
-                )} text-white px-5 py-2 rounded-xl shadow-xl`}
-              >
-                {getCategoryIcon(item.category)}
-                <span className="font-bold text-lg">{item.year}</span>
-              </Badge>
-
-              {/* Card */}
-              <Card className="overflow-hidden border border-gray-100 bg-white/90 rounded-2xl transition-all hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-800">
-                <CardContent className="p-8">
-                  {item.image && (
-                    <div className="mb-6 overflow-hidden rounded-lg">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        width={200}
-                        height={75}
-                        className="w-full h-56 object-cover transform transition-transform duration-700 hover:scale-110"
-                      />
+                {/* Left Content (or mobile right) */}
+                <div
+                  className={`md:w-[45%] pl-20 md:pl-0 ${isEven ? 'md:text-right md:pr-12' : 'md:hidden'}`}
+                >
+                  {isEven && (
+                    <div className="hidden md:block">
+                      <h3 className="text-3xl font-bold text-slate-900 mb-2">
+                        {item.year}
+                      </h3>
+                      <div className="flex items-center justify-end gap-2 text-cyan-700 font-bold uppercase tracking-wider text-sm mb-4">
+                        {item.category || 'Milestone'}
+                        {getCategoryIcon(item.category)}
+                      </div>
                     </div>
                   )}
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {item.description}
-                  </p>
-                  <div className="flex flex-wrap gap-3 pt-4">
-                    {item.location && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-2 text-sm bg-gray-50 border-gray-200 text-gray-700 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
-                      >
-                        <MapPin className="w-4 h-4" />
-                        {item.location}
-                      </Badge>
+                </div>
+
+                {/* Right Content */}
+                <div
+                  className={`w-full pl-20 md:pl-0 md:w-[45%] ${!isEven ? 'md:text-left md:pl-12' : ''}`}
+                >
+                  {/* Mobile Year/Category Header OR Desktop Odd Content Header */}
+                  <div className={`${isEven ? 'md:hidden' : 'mb-4'}`}>
+                    <h3 className="text-3xl font-bold text-slate-900 mb-2">
+                      {item.year}
+                    </h3>
+                    <div className="flex items-center gap-2 text-cyan-700 font-bold uppercase tracking-wider text-sm mb-4">
+                      {getCategoryIcon(item.category)}
+                      {item.category || 'Milestone'}
+                    </div>
+                  </div>
+
+                  {/* Content Card */}
+                  <div className="bg-white border border-slate-200 p-8 shadow-sm group-hover:shadow-md transition-shadow">
+                    {item.image && (
+                      <div className="mb-6 relative h-48 w-full bg-slate-100 border border-slate-100">
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     )}
-                    {item.achievement && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-2 text-sm bg-gray-50 border-gray-200 text-gray-700 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
-                      >
-                        <Award className="w-4 h-4" />
-                        {item.achievement}
-                      </Badge>
+
+                    <h4 className="text-xl font-bold text-slate-900 mb-3">
+                      {item.title}
+                    </h4>
+
+                    <p className="text-slate-600 leading-relaxed mb-6">
+                      {item.description}
+                    </p>
+
+                    {/* Tags */}
+                    {(item.location || item.achievement) && (
+                      <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+                        {item.location && (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <MapPin size={14} className="text-slate-400" />
+                            {item.location}
+                          </span>
+                        )}
+                        {item.achievement && (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <Award size={14} className="text-slate-400" />
+                            {item.achievement}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        ))}
-
-        {/* Animated vertical line */}
-        <div
-          style={{
-            height: `${height}px`,
-          }}
-          className="absolute md:left-8 left-8 top-0 overflow-hidden w-[2px]
-          bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))]
-          from-transparent from-[0%] via-neutral-200 dark:via-neutral-700 to-transparent to-[99%]
-          [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
-        >
-          <motion.div
-            style={{
-              height: heightTransform,
-              opacity: opacityTransform,
-            }}
-            className="absolute inset-x-0 top-0 w-[2px] bg-gradient-to-t from-purple-500 via-blue-500 to-transparent rounded-full"
-          />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

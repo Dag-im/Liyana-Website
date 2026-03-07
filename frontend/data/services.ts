@@ -35,6 +35,7 @@ export type Division = {
   type: DivisionType;
   location?: string;
   overview: string;
+  logo?: string;
   description: string[];
   images: string[];
   coreServices: string[];
@@ -339,6 +340,55 @@ export const SERVICES_DATA: ServiceCategory[] = [
           email: 'info@ydmsws.com',
           address: 'Ethiopia',
           googleMap: 'http://googleusercontent.com/maps.google.com/7',
+        },
+      },
+    ],
+  },
+  // ======================================================
+  // TECHNOLOGY (FUTURE)
+  // ======================================================
+  {
+    id: 'health-tech-solutions',
+    title: 'Health Tech Solutions',
+    tagline: 'Empowering Healthcare with Innovative Technology Solutions',
+    heroImage: HERO_IMPORT, // Placeholder for future image
+    attributes: [
+      'Electronic Health Records (EHR) Systems',
+      'Telemedicine Platforms',
+      'AI-Powered Diagnostic Tools',
+      'Healthcare Data Analytics',
+    ],
+    divisions: [
+      {
+        id: 'health-tech-solutions',
+        slug: 'health-tech-solutions',
+        name: 'Health Tech Solutions (Future Division)',
+        shortName: 'Health Tech',
+        type: 'business',
+        location: 'Ethiopia',
+        overview:
+          'Innovative technology solutions to enhance healthcare delivery and patient outcomes.',
+        description: [
+          'Future division focused on health technology innovations.',
+          'Will develop EHR systems, telemedicine platforms, AI diagnostics, and data analytics tools.',
+          'Aims to empower healthcare providers and improve patient care through technology.',
+        ],
+        stats: [
+          { label: 'Planned Products', value: '4' },
+          { label: 'Target Launch', value: '2025' },
+        ],
+        images: [HOSPITAL_2, HOSPITAL_1, HERO_IMPORT], // Placeholder for future images
+        coreServices: [
+          'EHR Systems',
+          'Telemedicine',
+          'AI Diagnostics',
+          'Data Analytics',
+        ],
+        contact: {
+          phone: '+251929494929', // Placeholder for future contact info
+          email: 'email@tech.com', // Placeholder for future contact info
+          address: 'Ethiopia', // Placeholder for future contact info
+          googleMap: 'http://googleusercontent.com/maps.google.com/7', // Placeholder for future Google
         },
       },
     ],

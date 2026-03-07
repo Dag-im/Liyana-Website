@@ -9,14 +9,6 @@ import React, {
   useState,
 } from 'react';
 
-// ─── Type Definitions ───
-type NodeTypeName =
-  | 'root'
-  | 'subsidiary-lhs'
-  | 'associate'
-  | 'subsidiary-ldhs'
-  | 'pending';
-
 interface NodeStyle {
   border: string;
   badge: string;
@@ -478,7 +470,7 @@ function Markers() {
 }
 
 // ─── Default Data ───
-const DATA = {
+export const DATA = {
   nodes: [
     {
       id: 'root',
@@ -669,8 +661,7 @@ export default function LiyanaStructure({ data = DATA }: { data?: GraphData }) {
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { tr, setTr, fit, onMouseDown, zoomAt, minScale } =
-    useZoomPan(containerRef);
+  const { tr, fit, onMouseDown, zoomAt, minScale } = useZoomPan(containerRef);
   const layout = useMemo(() => computeLayout(data), [data]);
 
   // Responsive Check

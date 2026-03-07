@@ -42,7 +42,7 @@ export function EventDetail({
   return (
     <article ref={containerRef} className="bg-white min-h-screen pb-20">
       {/* Corporate Header - Solid Color or Minimal Image */}
-      <div className="bg-slate-900 pt-32 pb-20 px-6 lg:px-8">
+      <div className="bg-slate-900 pt-20 pb-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <span className="animate-up inline-block px-3 py-1 mb-6 bg-cyan-900/50 border border-cyan-700/50 text-cyan-400 text-xs font-bold uppercase tracking-widest rounded-sm">
             Corporate Event

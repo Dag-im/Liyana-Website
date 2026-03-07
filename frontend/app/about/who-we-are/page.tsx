@@ -1,5 +1,5 @@
 import LiyanaOrgGraph, {
-  mockGraphData,
+  DATA as mockGraphData,
 } from '@/components/client/about/LiyanaNetwork';
 import Timeline, { TimelineItem } from '@/components/client/about/Timeline';
 import WhoWeAreLuxury from '@/components/client/about/WhoWeAre';

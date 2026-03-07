@@ -1,12 +1,10 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { motion } from 'framer-motion';
-import { Award as AwardIcon } from 'lucide-react';
+import gsap from 'gsap';
+import { Award as AwardIcon, X } from 'lucide-react';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface Award {
   id: number;
@@ -65,28 +63,6 @@ const awards: Award[] = [
     imageAlt:
       'Leadership team receiving Fastest Growing Healthcare Network Award 2023',
   },
-  {
-    id: 5,
-    title: 'Workplace Excellence in Healthcare',
-    organization: 'Healthcare HR Awards',
-    year: '2023',
-    category: 'Human Resources',
-    description:
-      'Awarded for fostering an outstanding workplace culture and employee development programs.',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c',
-    imageAlt: 'HR team receiving Workplace Excellence Award 2023',
-  },
-  {
-    id: 6,
-    title: 'Quality Management Excellence',
-    organization: 'Healthcare Standards Institute',
-    year: '2022',
-    category: 'Quality',
-    description:
-      'Certified for maintaining the highest standards of quality management and patient safety.',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    imageAlt: 'Quality team receiving Quality Management Excellence Award 2022',
-  },
 ];
 
 export default function AwardsSection() {
@@ -94,6 +70,7 @@ export default function AwardsSection() {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(
     () => ['All', ...Array.from(new Set(awards.map((a) => a.category)))],
@@ -106,120 +83,137 @@ export default function AwardsSection() {
       : awards.filter((award) => award.category === selectedCategory);
   }, [selectedCategory]);
 
+  const displayedAwards = filteredAwards.slice(0, visibleCount);
+
+  // Animate awards on filter or load more
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.award-card',
+        { opacity: 0, y: 15 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power2.out',
+          clearProps: 'all',
+        }
+      );
+    }, gridRef);
+    return () => ctx.revert();
+  }, [selectedCategory, visibleCount]);
+
   const handleLoadMore = () => {
     setVisibleCount((prev) =>
       Math.min(prev + ITEMS_PER_PAGE, filteredAwards.length)
     );
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value);
-    setVisibleCount(ITEMS_PER_PAGE);
-  };
-
   return (
-    <section className="py-24 px-4 bg-gray-50">
+    <section className="pt-10 pb-24 px-6 bg-white selection:bg-cyan-100 selection:text-cyan-900">
       <div className="container mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="mb-12 text-center">
+        <div className="mb-16 text-center max-w-3xl mx-auto">
           <SectionHeading
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-4"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
           >
             Awards & Recognition
           </SectionHeading>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium">
+          <p className="text-lg text-slate-600 leading-relaxed">
             Our dedication to advancing healthcare has earned us prestigious
             accolades from industry leaders, reflecting our commitment to
-            innovation, quality, and patient care.
+            quality.
           </p>
         </div>
 
         {/* Filter Dropdown */}
-        <div className="flex justify-end mb-8">
-          <label className="sr-only" htmlFor="category-filter">
-            Filter by category
-          </label>
-          <select
-            id="category-filter"
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm
-               hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+        <div className="flex justify-between items-end mb-10 border-b border-slate-200 pb-4">
+          <h3 className="text-xl font-bold text-slate-900 hidden md:block">
+            Recent Accolades
+          </h3>
+          <div className="w-full md:w-auto flex items-center gap-4">
+            <label
+              className="text-sm font-bold text-slate-500 uppercase tracking-wider"
+              htmlFor="category-filter"
+            >
+              Filter:
+            </label>
+            <select
+              id="category-filter"
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setVisibleCount(ITEMS_PER_PAGE);
+              }}
+              className="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors w-full md:w-48"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Awards Grid */}
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredAwards.slice(0, visibleCount).map((award) => (
-            <motion.div
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {displayedAwards.map((award) => (
+            <div
               key={award.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              className="award-card group flex flex-col bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
-              <Card className="group border-none shadow-lg hover:shadow-xl hover:-translate-y-2 rounded-xl overflow-hidden transition-all duration-300 py-0">
-                {/* Image Top Half */}
-                <div className="relative w-full h-56">
-                  <Image
-                    src={award.image}
-                    alt={award.imageAlt}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = `https://via.placeholder.com/400x300/1e40af/ffffff?text=${encodeURIComponent(
-                        award.title
-                      )}`;
-                    }}
-                  />
-                  <div className="absolute top-4 right-4 z-10">
-                    <Badge className="bg-white/90 text-gray-700 font-semibold px-3 py-1 rounded-full shadow-sm">
-                      {award.category}
-                    </Badge>
-                  </div>
+              {/* Image Top Half */}
+              <div className="relative w-full h-56 bg-slate-100 border-b border-slate-200 overflow-hidden">
+                <Image
+                  src={award.image}
+                  alt={award.imageAlt}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 text-xs font-bold text-slate-800 uppercase tracking-wider shadow-sm rounded-sm">
+                  {award.category}
                 </div>
+              </div>
 
-                {/* Content Bottom Half */}
-                <CardContent className="p-6 flex flex-col">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-cyan-700 transition-colors duration-300">
-                    {award.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3 font-medium">
-                    {award.organization} • {award.year}
-                  </p>
-                  <p className="text-gray-600 leading-relaxed text-sm flex-1">
-                    {award.description}
-                  </p>
+              {/* Content Bottom Half */}
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-cyan-700 transition-colors duration-300">
+                  {award.title}
+                </h3>
+                <p className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">
+                  {award.organization}{' '}
+                  <span className="text-cyan-600 mx-1">•</span> {award.year}
+                </p>
 
-                  <button
-                    onClick={() => setSelectedAward(award)}
-                    className="mt-4 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
-                  >
-                    <AwardIcon className="w-4 h-4 mr-2" />
-                    View Certificate
-                  </button>
-                </CardContent>
-              </Card>
-            </motion.div>
+                <div className="h-[1px] w-full bg-slate-100 mb-4" />
+
+                <p className="text-slate-600 leading-relaxed text-sm flex-grow mb-6">
+                  {award.description}
+                </p>
+
+                <button
+                  onClick={() => setSelectedAward(award)}
+                  className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+                >
+                  <AwardIcon className="w-4 h-4" />
+                  View Certificate
+                </button>
+              </div>
+            </div>
           ))}
         </div>
 
         {/* Load More */}
         {visibleCount < filteredAwards.length && (
-          <div className="mt-10 flex justify-center">
+          <div className="mt-16 flex justify-center">
             <button
               onClick={handleLoadMore}
-              className="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold uppercase tracking-wider rounded-sm transition-colors duration-300"
             >
               Load More
             </button>
@@ -228,63 +222,47 @@ export default function AwardsSection() {
 
         {/* Certificate Modal */}
         {selectedAward && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4 translate-y-8"
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
             onClick={() => setSelectedAward(null)}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden relative"
+            <div
+              className="bg-white rounded-sm w-full max-w-4xl max-h-[90vh] overflow-hidden relative shadow-2xl flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6">
-                <Image
-                  src={selectedAward.image}
-                  alt={selectedAward.imageAlt}
-                  width={700}
-                  height={500}
-                  className="w-full h-auto object-contain rounded-lg"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = `https://via.placeholder.com/700x500/1e40af/ffffff?text=${encodeURIComponent(
-                      selectedAward.title
-                    )}`;
-                  }}
-                />
-                <div className="mt-4 text-center">
-                  <h3 className="text-xl font-semibold text-gray-900">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center p-6 border-b border-slate-200">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">
                     {selectedAward.title}
                   </h3>
-                  <p className="text-sm text-gray-500">
-                    {selectedAward.organization} • {selectedAward.year}
+                  <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">
+                    {selectedAward.organization}{' '}
+                    <span className="text-cyan-600 mx-1">•</span>{' '}
+                    {selectedAward.year}
                   </p>
                 </div>
-              </div>
-              <button
-                onClick={() => setSelectedAward(null)}
-                className="absolute top-4 right-4 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors duration-300 shadow-md"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  onClick={() => setSelectedAward(null)}
+                  className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Modal Image */}
+              <div className="p-6 bg-slate-50 flex-grow overflow-auto flex items-center justify-center">
+                <div className="relative w-full max-w-2xl h-[50vh] min-h-[300px]">
+                  <Image
+                    src={selectedAward.image}
+                    alt={selectedAward.imageAlt}
+                    fill
+                    className="object-contain"
                   />
-                </svg>
-              </button>
-            </motion.div>
-          </motion.div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </section>

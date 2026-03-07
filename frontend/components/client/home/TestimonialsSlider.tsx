@@ -1,82 +1,88 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { motion } from 'framer-motion';
+import { Testimonial } from '@/data/testimonials';
 import gsap from 'gsap';
 import { useEffect, useRef } from 'react';
 import { TestimonialCard } from '../testimonials/TestimonialCard';
 
-const testimonials = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    role: 'CEO, HealthPlus',
-    message:
-      'This service has completely transformed the way we connect with patients. Highly professional and seamless!',
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    role: 'Founder, MedConnect',
-    message:
-      'The platform is intuitive, reliable, and simply outstanding. We couldn’t ask for a better experience.',
-  },
-  {
-    id: '3',
-    name: 'Emma Wilson',
-    role: 'Patient Advocate',
-    message:
-      'Easy to use, highly responsive, and beautifully designed. It made a real difference in my journey.',
-  },
-  {
-    id: '4',
-    name: 'James Lee',
-    role: 'Doctor, FamilyCare',
-    message:
-      'I recommend this platform to all my peers. It simplifies communication and increases patient satisfaction.',
-  },
-];
+interface TestimonialSliderProps {
+  testimonials: Testimonial[];
+}
 
-export function TestimonialSlider() {
+export function TestimonialSlider({ testimonials }: TestimonialSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Filter: Approved AND Favorite
+  const favoriteTestimonials = testimonials.filter(
+    (t) => t.isApproved && t.isFavorite
+  );
+
   useEffect(() => {
-    if (!sliderRef.current) return;
+    if (!sliderRef.current || favoriteTestimonials.length === 0) return;
 
-    const totalWidth = sliderRef.current.scrollWidth / 2;
+    // Calculate total width of one set of cards for seamless loop
+    const slider = sliderRef.current;
+    const totalWidth = slider.scrollWidth / 2;
 
-    gsap.to(sliderRef.current, {
+    const animation = gsap.to(slider, {
       x: `-${totalWidth}px`,
-      duration: 40,
-      ease: 'linear',
+      duration: 35, // Adjust speed here
+      ease: 'none',
       repeat: -1,
     });
-  }, []);
 
-  const loopTestimonials = [...testimonials, ...testimonials];
+    // Pause on hover for readability
+    slider.addEventListener('mouseenter', () => animation.pause());
+    slider.addEventListener('mouseleave', () => animation.play());
+
+    return () => {
+      slider.removeEventListener('mouseenter', () => animation.pause());
+      slider.removeEventListener('mouseleave', () => animation.play());
+      animation.kill();
+    };
+  }, [favoriteTestimonials]);
+
+  if (favoriteTestimonials.length === 0) return null;
+
+  // Duplicate for seamless infinite scrolling
+  const loopTestimonials = [
+    ...favoriteTestimonials,
+    ...favoriteTestimonials,
+    ...favoriteTestimonials,
+  ];
 
   return (
-    <section className="w-full py-16 md:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-gray-50 to-gray-100 overflow-hidden">
-      <SectionHeading
-        variant="large"
-        align="center"
-        weight="bold"
-        className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
-      >
-        What People are saying
-      </SectionHeading>
+    <section className="w-full py-20 bg-white border-t border-slate-200 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-10">
+        <SectionHeading
+          variant="large"
+          align="left"
+          weight="bold"
+          className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-cyan-700 to-cyan-900 mb-6"
+        >
+          What Our Clients Say
+        </SectionHeading>
+        <h3 className="text-2xl font-semibold text-slate-800">
+          Trusted by Industry Leaders
+        </h3>
+      </div>
 
-      <div ref={sliderRef} className="flex gap-6">
-        {loopTestimonials.map((t, index) => (
-          <motion.div
-            key={index}
-            className="testimonial-card flex-shrink-0 w-[300px] sm:w-[320px] md:w-[340px] lg:w-[360px]"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          >
-            <TestimonialCard {...t} />
-          </motion.div>
-        ))}
+      <div className="relative w-full">
+        {/* Left/Right Fade masks for smooth edges */}
+        <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+        <div ref={sliderRef} className="flex gap-6 w-max px-6">
+          {loopTestimonials.map((t, index) => (
+            <div
+              key={`${t.id}-${index}`}
+              className="flex-shrink-0 w-[350px] lg:w-[400px]"
+            >
+              <TestimonialCard {...t} />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

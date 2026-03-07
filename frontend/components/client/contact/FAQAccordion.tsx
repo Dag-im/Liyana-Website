@@ -1,6 +1,5 @@
 'use client';
 
-import { SectionHeading } from '@/components/shared/sectionHeading';
 import {
   Accordion,
   AccordionContent,
@@ -11,74 +10,75 @@ import { motion } from 'framer-motion';
 
 const FAQ_DATA = {
   title: 'Frequently Asked Questions',
+  subtitle: 'Knowledge Base',
   description:
-    'Find clear answers to the most common inquiries about our healthcare services, facilities, and patient care approach.',
+    'Find clear answers to the most common inquiries regarding our healthcare services, operational facilities, and patient care approach.',
   items: [
     {
       id: 'q1',
       question: 'What services does Liyana Healthcare provide?',
       answer:
-        'We deliver subspecialized medical care, advanced diagnostics, and therapeutic solutions across multiple healthcare sectors, ensuring patient-centered excellence.',
+        'We deliver subspecialized medical care, advanced diagnostics, and therapeutic solutions across multiple healthcare sectors, ensuring patient-centered excellence backed by international standards.',
     },
     {
       id: 'q2',
       question: 'Where are your facilities located?',
       answer:
-        'Our headquarters is located in Addis Ababa, Ethiopia, supported by several regional branches to ensure convenient access to our healthcare services.',
+        'Our headquarters is centrally located in Addis Ababa, Ethiopia. This hub is supported by a network of regional branches strategically placed to ensure comprehensive and convenient access to our services.',
     },
     {
       id: 'q3',
       question: 'Do you accept international patients?',
       answer:
-        'Yes, we welcome international patients and offer full support for medical travel, from consultation coordination to post-treatment care.',
+        'Yes. We operate a dedicated international patient desk that offers full end-to-end support for medical travel, including consultation coordination, translation services, and post-treatment continuity of care.',
     },
   ],
 };
 
 export function FAQAccordion() {
   return (
-    <section className="relative py-24 bg-transparent">
-      <div className="max-w-3xl mx-auto px-6">
-        {/* Heading */}
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
           viewport={{ once: true }}
-          className="text-center"
+          className="text-center mb-12"
         >
-          <SectionHeading
-            variant="large"
-            align="center"
-            weight="bold"
-            className="bg-gradient-to-r from-gray-800 via-cyan-600 to-cyan-700 bg-clip-text text-transparent mb-4"
-          >
+          <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+            {FAQ_DATA.subtitle}
+          </span>
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 mb-4">
             {FAQ_DATA.title}
-          </SectionHeading>
-          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+          </h2>
+          <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
             {FAQ_DATA.description}
           </p>
         </motion.div>
 
-        {/* Accordion */}
+        {/* Structured FAQ Container */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
           viewport={{ once: true }}
-          className="mt-12"
+          className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-10 shadow-sm"
         >
-          <Accordion type="single" collapsible className="space-y-4">
-            {FAQ_DATA.items.map((faq) => (
+          <Accordion type="single" collapsible className="space-y-0">
+            {FAQ_DATA.items.map((faq, index) => (
               <AccordionItem
                 key={faq.id}
                 value={faq.id}
-                className="rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300"
+                className={`border-slate-200 border-b ${
+                  index === FAQ_DATA.items.length - 1 ? 'border-b-0' : ''
+                }`}
               >
-                <AccordionTrigger className="px-6 py-4 text-base md:text-lg font-medium text-cyan-600 hover:text-cyan-800 transition-colors">
+                <AccordionTrigger className="py-6 text-left text-base font-semibold text-slate-900 hover:text-cyan-600 transition-colors no-underline hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="px-6 pb-5 text-cyan-950 text-sm md:text-base leading-relaxed border-t border-gray-100">
+                <AccordionContent className="pb-6 text-slate-500 text-sm leading-relaxed pr-12">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

@@ -1,38 +1,80 @@
-import { FolderList } from '@/components/client/media/FolderList';
-import { SectionHeading } from '@/components/shared/sectionHeading';
-import { mediaFolders } from './data';
+'use client';
 
-export default function MediaPage() {
+import { FolderCard } from '@/components/client/media/MediaComponents';
+import { SectionHeading } from '@/components/shared/sectionHeading';
+import { mediaFolders } from '@/data/media';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLayoutEffect, useRef } from 'react';
+
+export default function MediaGalleryPage() {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    const ctx = gsap.context(() => {
+      if (gridRef.current) {
+        gsap.fromTo(
+          '.gsap-folder-card',
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: gridRef.current,
+              start: 'top 85%',
+            },
+            clearProps: 'all',
+          }
+        );
+      }
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="min-h-screen py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Centered Header */}
-        <header className="text-center mb-16">
+    <main className="min-h-screen bg-slate-50 selection:bg-cyan-100 selection:text-cyan-900 pb-24">
+      {/* Corporate Header */}
+      <header className="bg-white border-b border-slate-200 pt-8 pb-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-[2px] w-12 bg-cyan-600" />
+            <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+              Press & Assets
+            </span>
+          </div>
           <SectionHeading
             variant="large"
-            align="center"
+            align="left"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 leading-tight"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-cyan-500 to-cyan-600 mb-6"
           >
-            Media Gallery
+            Media Library
           </SectionHeading>
-
-          <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Explore our curated collection of high-quality images and videos
-            from corporate events, team moments, and facility tours.
+          <p className="text-xl text-slate-600 max-w-2xl leading-relaxed">
+            Curated, high-resolution visual assets including executive
+            portraits, facility photography, and financial presentations.
           </p>
-        </header>
+        </div>
+      </header>
 
-        {/* Perfectly Centered Folder Grid */}
-        <div className="flex justify-center">
-          <div className="w-full max-w-6xl">
-            <div className="border-t border-gray-200 pt-12">
-              {/* The grid itself handles centering via auto-margins on cards */}
-              <FolderList folders={mediaFolders} />
+      {/* Grid Layout */}
+      <div className="max-w-7xl mx-auto px-6 mt-16">
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {mediaFolders.map((folder) => (
+            <div key={folder.id} className="gsap-folder-card h-full">
+              <FolderCard folder={folder} />
             </div>
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

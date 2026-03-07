@@ -1,20 +1,20 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { motion, Variants } from 'framer-motion';
+import gsap from 'gsap';
+import { X } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 interface TeamMember {
   id: string;
   name: string;
   position: string;
   bio: string;
-  image?: string; // Optional image URL
-  subsidiary: string; // Subsidiary or "Corporate"
+  image?: string;
+  subsidiary: string;
 }
 
-// Sample team data for a healthcare company
 const teamData: TeamMember[] = [
   {
     id: '1',
@@ -64,66 +64,45 @@ const teamData: TeamMember[] = [
   },
 ];
 
-// Animation variants
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 50,
-    scale: 0.95,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: 'easeOut',
-    },
-  },
-};
-
-const imageVariants: Variants = {
-  hover: {
-    scale: 1.05,
-    transition: {
-      duration: 0.3,
-      ease: 'easeOut',
-    },
-  },
-};
-
 export default function MeetTheTeam() {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [activeSubsidiary, setActiveSubsidiary] = useState<string>('All');
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  // Get unique subsidiaries
   const subsidiaries = [
     'All',
     ...Array.from(new Set(teamData.map((member) => member.subsidiary))),
   ];
 
-  // Filter team members by subsidiary
   const filteredTeam =
     activeSubsidiary === 'All'
       ? teamData
       : teamData.filter((member) => member.subsidiary === activeSubsidiary);
 
+  // Animate grid items when filter changes
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.team-card',
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+          clearProps: 'all',
+        }
+      );
+    }, gridRef);
+    return () => ctx.revert();
+  }, [activeSubsidiary]);
+
   return (
-    <section className="relative py-20 px-4 bg-transparent overflow-hidden">
+    <section className="relative pt-10 pb-24 px-6 bg-white border-t border-slate-200 selection:bg-cyan-100 selection:text-cyan-900">
       <div className="relative max-w-7xl mx-auto">
         {/* Section Heading */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 max-w-3xl mx-auto">
           <SectionHeading
             variant="large"
             align="center"
@@ -132,22 +111,22 @@ export default function MeetTheTeam() {
           >
             Meet Our Leadership
           </SectionHeading>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 leading-relaxed">
             Discover the dedicated executives and branch managers leading our
-            healthcare mission.
+            strategic initiatives.
           </p>
         </div>
 
-        {/* Subsidiary Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        {/* Corporate Tabs Filter */}
+        <div className="flex flex-wrap justify-center gap-2 mb-16 border-b border-slate-200">
           {subsidiaries.map((subsidiary) => (
             <button
               key={subsidiary}
               onClick={() => setActiveSubsidiary(subsidiary)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+              className={`px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors duration-300 border-b-2 -mb-[1px] ${
                 activeSubsidiary === subsidiary
-                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-700 text-white shadow-lg shadow-blue-500/25'
-                  : 'bg-white/80 text-slate-600 hover:bg-white hover:shadow-md border border-slate-200'
+                  ? 'border-cyan-600 text-cyan-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
               }`}
             >
               {subsidiary}
@@ -156,151 +135,111 @@ export default function MeetTheTeam() {
         </div>
 
         {/* Team Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTeam.map((member) => (
-            <motion.div
+            <div
               key={member.id}
-              variants={cardVariants}
-              whileHover="hover"
-              className="group relative bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer"
+              className="team-card group flex flex-col bg-white border border-slate-200 cursor-pointer hover:shadow-lg transition-shadow duration-300"
               onClick={() => setSelectedMember(member)}
             >
-              {/* Background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-              {/* Image container */}
-              <div className="relative h-64 overflow-hidden">
-                <motion.div
-                  variants={imageVariants}
-                  className="w-full h-full flex items-center justify-center"
-                >
-                  {member.image ? (
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
-                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center text-4xl text-white font-bold">
-                        {member.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-
-                {/* Subsidiary badge */}
-                <div className="absolute top-4 right-4">
-                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 rounded-full shadow-sm">
-                    {member.subsidiary}
-                  </span>
+              {/* Image Container */}
+              <div className="relative h-72 w-full overflow-hidden bg-slate-100 border-b border-slate-200">
+                {member.image ? (
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+                    <span className="text-5xl font-bold tracking-widest">
+                      {member.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider shadow-sm rounded-sm">
+                  {member.subsidiary}
                 </div>
               </div>
 
               {/* Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-cyan-600 transition-colors duration-300">
+              <div className="p-8 flex-grow flex flex-col">
+                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-cyan-700 transition-colors">
                   {member.name}
                 </h3>
-                <p className="text-cyan-600 font-semibold mb-2">
+                <p className="text-sm font-bold text-cyan-600 uppercase tracking-wider mb-4">
                   {member.position}
                 </p>
+                <div className="h-[1px] w-12 bg-slate-200 mb-4" />
                 <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">
                   {member.bio}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      {/* Team Member Modal */}
+      {/* Corporate Modal */}
       {selectedMember && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4"
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
           onClick={() => setSelectedMember(null)}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          <div
+            className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-sm shadow-2xl flex flex-col md:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-cyan-500 to-cyan-700 p-6 rounded-t-2xl text-white">
-                <div className="flex items-center gap-4">
-                  {selectedMember.image ? (
-                    <Image
-                      src={selectedMember.image}
-                      alt={selectedMember.name}
-                      width={50}
-                      height={50}
-                      className="w-28 h-28 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-28 h-28 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold">
-                      {selectedMember.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
-                    </div>
-                  )}
-                  <div>
-                    <h2 className="text-2xl font-bold">
-                      {selectedMember.name}
-                    </h2>
-                    <p className="text-blue-100">{selectedMember.position}</p>
-                    <p className="text-blue-200 text-sm">
-                      {selectedMember.subsidiary}
-                    </p>
-                  </div>
+            {/* Modal Image */}
+            <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-slate-100 border-r border-slate-100">
+              {selectedMember.image ? (
+                <Image
+                  src={selectedMember.image}
+                  alt={selectedMember.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-300 text-6xl font-bold tracking-widest">
+                  {selectedMember.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Content */}
-              <div className="p-6">
-                <p className="text-slate-600 leading-relaxed mb-6">
-                  {selectedMember.bio}
-                </p>
-              </div>
-
-              {/* Close button */}
+            {/* Modal Content */}
+            <div className="w-full md:w-3/5 p-8 md:p-12 relative flex flex-col">
               <button
                 onClick={() => setSelectedMember(null)}
-                className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors duration-300"
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X size={24} />
               </button>
+
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                {selectedMember.subsidiary}
+              </span>
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">
+                {selectedMember.name}
+              </h2>
+              <p className="text-cyan-700 font-bold uppercase tracking-wider text-sm mb-6">
+                {selectedMember.position}
+              </p>
+
+              <div className="h-[2px] w-12 bg-cyan-600 mb-6" />
+
+              <p className="text-slate-600 leading-relaxed flex-grow">
+                {selectedMember.bio}
+              </p>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </section>
   );

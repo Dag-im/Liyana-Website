@@ -4,11 +4,15 @@ import { SectionHeading } from '@/components/shared/sectionHeading';
 import { Division, ServiceCategory } from '@/data/services';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLayoutEffect, useRef } from 'react';
 
-gsap.registerPlugin(ScrollTrigger);
+// Register ScrollTrigger once
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // ---------- COMPONENT ----------
 export default function LiyanaShowcase({
@@ -17,148 +21,205 @@ export default function LiyanaShowcase({
   services: ServiceCategory[];
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const heroRef = useRef<HTMLDivElement | null>(null);
-  const pinRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      if (heroRef.current) {
-        gsap.from(heroRef.current.querySelectorAll('[services-hero]'), {
-          y: 20,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          stagger: 0.1,
-        });
-      }
+      // 1. Hero Animation - Lighter and faster
+      gsap.from('.gsap-hero', {
+        y: 20,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+        clearProps: 'all',
+      });
 
-      services.forEach((cat) => {
-        const sec = pinRefs.current[cat.id];
-        if (!sec) return;
+      // 2. Scroll Animations - Section by section to prevent heavy DOM thrashing
+      const sections = gsap.utils.toArray<HTMLElement>('.gsap-section');
 
-        gsap.from(sec.querySelectorAll('[services-attr], [services-card]'), {
-          scrollTrigger: {
-            trigger: sec,
-            start: 'top 80%',
-          },
-          y: 20,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.05,
-          ease: 'power2.out',
-        });
+      sections.forEach((sec) => {
+        const elements = sec.querySelectorAll('.gsap-fade');
+
+        if (elements.length > 0) {
+          gsap.from(elements, {
+            scrollTrigger: {
+              trigger: sec,
+              start: 'top 85%',
+              toggleActions: 'play none none none', // Play once, don't reverse
+            },
+            y: 25,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'power2.out',
+            clearProps: 'all', // Crucial: removes inline styles after animation finishes
+          });
+        }
       });
     }, containerRef);
 
-    return () => ctx.revert();
+    return () => ctx.revert(); // Cleanup GSAP on unmount
   }, [services]);
 
   const getMainImage = (division: Division): string => {
-    return division.images[0] || '/placeholder.jpg'; // fallback if no images
+    return division.images?.[0] || '/placeholder.jpg';
   };
 
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full bg-white text-gray-900"
+      className="relative min-h-screen w-full bg-white text-slate-900 selection:bg-cyan-100 selection:text-cyan-900 overflow-hidden"
     >
-      {/* Gradient Backdrop */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_-10%,rgba(51,176,255,0.1),transparent_60%),radial-gradient(40%_30%_at_10%_10%,rgba(0,255,153,0.05),transparent_60%),radial-gradient(50%_30%_at_90%_10%,rgba(255,0,204,0.04),transparent_60%)]" />
+      {/* HEADER SECTION */}
+      <section className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 pb-20 pt-8">
+        <div className="gsap-hero w-full flex justify-center">
+          <SectionHeading
+            variant="large"
+            align="center"
+            weight="bold"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+          >
+            Products & Services
+          </SectionHeading>
+        </div>
 
-      {/* HERO */}
-      <section
-        ref={heroRef}
-        className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 pb-16 pt-28"
-      >
-        <SectionHeading
-          variant="large"
-          align="center"
-          weight="bold"
-          className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
-        >
-          Products & Services
-        </SectionHeading>
-        <p services-hero className="max-w-2xl text-center text-gray-600">
-          Explore our divisions, capabilities, and specialized offerings —
-          engineered for clarity, trust, and impact.
+        <p className="gsap-hero max-w-3xl text-center text-slate-600 text-lg leading-relaxed">
+          Explore our divisions, capabilities, and specialized offerings.
+          Engineered for clarity, built on trust, and driven by sustainable
+          impact across our operational regions.
         </p>
       </section>
 
-      {/* SECTIONS */}
+      {/* CATEGORIES / DIVISIONS */}
       <div className="mx-auto max-w-7xl px-6 pb-28">
-        {services.map((cat) => (
+        {services.map((cat, index) => (
           <section
             key={cat.id}
-            ref={(el) => {
-              if (el && el instanceof HTMLDivElement)
-                pinRefs.current[cat.id] = el;
-            }}
-            className="relative mb-24 rounded-3xl border border-gray-200 bg-gray-50 p-6 md:p-10"
+            className={`gsap-section relative py-16 ${
+              index !== 0 ? 'border-t border-slate-200' : ''
+            }`}
           >
-            <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-              <div>
-                <h2 className="text-2xl font-bold md:text-3xl">{cat.title}</h2>
-                <p className="text-gray-600">{cat.tagline}</p>
+            {/* Category Header */}
+            <div className="gsap-fade mb-12 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+              <div className="md:w-2/3">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-[2px] w-12 bg-cyan-600" />
+                  <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+                    Sector Overview
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                  {cat.title}
+                </h2>
+                <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
+                  {cat.tagline}
+                </p>
               </div>
+
+              {/* Category Attributes */}
+              {cat.attributes && cat.attributes.length > 0 && (
+                <div className="md:w-1/3 bg-slate-50 border border-slate-200 p-6 rounded-sm">
+                  <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">
+                    Key Strengths
+                  </h4>
+                  <ul className="space-y-3">
+                    {cat.attributes.map((attr: string, i: number) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-3 text-sm text-slate-700"
+                      >
+                        <CheckCircle2
+                          className="text-cyan-600 shrink-0 mt-0.5"
+                          size={16}
+                        />
+                        <span className="leading-snug">{attr}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
-            {/* Attributes */}
-            <ul className="mb-8 list-disc space-y-2 pl-5 text-gray-600">
-              {cat.attributes.map((attr: string, i: number) => (
-                <li key={i}>{attr}</li>
-              ))}
-            </ul>
-
-            {/* Divisions */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Division Cards Grid */}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {cat.divisions.map((d: Division) => (
                 <article
                   key={d.id}
-                  services-card
-                  className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white shadow-lg"
+                  className="gsap-fade group flex flex-col h-full bg-white border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  {/* Image */}
-                  <div className="relative h-44 w-full overflow-hidden md:h-48">
+                  {/* Card Image */}
+                  <div className="relative h-56 w-full overflow-hidden bg-slate-100 border-b border-slate-200 shrink-0">
                     <Image
                       src={getMainImage(d)}
                       alt={d.name}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-800/20 via-transparent to-transparent" />
+
+                    {/* Location Badge */}
+                    {d.location && (
+                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider shadow-sm">
+                        <MapPin size={12} className="text-cyan-600" />
+                        {d.location}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Content */}
-                  <div className="flex flex-col gap-4 p-5">
-                    <div>
-                      <h3 className="text-lg font-semibold leading-tight">
-                        {d.name}
-                      </h3>
-                      {d.location && (
-                        <p className="text-xs uppercase tracking-wide text-gray-500">
-                          {d.location}
+                  {/* Card Content */}
+                  <div className="flex flex-col flex-grow p-8">
+                    <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-cyan-700 transition-colors">
+                      {d.name}
+                    </h3>
+
+                    <p className="text-sm text-slate-600 leading-relaxed mb-6">
+                      {d.overview}
+                    </p>
+
+                    {/* Core Services List */}
+                    {d.coreServices && d.coreServices.length > 0 ? (
+                      <div className="mb-8 flex-grow">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                          Core Capabilities
                         </p>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600">{d.overview}</p>
+                        <ul className="space-y-2">
+                          {d.coreServices.slice(0, 4).map((service, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-sm text-slate-700"
+                            >
+                              <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 shrink-0 mt-2" />
+                              <span className="leading-snug">{service}</span>
+                            </li>
+                          ))}
+                          {d.coreServices.length > 4 && (
+                            <li className="text-xs text-slate-400 italic mt-2">
+                              + {d.coreServices.length - 4} more services
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="flex-grow" />
+                    )}
 
-                    {d.coreServices?.length ? (
-                      <ul className="list-disc space-y-1 pl-5 text-xs text-gray-600">
-                        {d.coreServices.map((h, i) => (
-                          <li key={i}>{h}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-
-                    <div className="mt-2">
-                      <Link href={`/services/${d.slug}`}>
-                        <button className="rounded-2xl border border-cyan-500/50 bg-cyan-100 px-3 py-2 text-xs font-medium text-cyan-700 transition hover:bg-cyan-200">
-                          Learn More →
-                        </button>
+                    {/* Action Link */}
+                    <div className="pt-6 border-t border-slate-100 mt-auto">
+                      <Link
+                        href={`/services/${d.slug}`}
+                        className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+                      >
+                        Explore Division
+                        <ArrowRight
+                          size={16}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
                       </Link>
                     </div>
                   </div>
+
+                  {/* Decorative Bottom Line */}
+                  <div className="h-1 w-full bg-slate-100 group-hover:bg-cyan-600 transition-colors duration-500" />
                 </article>
               ))}
             </div>

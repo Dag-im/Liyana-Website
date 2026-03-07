@@ -2,8 +2,6 @@
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
-import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { EventNewsCard, EventNewsCardProps } from './EventNewsCard';
 
@@ -85,20 +83,6 @@ export function EventNewsTabs({ items }: EventNewsTabsProps) {
               <EventNewsCard {...item} />
             </div>
           ))}
-        </div>
-
-        {/* View All Link */}
-        <div className="flex justify-end mt-8">
-          <Link
-            href="/news-events"
-            className="group flex items-center gap-2 text-sm font-bold text-slate-900 hover:text-cyan-700 transition-colors"
-          >
-            View All {activeTab === 'news' ? 'News' : 'Events'}
-            <ArrowRight
-              size={16}
-              className="group-hover:translate-x-1 transition-transform"
-            />
-          </Link>
         </div>
       </div>
     </section>

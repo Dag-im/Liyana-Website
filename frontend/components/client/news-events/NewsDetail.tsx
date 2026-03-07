@@ -41,14 +41,14 @@ export function NewsDetail({
   }, []);
 
   return (
-    <article ref={containerRef} className="bg-white min-h-screen pt-24 pb-20">
+    <article ref={containerRef} className="bg-white min-h-screen pt-14 pb-20">
       {/* Breadcrumb Area */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-8 fade-in">
         <Link
           href="/news-events"
           className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-cyan-700 font-semibold transition-colors"
         >
-          <ArrowLeft size={16} /> Back to News & Events
+          <ArrowLeft size={16} /> Back to Newsroom
         </Link>
       </div>
 

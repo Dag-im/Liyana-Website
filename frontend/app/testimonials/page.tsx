@@ -1,11 +1,15 @@
+import { TestimonialForm } from '@/components/client/testimonials/TestimonialForm';
 import { TestimonialGrid } from '@/components/client/testimonials/TestimonialGrid';
+import { mockTestimonials } from '@/data/testimonials';
 
-const page = () => {
+export default function TestimonialsPage() {
   return (
-    <div>
-      <TestimonialGrid />
-    </div>
-  );
-};
+    <main className="min-h-screen bg-white">
+      {/* 2. Grid shows All Approved */}
+      <TestimonialGrid testimonials={mockTestimonials} />
 
-export default page;
+      {/* 3. Input Form for new submissions */}
+      <TestimonialForm />
+    </main>
+  );
+}

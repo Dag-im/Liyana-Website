@@ -5,6 +5,7 @@ import HeroBanner from '@/components/client/home/HeroBanner';
 import NewsEventsPreview from '@/components/client/home/NewsEventsPreview';
 import LiyanaSummary from '@/components/client/home/ServicePreview';
 import { TestimonialSlider } from '@/components/client/home/TestimonialsSlider';
+import { mockTestimonials } from '@/data/testimonials';
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
       <LiyanaSummary />
       <AnimatedStats />
       <NewsEventsPreview />
-      <TestimonialSlider />
+      <TestimonialSlider testimonials={mockTestimonials} />
     </div>
   );
 }
