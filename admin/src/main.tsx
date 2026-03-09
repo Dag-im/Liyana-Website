@@ -1,19 +1,19 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { Toaster } from 'sonner'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { Toaster } from 'sonner';
 
-import App from './App'
-import AppQueryProvider from './context/AppQueryProvider'
-import './index.css'
+import App from './App';
+import AppQueryProvider from './context/AppQueryProvider';
+import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppQueryProvider>
       <BrowserRouter>
         <App />
-        <Toaster position="top-right" richColors />
+        <Toaster position="bottom-right" richColors />
       </BrowserRouter>
     </AppQueryProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);
