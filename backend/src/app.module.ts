@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
@@ -11,6 +11,8 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 import appConfig from './config/config';
 import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
@@ -31,6 +33,8 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     DatabaseModule,
     UploadsModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -40,8 +44,20 @@ import { UploadsModule } from './uploads/uploads.module';
       useClass: AppThrottlerGuard,
     },
     {
+      /*
+       * Interceptor ordering is intentional:
+       * 1. LoggingInterceptor - basic request/response logs
+       * 2. ClassSerializerInterceptor - applies @Exclude() transformations
+       * 3. ResponseEnvelopeInterceptor - wraps result in standard API envelope
+       * This ensures @Exclude() is applied BEFORE the envelope wraps the data.
+       */
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (reflector: Reflector) => new ClassSerializerInterceptor(reflector),
+      inject: [Reflector],
     },
     {
       provide: APP_INTERCEPTOR,

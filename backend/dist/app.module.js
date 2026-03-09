@@ -22,6 +22,8 @@ const logging_interceptor_1 = require("./common/interceptors/logging.interceptor
 const response_envelope_interceptor_1 = require("./common/interceptors/response-envelope.interceptor");
 const config_2 = __importDefault(require("./config/config"));
 const database_module_1 = require("./database/database.module");
+const auth_module_1 = require("./modules/auth/auth.module");
+const users_module_1 = require("./modules/users/users.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 let AppModule = class AppModule {
 };
@@ -45,6 +47,8 @@ exports.AppModule = AppModule = __decorate([
             }),
             database_module_1.DatabaseModule,
             uploads_module_1.UploadsModule,
+            users_module_1.UsersModule,
+            auth_module_1.AuthModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -56,6 +60,11 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_INTERCEPTOR,
                 useClass: logging_interceptor_1.LoggingInterceptor,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useFactory: (reflector) => new common_1.ClassSerializerInterceptor(reflector),
+                inject: [core_1.Reflector],
             },
             {
                 provide: core_1.APP_INTERCEPTOR,
