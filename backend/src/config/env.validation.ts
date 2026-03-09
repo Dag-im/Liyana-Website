@@ -1,12 +1,13 @@
 import { plainToInstance } from 'class-transformer';
 import {
-  IsIn,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
-  validateSync,
+    IsIn,
+    IsInt,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Min,
+    MinLength,
+    validateSync,
 } from 'class-validator';
 import path from 'node:path';
 
@@ -41,7 +42,13 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  @MinLength(64, { message: 'JWT_SECRET must be at least 64 characters long' })
   JWT_SECRET!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(64, { message: 'COOKIE_SECRET must be at least 64 characters long' })
+  COOKIE_SECRET!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -62,6 +69,10 @@ class EnvironmentVariables {
   @IsInt()
   @Min(1)
   THROTTLE_LIMIT!: number;
+
+  @IsInt()
+  @Min(0)
+  TRUST_PROXY_DEPTH!: number;
 }
 
 export type ValidatedEnv = EnvironmentVariables;

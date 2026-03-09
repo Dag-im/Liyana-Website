@@ -1,10 +1,10 @@
-import { Injectable, NestInterceptor, Type, UnsupportedMediaTypeException } from '@nestjs/common';
+import { Injectable, NestInterceptor, OnModuleInit, Type, UnsupportedMediaTypeException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { diskStorage } from 'multer';
-import path from 'node:path';
-import { mkdirSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 type UploadOptions = {
   allowedMimeTypes?: string[];
@@ -12,7 +12,7 @@ type UploadOptions = {
 };
 
 @Injectable()
-export class UploadsService {
+export class UploadsService implements OnModuleInit {
   private readonly uploadPath: string;
   private readonly defaultAllowedMimeTypes: string[];
   private readonly blockedExtensions: Set<string>;
@@ -27,8 +27,16 @@ export class UploadsService {
     this.blockedExtensions = new Set(
       this.configService.getOrThrow<string[]>('app.upload.blockedExtensions').map((ext) => ext.toLowerCase()),
     );
+  }
 
-    mkdirSync(this.uploadPath, { recursive: true });
+  async onModuleInit() {
+    await fs.mkdir(this.uploadPath, { recursive: true });
+  }
+
+  async cleanup(filePath: string): Promise<void> {
+    try {
+      await fs.unlink(filePath);
+    } catch {}
   }
 
   uploadSingle(fieldName: string, options?: UploadOptions): Type<NestInterceptor> {

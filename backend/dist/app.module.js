@@ -16,10 +16,13 @@ const core_1 = require("@nestjs/core");
 const throttler_1 = require("@nestjs/throttler");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const http_exception_envelope_filter_1 = require("./common/filters/http-exception-envelope.filter");
+const throttler_guard_1 = require("./common/guards/throttler.guard");
+const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
+const response_envelope_interceptor_1 = require("./common/interceptors/response-envelope.interceptor");
 const config_2 = __importDefault(require("./config/config"));
 const database_module_1 = require("./database/database.module");
 const uploads_module_1 = require("./uploads/uploads.module");
-const throttler_guard_1 = require("./common/guards/throttler.guard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -49,6 +52,18 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_guard_1.AppThrottlerGuard,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: logging_interceptor_1.LoggingInterceptor,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: response_envelope_interceptor_1.ResponseEnvelopeInterceptor,
+            },
+            {
+                provide: core_1.APP_FILTER,
+                useClass: http_exception_envelope_filter_1.HttpExceptionEnvelopeFilter,
             },
         ],
     })

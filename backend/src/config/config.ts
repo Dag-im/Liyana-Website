@@ -34,12 +34,14 @@ const testDefaults: Record<string, string> = {
   DB_USERNAME: 'root',
   DB_PASSWORD: 'root',
   DB_NAME: 'liyana_test',
-  JWT_SECRET: 'test-secret',
+  JWT_SECRET: 'a'.repeat(64),
   JWT_EXPIRES_IN: '1h',
   UPLOAD_PATH: '/tmp/liyana-uploads-test',
   ALLOWED_ORIGINS: 'http://localhost:3000',
   THROTTLE_TTL: '60',
   THROTTLE_LIMIT: '100',
+  COOKIE_SECRET: 'b'.repeat(64),
+  TRUST_PROXY_DEPTH: '0',
 };
 
 const rawEnv =
@@ -82,7 +84,10 @@ export default registerAs('app', () => ({
       .filter((origin) => origin.length > 0),
   },
   throttle: {
+    /** TTL in seconds */
     ttlSeconds: env.THROTTLE_TTL,
     limit: env.THROTTLE_LIMIT,
   },
+  trustProxyDepth: env.TRUST_PROXY_DEPTH,
+  cookieSecret: env.COOKIE_SECRET,
 }));

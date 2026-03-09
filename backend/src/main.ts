@@ -1,16 +1,14 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
 import { json, urlencoded } from 'express';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { randomUUID } from 'node:crypto';
 
 import { AppModule } from './app.module';
-import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
-import { HttpExceptionEnvelopeFilter } from './common/filters/http-exception-envelope.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +17,10 @@ async function bootstrap() {
   const allowedOrigins = configService.getOrThrow<string[]>('app.cors.allowedOrigins');
   const port = configService.getOrThrow<number>('app.port');
 
-  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  const trustProxyDepth = configService.getOrThrow<number>('app.trustProxyDepth');
+  const cookieSecret = configService.getOrThrow<string>('app.cookieSecret');
+
+  app.getHttpAdapter().getInstance().set('trust proxy', trustProxyDepth);
 
   app.use((req: { requestId?: string }, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
     const requestId = randomUUID();
@@ -57,7 +58,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.use(cookieParser());
+  app.use(cookieParser(cookieSecret));
   app.use(compression());
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
@@ -67,12 +68,26 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      disableErrorMessages: nodeEnv === 'production',
+      exceptionFactory: (errors) => {
+        const flattenErrors = (errorList: any[], parentField = ''): { field: string; error: string }[] => {
+          return errorList.reduce((acc, error) => {
+            const field = parentField ? `${parentField}.${error.property}` : error.property;
+            if (error.constraints) {
+              acc.push(...Object.keys(error.constraints).map((key) => ({ field, error: key })));
+            }
+            if (error.children && error.children.length > 0) {
+              acc.push(...flattenErrors(error.children, field));
+            }
+            return acc;
+          }, []);
+        };
+
+        return new BadRequestException(flattenErrors(errors));
+      },
     }),
   );
 
-  app.useGlobalInterceptors(new ResponseEnvelopeInterceptor());
-  app.useGlobalFilters(new HttpExceptionEnvelopeFilter());
+  // Global Interceptors and Filters are now registered in AppModule for DI support
 
   app.setGlobalPrefix('api/v1');
 
