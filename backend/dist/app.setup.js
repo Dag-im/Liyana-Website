@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.configureApp = configureApp;
 const node_crypto_1 = require("node:crypto");
-const http_exception_filter_1 = require("./common/filters/http-exception.filter");
+const http_exception_envelope_filter_1 = require("./common/filters/http-exception-envelope.filter");
 const response_envelope_interceptor_1 = require("./common/interceptors/response-envelope.interceptor");
 function configureApp(app) {
     app.enableCors();
@@ -13,6 +13,6 @@ function configureApp(app) {
         next();
     });
     app.useGlobalInterceptors(new response_envelope_interceptor_1.ResponseEnvelopeInterceptor());
-    app.useGlobalFilters(new http_exception_filter_1.HttpExceptionEnvelopeFilter());
+    app.useGlobalFilters(new http_exception_envelope_filter_1.HttpExceptionEnvelopeFilter());
 }
 //# sourceMappingURL=app.setup.js.map

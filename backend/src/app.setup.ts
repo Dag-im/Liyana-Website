@@ -1,7 +1,7 @@
 import { type INestApplication } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 
-import { HttpExceptionEnvelopeFilter } from './common/filters/http-exception.filter';
+import { HttpExceptionEnvelopeFilter } from './common/filters/http-exception-envelope.filter';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 
 export function configureApp(app: INestApplication): void {
