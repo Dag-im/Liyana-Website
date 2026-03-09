@@ -1,6 +1,11 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
+import {
+  APP_FILTER,
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  Reflector,
+} from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
@@ -11,7 +16,9 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 import appConfig from './config/config';
 import { DatabaseModule } from './database/database.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
 import { UploadsModule } from './uploads/uploads.module';
 
@@ -26,7 +33,7 @@ import { UploadsModule } from './uploads/uploads.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          ttl: configService.getOrThrow<number>('app.throttle.ttlSeconds') * 1000,
+          ttl: configService.getOrThrow<number>('app.throttle.ttlSeconds'),
           limit: configService.getOrThrow<number>('app.throttle.limit'),
         },
       ],
@@ -35,6 +42,8 @@ import { UploadsModule } from './uploads/uploads.module';
     UploadsModule,
     UsersModule,
     AuthModule,
+    AuditLogModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -56,7 +65,8 @@ import { UploadsModule } from './uploads/uploads.module';
     },
     {
       provide: APP_INTERCEPTOR,
-      useFactory: (reflector: Reflector) => new ClassSerializerInterceptor(reflector),
+      useFactory: (reflector: Reflector) =>
+        new ClassSerializerInterceptor(reflector),
       inject: [Reflector],
     },
     {

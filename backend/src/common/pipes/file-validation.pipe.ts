@@ -1,8 +1,8 @@
 import {
-    BadRequestException,
-    Injectable,
-    PipeTransform,
-    Scope,
+  BadRequestException,
+  Injectable,
+  PipeTransform,
+  Scope,
 } from '@nestjs/common';
 import { fromBuffer } from 'file-type';
 import { readFile } from 'node:fs/promises';
@@ -12,7 +12,9 @@ import { UploadsService } from '../../uploads/uploads.service';
 export class FileValidationPipe implements PipeTransform {
   constructor(private readonly uploadsService: UploadsService) {}
 
-  async transform(value: any) {
+  async transform(
+    value: Express.Multer.File | Express.Multer.File[] | undefined,
+  ) {
     if (!value) return value;
 
     const files = Array.isArray(value) ? value : [value];

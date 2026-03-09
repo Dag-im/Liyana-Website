@@ -1,6 +1,11 @@
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -11,45 +16,57 @@ import { randomUUID } from 'node:crypto';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const nodeEnv = configService.getOrThrow<string>('app.nodeEnv');
-  const allowedOrigins = configService.getOrThrow<string[]>('app.cors.allowedOrigins');
+  const allowedOrigins = configService.getOrThrow<string[]>(
+    'app.cors.allowedOrigins',
+  );
   const port = configService.getOrThrow<number>('app.port');
 
-  const trustProxyDepth = configService.getOrThrow<number>('app.trustProxyDepth');
+  const trustProxyDepth = configService.getOrThrow<number>(
+    'app.trustProxyDepth',
+  );
   const cookieSecret = configService.getOrThrow<string>('app.cookieSecret');
 
-  app.getHttpAdapter().getInstance().set('trust proxy', trustProxyDepth);
+  app.set('trust proxy', trustProxyDepth);
 
-  app.use((req: { requestId?: string }, res: { setHeader: (name: string, value: string) => void }, next: () => void) => {
-    const requestId = randomUUID();
-    req.requestId = requestId;
-    res.setHeader('x-request-id', requestId);
-    next();
-  });
+  app.use(
+    (
+      req: { requestId?: string },
+      res: { setHeader: (name: string, value: string) => void },
+      next: () => void,
+    ) => {
+      const requestId = randomUUID();
+      req.requestId = requestId;
+      res.setHeader('x-request-id', requestId);
+      next();
+    },
+  );
 
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'"],
-        frameAncestors: ["'none'"],
-        objectSrc: ["'none'"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          frameAncestors: ["'none'"],
+          objectSrc: ["'none'"],
+        },
       },
-    },
-    frameguard: { action: 'deny' },
-    noSniff: true,
-    xssFilter: true,
-    hsts: {
-      maxAge: 15552000,
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
+      frameguard: { action: 'deny' },
+      noSniff: true,
+      xssFilter: true,
+      hsts: {
+        maxAge: 15552000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
 
   app.enableCors({
     origin: allowedOrigins,
@@ -69,17 +86,30 @@ async function bootstrap() {
       transform: true,
       forbidNonWhitelisted: true,
       exceptionFactory: (errors) => {
-        const flattenErrors = (errorList: any[], parentField = ''): { field: string; error: string }[] => {
-          return errorList.reduce((acc, error) => {
-            const field = parentField ? `${parentField}.${error.property}` : error.property;
-            if (error.constraints) {
-              acc.push(...Object.keys(error.constraints).map((key) => ({ field, error: key })));
-            }
-            if (error.children && error.children.length > 0) {
-              acc.push(...flattenErrors(error.children, field));
-            }
-            return acc;
-          }, []);
+        const flattenErrors = (
+          errorList: ValidationError[],
+          parentField = '',
+        ): { field: string; error: string }[] => {
+          return errorList.reduce<{ field: string; error: string }[]>(
+            (acc, error) => {
+              const field = parentField
+                ? `${parentField}.${error.property}`
+                : error.property;
+              if (error.constraints) {
+                acc.push(
+                  ...Object.keys(error.constraints).map((key) => ({
+                    field,
+                    error: key,
+                  })),
+                );
+              }
+              if (error.children && error.children.length > 0) {
+                acc.push(...flattenErrors(error.children, field));
+              }
+              return acc;
+            },
+            [],
+          );
         };
 
         return new BadRequestException(flattenErrors(errors));
@@ -108,4 +138,7 @@ async function bootstrap() {
 
   await app.listen(port);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

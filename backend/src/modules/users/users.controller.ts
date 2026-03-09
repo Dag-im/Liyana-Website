@@ -48,24 +48,35 @@ export class UsersController {
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ default: { limit: 20, ttl: 60000 } })
-  @ApiOperation({ summary: 'Create a user (Admin only). Rate limit: 20 requests per 60 seconds.' })
+  @ApiOperation({
+    summary:
+      'Create a user (Admin only). Rate limit: 20 requests per 60 seconds.',
+  })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 409, description: 'Email already exists.' })
-  create(@Body() createUserDto: CreateUserDto, @Req() req: AuthenticatedRequest) {
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.usersService.create(createUserDto, req.user.sub);
   }
 
   @Get()
   @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({
-    summary: 'List users with pagination and filtering. Rate limit: 60 requests per 60 seconds.',
+    summary:
+      'List users with pagination and filtering. Rate limit: 60 requests per 60 seconds.',
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'perPage', required: false, type: Number })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC', 'asc', 'desc'] })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC', 'asc', 'desc'],
+  })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'startDate', required: false, type: String })
   @ApiQuery({ name: 'endDate', required: false, type: String })
@@ -82,13 +93,18 @@ export class UsersController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  findAll(@Query() paginationDto: PaginationDto, @Query() filterDto: FilterDto) {
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query() filterDto: FilterDto,
+  ) {
     return this.usersService.findAll(paginationDto, filterDto);
   }
 
   @Get(':id')
   @Throttle({ default: { limit: 60, ttl: 60000 } })
-  @ApiOperation({ summary: 'Get user by ID. Rate limit: 60 requests per 60 seconds.' })
+  @ApiOperation({
+    summary: 'Get user by ID. Rate limit: 60 requests per 60 seconds.',
+  })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'User fetched successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -100,14 +116,21 @@ export class UsersController {
   @Patch(':id')
   @Roles(UserRole.ADMIN)
   @Throttle({ default: { limit: 20, ttl: 60000 } })
-  @ApiOperation({ summary: 'Update user (Admin only). Rate limit: 20 requests per 60 seconds.' })
+  @ApiOperation({
+    summary:
+      'Update user (Admin only). Rate limit: 20 requests per 60 seconds.',
+  })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'User updated successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   @ApiResponse({ status: 409, description: 'Email already exists.' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req: AuthenticatedRequest) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.usersService.update(id, updateUserDto, req.user.sub);
   }
 
@@ -115,7 +138,8 @@ export class UsersController {
   @Roles(UserRole.ADMIN)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: 'Admin changes user password. Rate limit: 10 requests per 60 seconds.',
+    summary:
+      'Admin changes user password. Rate limit: 10 requests per 60 seconds.',
   })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Password changed successfully.' })
@@ -127,15 +151,21 @@ export class UsersController {
     @Body() changePasswordDto: ChangePasswordDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.usersService.changePassword(id, changePasswordDto, req.user.sub);
+    return this.usersService.changePassword(
+      id,
+      changePasswordDto,
+      req.user.sub,
+    );
   }
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: 'Deactivate and soft-delete a user (Admin only). Rate limit: 10 requests per 60 seconds.',
-    description: 'This endpoint deactivates and soft-deletes the user. It does not hard-delete records.',
+    summary:
+      'Deactivate and soft-delete a user (Admin only). Rate limit: 10 requests per 60 seconds.',
+    description:
+      'This endpoint deactivates and soft-deletes the user. It does not hard-delete records.',
   })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'User deactivated successfully.' })

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiBody,
   ApiCookieAuth,
@@ -65,7 +58,9 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 30, ttl: 60000 } })
-  @ApiOperation({ summary: 'Get current user. Rate limit: 30 requests per 60 seconds.' })
+  @ApiOperation({
+    summary: 'Get current user. Rate limit: 30 requests per 60 seconds.',
+  })
   @ApiResponse({ status: 200, description: 'Current user returned.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   me(@Req() req: JwtRequest) {

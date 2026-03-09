@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { ApiEnvelope } from '../src/common/types/api-envelope.type';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
@@ -20,13 +21,13 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect((res) => {
-        expect(res.body.success).toBe(true);
-        expect(res.body.data).toBe('Hello World!');
-        expect(res.body.error).toBeNull();
-        expect(res.body.meta).toMatchObject({
-          requestId: expect.any(String),
-          timestamp: expect.any(String),
+      .expect(({ body }: { body: ApiEnvelope<string> }) => {
+        expect(body.success).toBe(true);
+        expect(body.data).toBe('Hello World!');
+        expect(body.error).toBeNull();
+        expect(body.meta).toMatchObject({
+          requestId: expect.any(String) as string,
+          timestamp: expect.any(String) as string,
           version: 'v1',
         });
       });

@@ -22,7 +22,9 @@ const logging_interceptor_1 = require("./common/interceptors/logging.interceptor
 const response_envelope_interceptor_1 = require("./common/interceptors/response-envelope.interceptor");
 const config_2 = __importDefault(require("./config/config"));
 const database_module_1 = require("./database/database.module");
+const audit_log_module_1 = require("./modules/audit-log/audit-log.module");
 const auth_module_1 = require("./modules/auth/auth.module");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
 const users_module_1 = require("./modules/users/users.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 let AppModule = class AppModule {
@@ -40,7 +42,7 @@ exports.AppModule = AppModule = __decorate([
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => [
                     {
-                        ttl: configService.getOrThrow('app.throttle.ttlSeconds') * 1000,
+                        ttl: configService.getOrThrow('app.throttle.ttlSeconds'),
                         limit: configService.getOrThrow('app.throttle.limit'),
                     },
                 ],
@@ -49,6 +51,8 @@ exports.AppModule = AppModule = __decorate([
             uploads_module_1.UploadsModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
+            audit_log_module_1.AuditLogModule,
+            notifications_module_1.NotificationsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

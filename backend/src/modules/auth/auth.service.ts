@@ -70,7 +70,10 @@ export class AuthService {
     return user;
   }
 
-  async logout(request: AuthenticatedRequest, response: Response): Promise<{ message: string }> {
+  logout(
+    request: AuthenticatedRequest,
+    response: Response,
+  ): { message: string } {
     const cookieOptions = this.configService.getOrThrow<{
       httpOnly: boolean;
       secure: boolean;

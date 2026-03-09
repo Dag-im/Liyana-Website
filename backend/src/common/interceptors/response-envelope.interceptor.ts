@@ -7,10 +7,7 @@ import {
 import { Observable, map } from 'rxjs';
 import { randomUUID } from 'node:crypto';
 
-import {
-  type ApiEnvelope,
-  API_VERSION,
-} from '../types/api-envelope.type';
+import { type ApiEnvelope, API_VERSION } from '../types/api-envelope.type';
 
 type RequestWithId = {
   requestId?: string;
@@ -31,9 +28,10 @@ const isEnvelope = (value: unknown): value is ApiEnvelope<unknown> => {
 };
 
 @Injectable()
-export class ResponseEnvelopeInterceptor<T>
-  implements NestInterceptor<T, ApiEnvelope<T>>
-{
+export class ResponseEnvelopeInterceptor<T> implements NestInterceptor<
+  T,
+  ApiEnvelope<T>
+> {
   intercept(
     context: ExecutionContext,
     next: CallHandler<T>,

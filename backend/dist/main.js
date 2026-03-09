@@ -21,7 +21,7 @@ async function bootstrap() {
     const port = configService.getOrThrow('app.port');
     const trustProxyDepth = configService.getOrThrow('app.trustProxyDepth');
     const cookieSecret = configService.getOrThrow('app.cookieSecret');
-    app.getHttpAdapter().getInstance().set('trust proxy', trustProxyDepth);
+    app.set('trust proxy', trustProxyDepth);
     app.use((req, res, next) => {
         const requestId = (0, node_crypto_1.randomUUID)();
         req.requestId = requestId;
@@ -66,9 +66,14 @@ async function bootstrap() {
         exceptionFactory: (errors) => {
             const flattenErrors = (errorList, parentField = '') => {
                 return errorList.reduce((acc, error) => {
-                    const field = parentField ? `${parentField}.${error.property}` : error.property;
+                    const field = parentField
+                        ? `${parentField}.${error.property}`
+                        : error.property;
                     if (error.constraints) {
-                        acc.push(...Object.keys(error.constraints).map((key) => ({ field, error: key })));
+                        acc.push(...Object.keys(error.constraints).map((key) => ({
+                            field,
+                            error: key,
+                        })));
                     }
                     if (error.children && error.children.length > 0) {
                         acc.push(...flattenErrors(error.children, field));
@@ -95,5 +100,8 @@ async function bootstrap() {
     }
     await app.listen(port);
 }
-bootstrap();
+bootstrap().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});
 //# sourceMappingURL=main.js.map

@@ -1,10 +1,11 @@
 import {
-    CallHandler,
-    ExecutionContext,
-    Injectable,
-    Logger,
-    NestInterceptor,
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -13,8 +14,9 @@ export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const httpContext = context.switchToHttp();
+    const request = httpContext.getRequest<Request & { requestId?: string }>();
+    const response = httpContext.getResponse<Response>();
     const { method, url, requestId } = request;
     const startTime = Date.now();
 
@@ -37,7 +39,13 @@ export class LoggingInterceptor implements NestInterceptor {
       if (!queryString) return path;
 
       const params = new URLSearchParams(queryString);
-      const allowedParams = new Set(['page', 'limit', 'sort', 'search', 'filter']);
+      const allowedParams = new Set([
+        'page',
+        'limit',
+        'sort',
+        'search',
+        'filter',
+      ]);
       const sanitizedParams = new URLSearchParams();
 
       params.forEach((value, key) => {

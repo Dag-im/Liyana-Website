@@ -1,13 +1,13 @@
 import { plainToInstance } from 'class-transformer';
 import {
-    IsIn,
-    IsInt,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Min,
-    MinLength,
-    validateSync,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+  validateSync,
 } from 'class-validator';
 import path from 'node:path';
 
@@ -47,7 +47,9 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(64, { message: 'COOKIE_SECRET must be at least 64 characters long' })
+  @MinLength(64, {
+    message: 'COOKIE_SECRET must be at least 64 characters long',
+  })
   COOKIE_SECRET!: string;
 
   @IsString()
@@ -97,7 +99,10 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
     throw new Error('UPLOAD_PATH must be an absolute path.');
   }
 
-  if (uploadPath === projectRoot || uploadPath.startsWith(`${projectRoot}${path.sep}`)) {
+  if (
+    uploadPath === projectRoot ||
+    uploadPath.startsWith(`${projectRoot}${path.sep}`)
+  ) {
     throw new Error('UPLOAD_PATH must be outside the project root.');
   }
 

@@ -35,17 +35,25 @@ export class UsersService {
     private readonly auditLogService: AuditLogService,
   ) {}
 
-  async create(createUserDto: CreateUserDto, performedBy: string): Promise<User> {
+  async create(
+    createUserDto: CreateUserDto,
+    performedBy: string,
+  ): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
       withDeleted: true,
     });
 
     if (existingUser && existingUser.isActive) {
-      throw new ConflictException('Email is already in use by an active account.');
+      throw new ConflictException(
+        'Email is already in use by an active account.',
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, BCRYPT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      BCRYPT_ROUNDS,
+    );
 
     const user = this.usersRepository.create({
       ...createUserDto,
@@ -56,12 +64,19 @@ export class UsersService {
 
     const savedUser = await this.usersRepository.save(user);
 
-    this.auditLogService.log(AuditAction.USER_CREATED, performedBy, savedUser.id);
+    this.auditLogService.log(
+      AuditAction.USER_CREATED,
+      performedBy,
+      savedUser.id,
+    );
 
     return savedUser;
   }
 
-  async findAll(paginationDto: PaginationDto, filterDto: FilterDto): Promise<{
+  async findAll(
+    paginationDto: PaginationDto,
+    filterDto: FilterDto,
+  ): Promise<{
     data: User[];
     total: number;
     page: number;
@@ -71,11 +86,15 @@ export class UsersService {
     const perPage = paginationDto.perPage ?? 20;
 
     const requestedSortBy = paginationDto.sortBy as keyof User | undefined;
-    const sortBy = requestedSortBy && USER_SORTABLE_FIELDS.has(requestedSortBy)
-      ? requestedSortBy
-      : 'createdAt';
+    const sortBy =
+      requestedSortBy && USER_SORTABLE_FIELDS.has(requestedSortBy)
+        ? requestedSortBy
+        : 'createdAt';
 
-    const sortOrder = (paginationDto.sortOrder ?? 'DESC').toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const sortOrder =
+      (paginationDto.sortOrder ?? 'DESC').toUpperCase() === 'ASC'
+        ? 'ASC'
+        : 'DESC';
 
     const query = this.usersRepository.createQueryBuilder('user');
 
@@ -83,21 +102,28 @@ export class UsersService {
       const search = `%${filterDto.search}%`;
       query.andWhere(
         new Brackets((qb) => {
-          qb.where('user.name LIKE :search', { search })
-            .orWhere('user.email LIKE :search', { search });
+          qb.where('user.name LIKE :search', { search }).orWhere(
+            'user.email LIKE :search',
+            { search },
+          );
         }),
       );
     }
 
     if (filterDto.startDate) {
-      query.andWhere('user.createdAt >= :startDate', { startDate: filterDto.startDate });
+      query.andWhere('user.createdAt >= :startDate', {
+        startDate: filterDto.startDate,
+      });
     }
 
     if (filterDto.endDate) {
-      query.andWhere('user.createdAt <= :endDate', { endDate: filterDto.endDate });
+      query.andWhere('user.createdAt <= :endDate', {
+        endDate: filterDto.endDate,
+      });
     }
 
-    query.orderBy(`user.${sortBy}`, sortOrder)
+    query
+      .orderBy(`user.${sortBy}`, sortOrder)
       .skip((page - 1) * perPage)
       .take(perPage);
 
@@ -126,7 +152,11 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, performedBy: string): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    performedBy: string,
+  ): Promise<User> {
     const user = await this.findOne(id);
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
@@ -136,14 +166,20 @@ export class UsersService {
       });
 
       if (existingUser && existingUser.id !== id && existingUser.isActive) {
-        throw new ConflictException('Email is already in use by another active account.');
+        throw new ConflictException(
+          'Email is already in use by another active account.',
+        );
       }
     }
 
     const updatedUser = this.usersRepository.merge(user, updateUserDto);
     const savedUser = await this.usersRepository.save(updatedUser);
 
-    this.auditLogService.log(AuditAction.USER_UPDATED, performedBy, savedUser.id);
+    this.auditLogService.log(
+      AuditAction.USER_UPDATED,
+      performedBy,
+      savedUser.id,
+    );
 
     return savedUser;
   }
@@ -155,7 +191,10 @@ export class UsersService {
   ): Promise<{ message: string }> {
     const user = await this.findOne(id);
 
-    user.password = await bcrypt.hash(changePasswordDto.newPassword, BCRYPT_ROUNDS);
+    user.password = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      BCRYPT_ROUNDS,
+    );
     await this.usersRepository.save(user);
 
     this.auditLogService.log(

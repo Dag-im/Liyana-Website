@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { AuditLogService } from './services/audit-log.service';
+import { AuditLogModule } from '../modules/audit-log/audit-log.module';
 
 @Module({
-  providers: [AuditLogService],
-  exports: [AuditLogService],
+  // We export AuditLogModule instead of providing AuditLogService
+  // so that the Provider list relies on exactly one instance globally.
+  imports: [AuditLogModule],
+  exports: [AuditLogModule],
 })
 export class CommonModule {}

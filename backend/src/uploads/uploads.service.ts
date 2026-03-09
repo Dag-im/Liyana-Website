@@ -1,4 +1,10 @@
-import { Injectable, NestInterceptor, OnModuleInit, Type, UnsupportedMediaTypeException } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  OnModuleInit,
+  Type,
+  UnsupportedMediaTypeException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -23,9 +29,13 @@ export class UploadsService implements OnModuleInit {
     this.defaultAllowedMimeTypes = this.configService.getOrThrow<string[]>(
       'app.upload.allowedMimeTypes',
     );
-    this.maxFileSizeBytes = this.configService.getOrThrow<number>('app.upload.maxFileSizeBytes');
+    this.maxFileSizeBytes = this.configService.getOrThrow<number>(
+      'app.upload.maxFileSizeBytes',
+    );
     this.blockedExtensions = new Set(
-      this.configService.getOrThrow<string[]>('app.upload.blockedExtensions').map((ext) => ext.toLowerCase()),
+      this.configService
+        .getOrThrow<string[]>('app.upload.blockedExtensions')
+        .map((ext) => ext.toLowerCase()),
     );
   }
 
@@ -36,10 +46,15 @@ export class UploadsService implements OnModuleInit {
   async cleanup(filePath: string): Promise<void> {
     try {
       await fs.unlink(filePath);
-    } catch {}
+    } catch {
+      // Ignore errors if file doesn't exist or cannot be deleted
+    }
   }
 
-  uploadSingle(fieldName: string, options?: UploadOptions): Type<NestInterceptor> {
+  uploadSingle(
+    fieldName: string,
+    options?: UploadOptions,
+  ): Type<NestInterceptor> {
     return FileInterceptor(fieldName, this.buildMulterOptions(options));
   }
 
@@ -48,11 +63,16 @@ export class UploadsService implements OnModuleInit {
     maxCount: number,
     options?: UploadOptions,
   ): Type<NestInterceptor> {
-    return FilesInterceptor(fieldName, maxCount, this.buildMulterOptions(options));
+    return FilesInterceptor(
+      fieldName,
+      maxCount,
+      this.buildMulterOptions(options),
+    );
   }
 
   private buildMulterOptions(options?: UploadOptions) {
-    const allowedMimeTypes = options?.allowedMimeTypes ?? this.defaultAllowedMimeTypes;
+    const allowedMimeTypes =
+      options?.allowedMimeTypes ?? this.defaultAllowedMimeTypes;
 
     return {
       storage: diskStorage({
@@ -66,7 +86,11 @@ export class UploadsService implements OnModuleInit {
       limits: {
         fileSize: options?.maxFileSizeBytes ?? this.maxFileSizeBytes,
       },
-      fileFilter: (_req: unknown, file: Express.Multer.File, cb: (error: Error | null, acceptFile: boolean) => void) => {
+      fileFilter: (
+        _req: unknown,
+        file: Express.Multer.File,
+        cb: (error: Error | null, acceptFile: boolean) => void,
+      ) => {
         const extension = path.extname(file.originalname).toLowerCase();
 
         if (this.blockedExtensions.has(extension)) {

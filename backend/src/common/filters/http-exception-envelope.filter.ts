@@ -5,12 +5,10 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { randomUUID } from 'node:crypto';
 
-import {
-  type ApiEnvelope,
-  API_VERSION,
-} from '../types/api-envelope.type';
+import { type ApiEnvelope, API_VERSION } from '../types/api-envelope.type';
 
 type RequestWithId = {
   requestId?: string;
@@ -31,7 +29,7 @@ const STATUS_CODE_MAP: Record<number, string> = {
 export class HttpExceptionEnvelopeFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
+    const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<RequestWithId>();
 
     const requestId = request.requestId ?? randomUUID();

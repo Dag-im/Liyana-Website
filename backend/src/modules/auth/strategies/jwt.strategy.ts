@@ -16,7 +16,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: { signedCookies?: Record<string, string> } | undefined): string | null => {
+        (
+          request: { signedCookies?: Record<string, string> } | undefined,
+        ): string | null => {
           if (!request?.signedCookies?.[JWT_COOKIE_NAME]) {
             return null;
           }
