@@ -1,3 +1,4 @@
+import { User } from 'src/modules/users/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -89,4 +90,7 @@ export class Division {
     cascade: true,
   })
   contact: DivisionContact;
+
+  @OneToMany(() => User, (u) => u.division)
+  users: User[];
 }

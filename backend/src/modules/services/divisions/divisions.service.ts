@@ -8,6 +8,7 @@ import { Brackets, DataSource, Repository } from 'typeorm';
 import { AuditAction } from '../../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { UploadsService } from '../../../uploads/uploads.service';
+import { User } from '../../users/entity/user.entity';
 import { DivisionCategoriesService } from '../division-categories/division-categories.service';
 import { DivisionContact } from '../entities/division-contact.entity';
 import { DivisionCoreService } from '../entities/division-core-service.entity';
@@ -30,6 +31,8 @@ export class DivisionsService {
     private readonly divisionCategoriesService: DivisionCategoriesService,
     private readonly auditLogService: AuditLogService,
     private readonly uploadsService: UploadsService,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async findAll(queryDto: QueryDivisionDto): Promise<{
@@ -390,6 +393,10 @@ export class DivisionsService {
 
     division.isActive = false;
     await this.divisionRepository.save(division);
+
+    // Nullify divisionId for all users assigned to this division
+    await this.usersRepository.update({ divisionId: id }, { divisionId: null });
+
     await this.divisionRepository.softDelete(id);
 
     this.auditLogService.log(AuditAction.DIVISION_DELETED, performedBy, id);

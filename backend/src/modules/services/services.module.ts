@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CommonModule } from '../../common/common.module';
 import { UploadsModule } from '../../uploads/uploads.module';
+import { Booking } from '../bookings/entity/booking.entity';
+import { User } from '../users/entity/user.entity';
 import { DivisionCategoriesController } from './division-categories/division-categories.controller';
 import { DivisionCategoriesService } from './division-categories/division-categories.service';
 import { DivisionsController } from './divisions/divisions.controller';
@@ -23,14 +25,16 @@ import { ServiceCategoriesService } from './service-categories/service-categorie
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      Division,
       DivisionCategory,
       ServiceCategory,
-      Division,
       Doctor,
       DivisionStat,
       DivisionImage,
       DivisionCoreService,
       DivisionContact,
+      Booking,
+      User,
     ]),
     CommonModule,
     UploadsModule,
