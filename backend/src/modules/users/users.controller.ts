@@ -21,13 +21,12 @@ import {
 import { Throttle } from '@nestjs/throttler';
 
 import { Roles } from '../../common/decorators/roles.decorator';
-import { FilterDto } from '../../common/dto/filter.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { UserRole } from '../../common/types/user-role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { QueryUserDto } from './dto/query-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -35,6 +34,7 @@ type AuthenticatedRequest = {
   user: {
     sub: string;
     role: UserRole;
+    divisionId: string | null;
   };
 };
 
@@ -69,35 +69,14 @@ export class UsersController {
     summary:
       'List users with pagination and filtering. Rate limit: 60 requests per 60 seconds.',
   })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'perPage', required: false, type: Number })
-  @ApiQuery({ name: 'sortBy', required: false, type: String })
-  @ApiQuery({
-    name: 'sortOrder',
-    required: false,
-    enum: ['ASC', 'DESC', 'asc', 'desc'],
-  })
-  @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
+  @ApiQuery({ type: QueryUserDto })
   @ApiResponse({
     status: 200,
     description: 'Paginated users response.',
-    schema: {
-      example: {
-        data: [],
-        total: 0,
-        page: 1,
-        perPage: 20,
-      },
-    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  findAll(
-    @Query() paginationDto: PaginationDto,
-    @Query() filterDto: FilterDto,
-  ) {
-    return this.usersService.findAll(paginationDto, filterDto);
+  findAll(@Query() queryUserDto: QueryUserDto) {
+    return this.usersService.findAll(queryUserDto);
   }
 
   @Get(':id')

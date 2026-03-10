@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsOptional } from 'class-validator';
 
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { QueryDto } from 'src/common/dto/query.dto';
 
-export class QueryNotificationDto extends PaginationDto {
+export class QueryNotificationDto extends QueryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()

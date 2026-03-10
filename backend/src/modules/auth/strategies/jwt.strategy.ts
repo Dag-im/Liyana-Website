@@ -9,6 +9,7 @@ import { UserRole } from '../../../common/types/user-role.enum';
 type JwtPayload = {
   sub: string;
   role: UserRole;
+  divisionId: string | null;
 };
 
 @Injectable()

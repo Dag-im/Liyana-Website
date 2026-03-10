@@ -28,6 +28,8 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.BLOGGER })
   role!: UserRole;
 
+  @Column({ type: 'varchar', nullable: true, default: null }) divisionId: string | null;
+
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 

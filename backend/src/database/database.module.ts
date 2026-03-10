@@ -15,7 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         password: configService.getOrThrow<string>('app.db.password'),
         database: configService.getOrThrow<string>('app.db.name'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         logging: false,
         extra: {
           connectionLimit: 10,

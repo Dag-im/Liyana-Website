@@ -8,13 +8,12 @@ import * as bcrypt from 'bcrypt';
 import { Brackets, Repository } from 'typeorm';
 
 import { BCRYPT_ROUNDS } from '../../common/constants/app.constants';
-import { FilterDto } from '../../common/dto/filter.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
 import { UserRole } from '../../common/types/user-role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { QueryUserDto } from './dto/query-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entity/user.entity';
 
@@ -73,33 +72,34 @@ export class UsersService {
     return savedUser;
   }
 
-  async findAll(
-    paginationDto: PaginationDto,
-    filterDto: FilterDto,
-  ): Promise<{
+  async findAll(queryUserDto: QueryUserDto): Promise<{
     data: User[];
     total: number;
     page: number;
     perPage: number;
   }> {
-    const page = paginationDto.page ?? 1;
-    const perPage = paginationDto.perPage ?? 20;
+    const page = queryUserDto.page ?? 1;
+    const perPage = queryUserDto.perPage ?? 20;
 
-    const requestedSortBy = paginationDto.sortBy as keyof User | undefined;
+    const requestedSortBy = queryUserDto.sortBy as keyof User | undefined;
     const sortBy =
       requestedSortBy && USER_SORTABLE_FIELDS.has(requestedSortBy)
         ? requestedSortBy
         : 'createdAt';
 
     const sortOrder =
-      (paginationDto.sortOrder ?? 'DESC').toUpperCase() === 'ASC'
+      (queryUserDto.sortOrder ?? 'DESC').toUpperCase() === 'ASC'
         ? 'ASC'
         : 'DESC';
 
     const query = this.usersRepository.createQueryBuilder('user');
 
-    if (filterDto.search) {
-      const search = `%${filterDto.search}%`;
+    if (queryUserDto.role) {
+      query.andWhere('user.role = :role', { role: queryUserDto.role });
+    }
+
+    if (queryUserDto.search) {
+      const search = `%${queryUserDto.search}%`;
       query.andWhere(
         new Brackets((qb) => {
           qb.where('user.name LIKE :search', { search }).orWhere(
@@ -110,15 +110,17 @@ export class UsersService {
       );
     }
 
-    if (filterDto.startDate) {
+    if (queryUserDto.startDate) {
       query.andWhere('user.createdAt >= :startDate', {
-        startDate: filterDto.startDate,
+        startDate: queryUserDto.startDate,
       });
     }
 
-    if (filterDto.endDate) {
-      query.andWhere('user.createdAt <= :endDate', {
-        endDate: filterDto.endDate,
+    if (queryUserDto.endDate) {
+      const end = new Date(queryUserDto.endDate);
+      end.setDate(end.getDate() + 1);
+      query.andWhere('user.createdAt < :endDate', {
+        endDate: end.toISOString(),
       });
     }
 

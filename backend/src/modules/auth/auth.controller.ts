@@ -11,10 +11,10 @@ import type { Response } from 'express';
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UserRole } from '../../common/types/user-role.enum';
+import { User } from '../users/entity/user.entity';
+import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { AuthService } from './auth.service';
-import { User } from '../users/entity/user.entity';
 
 type LocalRequest = {
   user: User;
@@ -25,6 +25,7 @@ type JwtRequest = {
   user: {
     sub: string;
     role: UserRole;
+    divisionId: string | null;
   };
 };
 

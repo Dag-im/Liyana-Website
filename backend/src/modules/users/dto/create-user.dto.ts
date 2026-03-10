@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  IsUUID,
   MinLength,
 } from 'class-validator';
 
@@ -29,6 +30,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @ApiProperty({ required: false, default: null })
+  @IsOptional()
+  @IsUUID()
+  divisionId?: string;
 
   @ApiProperty({ required: false, default: true })
   @IsOptional()

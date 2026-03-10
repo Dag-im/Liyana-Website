@@ -14,6 +14,7 @@ import { UsersService } from '../users/users.service';
 type JwtPayload = {
   sub: string;
   role: UserRole;
+  divisionId: string | null;
 };
 
 type AuthenticatedRequest = {
@@ -49,6 +50,7 @@ export class AuthService {
     const payload: JwtPayload = {
       sub: user.id,
       role: user.role,
+      divisionId: user.divisionId,
     };
 
     const token = await this.jwtService.signAsync(payload);
