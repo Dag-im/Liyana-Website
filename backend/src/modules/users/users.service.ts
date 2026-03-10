@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,6 +12,7 @@ import { BCRYPT_ROUNDS } from '../../common/constants/app.constants';
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
 import { UserRole } from '../../common/types/user-role.enum';
+import { DivisionsService } from '../services/divisions/divisions.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUserDto } from './dto/query-users.dto';
@@ -32,6 +34,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly auditLogService: AuditLogService,
+    private readonly divisionsService: DivisionsService,
   ) {}
 
   async create(
@@ -53,6 +56,15 @@ export class UsersService {
       createUserDto.password,
       BCRYPT_ROUNDS,
     );
+
+    if (createUserDto.role === UserRole.CUSTOMER_SERVICE) {
+      if (!createUserDto.divisionId) {
+        throw new BadRequestException(
+          'CUSTOMER_SERVICE users must have a divisionId',
+        );
+      }
+      await this.divisionsService.findOne(createUserDto.divisionId);
+    }
 
     const user = this.usersRepository.create({
       ...createUserDto,
@@ -172,6 +184,18 @@ export class UsersService {
           'Email is already in use by another active account.',
         );
       }
+    }
+
+    const incomingRole = updateUserDto.role ?? user.role;
+    const effectiveDivisionId = updateUserDto.divisionId ?? user.divisionId;
+
+    if (incomingRole === UserRole.CUSTOMER_SERVICE) {
+      if (!effectiveDivisionId) {
+        throw new BadRequestException(
+          'CUSTOMER_SERVICE users must have a divisionId',
+        );
+      }
+      await this.divisionsService.findOne(effectiveDivisionId);
     }
 
     const updatedUser = this.usersRepository.merge(user, updateUserDto);

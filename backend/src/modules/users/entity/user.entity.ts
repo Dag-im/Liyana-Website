@@ -4,11 +4,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { UserRole } from '../../../common/types/user-role.enum';
+import { Division } from '../../services/entities/division.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -28,7 +31,16 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.BLOGGER })
   role!: UserRole;
 
-  @Column({ type: 'varchar', nullable: true, default: null }) divisionId: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  divisionId: string | null;
+
+  @ManyToOne(() => Division, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: false,
+  })
+  @JoinColumn({ name: 'divisionId' })
+  division: Division | null;
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;

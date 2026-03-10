@@ -1,0 +1,147 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { UserRole } from '../../../common/types/user-role.enum';
+import { UploadsService } from '../../../uploads/uploads.service';
+import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
+import { QueryServiceCategoryDto } from './dto/query-service-category.dto';
+import { UpdateServiceCategoryDto } from './dto/update-service-category.dto';
+import { ServiceCategoriesService } from './service-categories.service';
+
+@ApiTags('Service Categories')
+@Controller('service-categories')
+export class ServiceCategoriesController {
+  constructor(
+    private readonly serviceCategoriesService: ServiceCategoriesService,
+    private readonly uploadsService: UploadsService,
+  ) {}
+
+  @Post('upload')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiCookieAuth()
+  @UseInterceptors(
+    new (new UploadsService({
+      getOrThrow: (key: string) => {
+        if (key === 'app.upload.path') return 'uploads';
+        if (key === 'app.upload.allowedMimeTypes')
+          return ['image/jpeg', 'image/png', 'image/webp'];
+        if (key === 'app.upload.maxFileSizeBytes') return 5 * 1024 * 1024;
+        if (key === 'app.upload.blockedExtensions') return ['.exe', '.sh'];
+        return '';
+      },
+    } as any).uploadSingle('file'))(),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: 'Upload hero image for service category' })
+  @ApiResponse({ status: 201, description: 'File uploaded successfully.' })
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return { url: `/uploads/${file.filename}` };
+  }
+
+  @Get()
+  @Throttle({ default: { limit: 120, ttl: 60000 } })
+  @ApiOperation({ summary: 'Get all service categories (paginated)' })
+  @ApiResponse({ status: 200, description: 'List of service categories.' })
+  findAll(@Query() query: QueryServiceCategoryDto) {
+    return this.serviceCategoriesService.findAll(query);
+  }
+
+  @Get(':id')
+  @Throttle({ default: { limit: 120, ttl: 60000 } })
+  @ApiOperation({ summary: 'Get service category by id with relations' })
+  @ApiResponse({ status: 200, description: 'The found service category.' })
+  @ApiResponse({ status: 404, description: 'Service category not found.' })
+  findOne(@Param('id') id: string) {
+    return this.serviceCategoriesService.findOne(id);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiCookieAuth()
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: 'Create a new service category' })
+  @ApiResponse({
+    status: 201,
+    description: 'The service category has been created.',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  create(
+    @Body() createDto: CreateServiceCategoryDto,
+    @Req() req: { user: { sub: string } },
+  ) {
+    return this.serviceCategoriesService.create(createDto, req.user.sub);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiCookieAuth()
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: 'Update a service category' })
+  @ApiResponse({
+    status: 200,
+    description: 'The service category has been updated.',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  @ApiResponse({ status: 404, description: 'Service category not found.' })
+  update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateServiceCategoryDto,
+    @Req() req: { user: { sub: string } },
+  ) {
+    return this.serviceCategoriesService.update(id, updateDto, req.user.sub);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiCookieAuth()
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: 'Delete a service category' })
+  @ApiResponse({
+    status: 200,
+    description: 'The service category has been soft deleted.',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  @ApiResponse({ status: 404, description: 'Service category not found.' })
+  remove(@Param('id') id: string, @Req() req: { user: { sub: string } }) {
+    return this.serviceCategoriesService.remove(id, req.user.sub);
+  }
+}

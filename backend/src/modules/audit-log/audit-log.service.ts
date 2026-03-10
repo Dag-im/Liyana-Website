@@ -14,6 +14,19 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.USER_LOGIN]: 'user',
   [AuditAction.USER_LOGOUT]: 'user',
   [AuditAction.NOTIFICATION_CREATED]: 'notification',
+  [AuditAction.SERVICE_CATEGORY_CREATED]: 'service_category',
+  [AuditAction.SERVICE_CATEGORY_UPDATED]: 'service_category',
+  [AuditAction.SERVICE_CATEGORY_DELETED]: 'service_category',
+  [AuditAction.DIVISION_CATEGORY_CREATED]: 'division_category',
+  [AuditAction.DIVISION_CATEGORY_UPDATED]: 'division_category',
+  [AuditAction.DIVISION_CATEGORY_DELETED]: 'division_category',
+  [AuditAction.DIVISION_CREATED]: 'division',
+  [AuditAction.DIVISION_UPDATED]: 'division',
+  [AuditAction.DIVISION_DELETED]: 'division',
+
+  // Bookings
+  [AuditAction.BOOKING_CREATED]: 'booking',
+  [AuditAction.BOOKING_STATUS_UPDATED]: 'booking',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([

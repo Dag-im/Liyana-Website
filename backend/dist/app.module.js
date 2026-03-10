@@ -24,7 +24,9 @@ const config_2 = __importDefault(require("./config/config"));
 const database_module_1 = require("./database/database.module");
 const audit_log_module_1 = require("./modules/audit-log/audit-log.module");
 const auth_module_1 = require("./modules/auth/auth.module");
+const bookings_module_1 = require("./modules/bookings/bookings.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
+const services_module_1 = require("./modules/services/services.module");
 const users_module_1 = require("./modules/users/users.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 let AppModule = class AppModule {
@@ -53,6 +55,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             audit_log_module_1.AuditLogModule,
             notifications_module_1.NotificationsModule,
+            services_module_1.ServicesModule,
+            bookings_module_1.BookingsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

@@ -18,7 +18,9 @@ import appConfig from './config/config';
 import { DatabaseModule } from './database/database.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ServicesModule } from './modules/services/services.module';
 import { UsersModule } from './modules/users/users.module';
 import { UploadsModule } from './uploads/uploads.module';
 
@@ -44,6 +46,8 @@ import { UploadsModule } from './uploads/uploads.module';
     AuthModule,
     AuditLogModule,
     NotificationsModule,
+    ServicesModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
