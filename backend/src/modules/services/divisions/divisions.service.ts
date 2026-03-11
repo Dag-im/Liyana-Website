@@ -140,6 +140,7 @@ export class DivisionsService {
         logo: createDto.logo,
         description: createDto.description,
         groupPhoto: createDto.groupPhoto,
+        isActive: createDto.isActive ?? true,
         serviceCategoryId: createDto.serviceCategoryId,
         divisionCategoryId: createDto.divisionCategoryId,
       });
@@ -147,9 +148,9 @@ export class DivisionsService {
       const savedDivision = await queryRunner.manager.save(division);
 
       if (createDto.images?.length) {
-        const imageEntities = createDto.images.map((path, index) =>
+        const imageEntities = createDto.images.map((img, index) =>
           queryRunner.manager.create(DivisionImage, {
-            path,
+            path: img.path,
             sortOrder: index,
             divisionId: savedDivision.id,
           }),
@@ -158,9 +159,10 @@ export class DivisionsService {
       }
 
       if (createDto.coreServices?.length) {
-        const coreServicesEntities = createDto.coreServices.map((name, index) =>
+        const coreServicesEntities = createDto.coreServices.map((service, index) =>
           queryRunner.manager.create(DivisionCoreService, {
-            name,
+            name: service.name,
+            description: service.description,
             sortOrder: index,
             divisionId: savedDivision.id,
           }),
@@ -183,6 +185,7 @@ export class DivisionsService {
         const doctorEntities = createDto.doctors.map((doc) =>
           queryRunner.manager.create(Doctor, {
             ...doc,
+            availability: doc.availability || 'Available during business hours',
             divisionId: savedDivision.id,
           }),
         );
@@ -256,6 +259,7 @@ export class DivisionsService {
         logo: updateDto.logo,
         description: updateDto.description,
         groupPhoto: updateDto.groupPhoto,
+        isActive: updateDto.isActive,
         serviceCategoryId: updateDto.serviceCategoryId,
         divisionCategoryId: updateDto.divisionCategoryId,
       });
@@ -282,9 +286,9 @@ export class DivisionsService {
         await queryRunner.manager.delete(DivisionImage, { divisionId: id });
 
         if (updateDto.images && updateDto.images.length > 0) {
-          const imageEntities = updateDto.images.map((path, index) =>
+          const imageEntities = updateDto.images.map((img, index) =>
             queryRunner.manager.create(DivisionImage, {
-              path,
+              path: img.path,
               sortOrder: index,
               divisionId: id,
             }),
@@ -293,7 +297,7 @@ export class DivisionsService {
         }
 
         // Cleanup files for deleted images
-        const currentImagePaths = updateDto.images || [];
+        const currentImagePaths = updateDto.images?.map(img => img.path) || [];
         for (const oldImage of oldImages) {
           if (!currentImagePaths.includes(oldImage.path)) {
             await this.uploadsService.cleanup(oldImage.path);
@@ -307,9 +311,10 @@ export class DivisionsService {
         });
         if (updateDto.coreServices && updateDto.coreServices.length > 0) {
           const coreServicesEntities = updateDto.coreServices.map(
-            (name, index) =>
+            (service, index) =>
               queryRunner.manager.create(DivisionCoreService, {
-                name,
+                name: service.name,
+                description: service.description,
                 sortOrder: index,
                 divisionId: id,
               }),

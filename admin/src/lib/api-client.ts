@@ -40,7 +40,9 @@ export async function apiRequest<T>(
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
+      ...(init?.body instanceof FormData
+        ? {}
+        : { 'Content-Type': 'application/json' }),
       ...(init?.headers ?? {}),
     },
     ...init,

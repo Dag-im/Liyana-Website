@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { handleMutationError } from '@/lib/error-utils'
 import { useUpdateServiceCategory } from './useServiceCategories'
 
 const schema = z.object({
@@ -79,9 +80,7 @@ export function EditServiceCategoryDialog({
         toast.success('Service category updated')
         onOpenChange(false)
       },
-      onError: (error: any) => {
-        toast.error(error.message || 'Failed to update category')
-      },
+      onError: handleMutationError,
     })
   }
 

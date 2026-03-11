@@ -37,6 +37,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { getUploadUrl } from '@/lib/upload-utils';
+import { handleMutationError } from '@/lib/error-utils';
 import { useCreateDivision } from './useDivisions';
 
 const STEPS = [
@@ -58,6 +60,7 @@ export function CreateDivisionWizard({
   const createMutation = useCreateDivision();
   const { data: serviceCategories } = useServiceCategories({ perPage: 100 });
   const { data: divisionCategories } = useDivisionCategories();
+  const [uploadKey, setUploadKey] = useState(0);
 
   const [formData, setFormData] = useState<any>({
     name: '',
@@ -106,6 +109,7 @@ export function CreateDivisionWizard({
         onOpenChange(false);
         resetWizard();
       },
+      onError: handleMutationError,
     });
   };
 
@@ -410,7 +414,7 @@ export function CreateDivisionWizard({
                       className="aspect-video rounded-lg overflow-hidden border relative"
                     >
                       <img
-                        src={img.path}
+                        src={getUploadUrl(img.path)}
                         className="w-full h-full object-cover"
                       />
                       <Button
@@ -430,13 +434,15 @@ export function CreateDivisionWizard({
                   ))}
                   <div className="aspect-video">
                     <FileUpload
+                      key={uploadKey}
                       onUpload={divisionsApi.uploadDivisionFile}
-                      onSuccess={(path) =>
+                      onSuccess={(path) => {
                         setFormData({
                           ...formData,
                           images: [...formData.images, { path, alt: '' }],
-                        })
-                      }
+                        });
+                        setUploadKey((prev) => prev + 1);
+                      }}
                       label="Add Image"
                     />
                   </div>
@@ -527,10 +533,7 @@ export function CreateDivisionWizard({
                           name: '',
                           specialty: '',
                           image: '',
-                          bio: '',
-                          education: [],
-                          experience: [],
-                          languages: [],
+                          availability: 'Available during business hours',
                         },
                       ],
                     })
@@ -576,14 +579,12 @@ export function CreateDivisionWizard({
                           setFormData({ ...formData, doctors: next });
                         }}
                       />
-                      <Textarea
-                        placeholder="Short Bio"
-                        value={doc.bio}
-                        onChange={(
-                          e: React.ChangeEvent<HTMLTextAreaElement>
-                        ) => {
+                      <Input
+                        placeholder="Availability (e.g. Mon-Fri, 9AM-5PM)"
+                        value={doc.availability}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           const next = [...formData.doctors];
-                          next[i].bio = e.target.value;
+                          next[i].availability = e.target.value;
                           setFormData({ ...formData, doctors: next });
                         }}
                       />

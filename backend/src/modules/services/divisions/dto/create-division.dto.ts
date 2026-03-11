@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEmail,
   IsInt,
   IsOptional,
@@ -53,6 +54,28 @@ export class ContactDto {
   googleMap?: string;
 }
 
+export class ImageDto {
+  @IsString()
+  @ApiProperty()
+  path: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  alt?: string;
+}
+
+export class CoreServiceDto {
+  @IsString()
+  @ApiProperty()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  description?: string;
+}
+
 export class CreateDivisionDto {
   @IsUUID()
   @ApiProperty()
@@ -90,6 +113,11 @@ export class CreateDivisionDto {
   overview: string;
 
   @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ required: false })
+  isActive?: boolean;
+
+  @IsOptional()
   @IsString()
   @ApiProperty({ required: false })
   logo?: string;
@@ -106,14 +134,16 @@ export class CreateDivisionDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  @ApiProperty({ required: false, type: [String] })
-  images?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => ImageDto)
+  @ApiProperty({ required: false, type: [ImageDto] })
+  images?: ImageDto[];
 
   @IsArray()
-  @IsString({ each: true })
-  @ApiProperty({ type: [String] })
-  coreServices: string[];
+  @ValidateNested({ each: true })
+  @Type(() => CoreServiceDto)
+  @ApiProperty({ type: [CoreServiceDto] })
+  coreServices: CoreServiceDto[];
 
   @IsOptional()
   @IsArray()

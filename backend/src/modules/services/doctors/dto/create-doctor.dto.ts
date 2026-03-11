@@ -17,7 +17,8 @@ export class CreateDoctorDto {
   @ApiProperty({ required: false })
   image?: string;
 
+  @IsOptional()
   @IsString()
-  @ApiProperty()
-  availability: string;
+  @ApiProperty({ required: false })
+  availability?: string;
 }

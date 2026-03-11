@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label'
 import type { DivisionCategory } from '@/types/services.types'
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { handleMutationError } from '@/lib/error-utils'
 import { useCreateDivisionCategory, useDeleteDivisionCategory, useDivisionCategories, useUpdateDivisionCategory } from './useDivisionCategories'
 
 export default function DivisionCategoriesPage() {
@@ -48,10 +49,16 @@ export default function DivisionCategoriesPage() {
     if (editingCategory) {
       updateMutation.mutate(
         { id: editingCategory.id, dto: formData },
-        { onSuccess: () => setIsDialogOpen(false) }
+        { 
+          onSuccess: () => setIsDialogOpen(false),
+          onError: handleMutationError
+        }
       )
     } else {
-      createMutation.mutate(formData, { onSuccess: () => setIsDialogOpen(false) })
+      createMutation.mutate(formData, { 
+        onSuccess: () => setIsDialogOpen(false),
+        onError: handleMutationError
+      })
     }
   }
 
@@ -95,7 +102,7 @@ export default function DivisionCategoriesPage() {
                   description={`Are you sure you want to delete "${row.original.name}"? This action cannot be undone.`}
                   confirmLabel="Delete"
                   isLoading={deleteMutation.isPending}
-                  onConfirm={() => deleteMutation.mutate(row.original.id)}
+                  onConfirm={() => deleteMutation.mutate(row.original.id, { onError: handleMutationError })}
                   trigger={
                     <Button size="icon" variant="ghost" className="text-destructive">
                       <Trash2 className="h-4 w-4" />

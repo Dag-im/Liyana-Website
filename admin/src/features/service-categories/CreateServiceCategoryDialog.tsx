@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { handleMutationError } from '@/lib/error-utils'
 import { useCreateServiceCategory } from './useServiceCategories'
 
 const schema = z.object({
@@ -68,9 +69,7 @@ export function CreateServiceCategoryDialog({
         onOpenChange(false)
         form.reset()
       },
-      onError: (error: any) => {
-        toast.error(error.message || 'Failed to create category')
-      },
+      onError: handleMutationError,
     })
   }
 

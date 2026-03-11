@@ -11,14 +11,15 @@ export type GetDivisionsParams = {
 };
 
 export const divisionsApi = {
-  uploadDivisionFile: (file: File) => {
+  uploadDivisionFile: async (file: File): Promise<{ path: string }> => {
     const formData = new FormData();
-    formData.append('file', file);
-    return apiRequest<{ path: string }>('/divisions/upload', {
+    formData.append('files', file); // Backend expects 'files' array for divisions
+    const results = await apiRequest<{ path: string }[]>('/divisions/upload', {
       method: 'POST',
       body: formData,
       headers: {},
     });
+    return results[0];
   },
 
   getDivisions: (params: GetDivisionsParams) => {

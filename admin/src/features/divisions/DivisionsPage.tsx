@@ -1,6 +1,7 @@
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import DataTable from '@/components/shared/DataTable';
 import PageHeader from '@/components/shared/PageHeader';
+import { FileImage } from '@/components/shared/FileImage';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -168,8 +169,8 @@ export default function DivisionsPage() {
             cell: ({ row }: { row: { original: Division } }) => (
               <div className="flex items-center gap-3">
                 {row.original.logo ? (
-                  <img
-                    src={row.original.logo}
+                  <FileImage
+                    path={row.original.logo}
                     className="h-8 w-8 rounded-full object-cover border"
                     alt=""
                   />

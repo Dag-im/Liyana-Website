@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { FileIcon, Loader2, Upload, X } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { getUploadUrl } from '@/lib/upload-utils';
 
 type FileUploadProps = {
   onUpload: (file: File) => Promise<{ path: string }>;
@@ -23,7 +24,9 @@ export function FileUpload({
   currentPath,
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(currentPath || null);
+  const [preview, setPreview] = useState<string | null>(
+    getUploadUrl(currentPath) || null
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(

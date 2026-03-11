@@ -14,7 +14,7 @@ export function useFileUrl(path: string | null | undefined): string | null {
 
     let objectUrl: string;
 
-    fileRequest(path)
+    fileRequest(path.startsWith('/') ? path : `/uploads/${path}`)
       .then((blobUrl) => {
         objectUrl = blobUrl;
         setUrl(blobUrl);

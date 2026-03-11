@@ -1,6 +1,7 @@
 import ErrorState from '@/components/shared/ErrorState'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import PageHeader from '@/components/shared/PageHeader'
+import { FileImage } from '@/components/shared/FileImage'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,7 +28,7 @@ export default function DivisionDetailPage() {
             </Link>
           </Button>
           <div className="flex items-center gap-3">
-             {division.logo && <img src={division.logo} alt="" className="h-10 w-10 object-contain" />}
+             {division.logo && <FileImage path={division.logo} alt="" className="h-10 w-10 object-contain" />}
              <div>
                <PageHeader
                  heading={division.name}
@@ -159,7 +160,7 @@ export default function DivisionDetailPage() {
                  <div className="grid grid-cols-3 gap-2">
                    {division.images.map((img) => (
                      <div key={img.id} className="aspect-square rounded-md overflow-hidden bg-muted">
-                        <img src={img.path} alt="" className="w-full h-full object-cover" />
+                        <FileImage path={img.path} alt="" className="w-full h-full object-cover" />
                      </div>
                    ))}
                    {division.images.length === 0 && (
@@ -182,7 +183,7 @@ export default function DivisionDetailPage() {
                   {division.doctors.map((doctor) => (
                     <div key={doctor.id} className="flex items-center gap-3 p-2 rounded-lg border">
                        <div className="h-8 w-8 rounded-full bg-muted overflow-hidden">
-                          {doctor.image ? <img src={doctor.image} alt="" className="w-full h-full object-cover" /> : <Users className="h-4 w-4 m-2 text-muted-foreground" />}
+                          {doctor.image ? <FileImage path={doctor.image} alt="" className="w-full h-full object-cover" /> : <Users className="h-4 w-4 m-2 text-muted-foreground" />}
                        </div>
                        <div className="flex-1 min-w-0">
                          <p className="text-xs font-semibold truncate">{doctor.name}</p>
