@@ -19,6 +19,7 @@ export type CreateUserDto = {
   email: string
   password: string
   role: UserRole
+  divisionId?: string
   isActive: boolean
 }
 
@@ -26,6 +27,7 @@ export type UpdateUserDto = {
   name?: string
   email?: string
   role?: UserRole
+  divisionId?: string
   isActive?: boolean
 }
 

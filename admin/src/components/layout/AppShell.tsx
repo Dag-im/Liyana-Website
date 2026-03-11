@@ -9,7 +9,10 @@ export default function AppShell() {
   const authQuery = useAuth()
   const user = authQuery.data
 
-  const routes = APP_NAVIGATION.filter((route) => !route.adminOnly || user?.role === 'ADMIN')
+  const routes = APP_NAVIGATION.filter((route) => {
+    if (!route.roles) return true
+    return user?.role && route.roles.includes(user.role)
+  })
 
   return (
     <div className="min-h-screen bg-background text-foreground">

@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 
 import {
   AlertDialog,
@@ -9,29 +10,43 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 
 type ConfirmDialogProps = {
-  open: boolean
-  onClose: () => void
+  open?: boolean
+  onClose?: () => void
   onConfirm: () => void
   title: string
   description: string
-  confirmLabel: string
-  isLoading: boolean
+  confirmLabel?: string
+  isLoading?: boolean
+  trigger?: React.ReactElement
 }
 
 export default function ConfirmDialog({
-  open,
+  open: controlledOpen,
   onClose,
   onConfirm,
   title,
   description,
-  confirmLabel,
-  isLoading,
+  confirmLabel = 'Confirm',
+  isLoading = false,
+  trigger,
 }: ConfirmDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+
+  const open = controlledOpen ?? uncontrolledOpen
+  const setOpen = (val: boolean) => {
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(val)
+    }
+    if (!val) onClose?.()
+  }
+
   return (
-    <AlertDialog onOpenChange={(value) => (!value ? onClose() : undefined)} open={open}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      {trigger && <AlertDialogTrigger render={trigger} />}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -45,6 +60,7 @@ export default function ConfirmDialog({
             onClick={(event) => {
               event.preventDefault()
               onConfirm()
+              if (controlledOpen === undefined) setUncontrolledOpen(false)
             }}
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

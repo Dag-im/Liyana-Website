@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-import AuditLogFilters from '@/features/audit-logs/AuditLogFilters'
-import { useAuditLogs } from '@/features/audit-logs/useAuditLogs'
 import DataTable from '@/components/shared/DataTable'
 import PageHeader from '@/components/shared/PageHeader'
 import Pagination from '@/components/shared/Pagination'
+import AuditLogFilters from '@/features/audit-logs/AuditLogFilters'
+import { useAuditLogs } from '@/features/audit-logs/useAuditLogs'
 import { usePagination } from '@/hooks/usePagination'
 import { formatDate, truncate } from '@/lib/utils'
 
@@ -37,17 +37,17 @@ export default function AuditLogsPage() {
 
       <DataTable
         columns={[
-          { key: 'action', header: 'Action' },
-          { key: 'entityType', header: 'Entity Type' },
-          { key: 'entityId', header: 'Entity ID' },
-          { key: 'performedBy', header: 'Performed By' },
+          { accessorKey: 'action', header: 'Action' },
+          { accessorKey: 'entityType', header: 'Entity Type' },
+          { accessorKey: 'entityId', header: 'Entity ID' },
+          { accessorKey: 'performedBy', header: 'Performed By' },
           {
-            key: 'metadata',
+            accessorKey: 'metadata',
             header: 'Metadata',
             render: (row: any) => truncate(JSON.stringify(row.metadata ?? {}), 60),
           },
           {
-            key: 'createdAt',
+            accessorKey: 'createdAt',
             header: 'Created At',
             render: (row: any) => formatDate(row.createdAt),
           },

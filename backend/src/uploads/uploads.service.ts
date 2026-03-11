@@ -40,6 +40,7 @@ export class UploadsService implements OnModuleInit {
   }
 
   async onModuleInit() {
+    console.log(`Ensuring upload directory exists at: ${this.uploadPath}`);
     await fs.mkdir(this.uploadPath, { recursive: true });
   }
 
@@ -73,10 +74,13 @@ export class UploadsService implements OnModuleInit {
   private buildMulterOptions(options?: UploadOptions) {
     const allowedMimeTypes =
       options?.allowedMimeTypes ?? this.defaultAllowedMimeTypes;
+    const uploadPath = this.uploadPath; // capture for closure
 
     return {
       storage: diskStorage({
-        destination: this.uploadPath,
+        destination: (_req, _file, cb) => {
+          cb(null, uploadPath); // function form — multer uses this verbatim
+        },
         filename: (_req, file, cb) => {
           const extension = path.extname(file.originalname).toLowerCase();
           const safeName = `${Date.now()}-${randomUUID()}${extension}`;

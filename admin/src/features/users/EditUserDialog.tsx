@@ -6,29 +6,39 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { useUpdateUser } from '@/features/users/useUsers'
-import { ROLES } from '@/lib/constants'
-import type { User } from '@/types/user.types'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { useDivisions } from '@/features/divisions/useDivisions'
+import { useUpdateUser } from '@/features/users/useUsers'
+import { ROLES } from '@/lib/constants'
+import type { User } from '@/types/user.types'
 
 const updateUserSchema = z.object({
   name: z.string().min(2),
-  email: z.email(),
+  email: z.string().email(),
   role: z.enum(ROLES),
+  divisionId: z.string().optional(),
   isActive: z.boolean(),
+}).refine((data) => {
+  if (data.role === 'CUSTOMER_SERVICE' && !data.divisionId) {
+    return false
+  }
+  return true
+}, {
+  message: "Division is required for Customer Service role",
+  path: ["divisionId"],
 })
 
 type UpdateUserSchema = z.infer<typeof updateUserSchema>
@@ -40,12 +50,15 @@ type EditUserDialogProps = {
 export default function EditUserDialog({ user }: EditUserDialogProps) {
   const queryClient = useQueryClient()
   const updateUserMutation = useUpdateUser(user.id)
+  const { data: divisionsData } = useDivisions({ perPage: 100 })
+
   const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       name: user.name,
       email: user.email,
       role: user.role,
+      divisionId: user.divisionId || '',
       isActive: user.isActive,
     },
   })
@@ -55,9 +68,12 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
       name: user.name,
       email: user.email,
       role: user.role,
+      divisionId: user.divisionId || '',
       isActive: user.isActive,
     })
   }, [form, user])
+
+  const watchRole = form.watch('role')
 
   const onSubmit = (values: UpdateUserSchema) => {
     if (!form.formState.isDirty) {
@@ -77,15 +93,13 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button size="icon" variant="ghost">
-          <Pencil className="h-4 w-4" />
-        </Button>
+      <DialogTrigger render={<Button size="icon" variant="ghost" />}>
+        <Pencil className="h-4 w-4" />
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Edit user</DialogTitle>
-          <DialogDescription>Update user details.</DialogDescription>
+          <DialogDescription>Update account details for {user.name}.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -121,7 +135,12 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select defaultValue={field.value} onValueChange={field.onChange}>
+                  <Select defaultValue={field.value} onValueChange={(value) => {
+                    field.onChange(value)
+                    if (value !== 'CUSTOMER_SERVICE') {
+                      form.setValue('divisionId', '')
+                    }
+                  }}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue />
@@ -130,7 +149,7 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
                     <SelectContent>
                       {ROLES.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {role}
+                          {role.replace('_', ' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -139,12 +158,40 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
                 </FormItem>
               )}
             />
+
+            {watchRole === 'CUSTOMER_SERVICE' && (
+              <FormField
+                control={form.control}
+                name="divisionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assigned Division</FormLabel>
+                    <Select defaultValue={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select division" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {divisionsData?.data.map((division) => (
+                          <SelectItem key={division.id} value={division.id}>
+                            {division.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="isActive"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-md border p-3">
-                  <FormLabel>Active</FormLabel>
+                  <FormLabel>Active Status</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -152,9 +199,9 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button disabled={updateUserMutation.isPending || !form.formState.isDirty} type="submit">
-                {updateUserMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Save changes
+              <Button disabled={updateUserMutation.isPending || !form.formState.isDirty} type="submit" className="w-full">
+                {updateUserMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save Changes
               </Button>
             </DialogFooter>
           </form>

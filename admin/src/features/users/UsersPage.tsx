@@ -7,7 +7,7 @@ import DataTable from '@/components/shared/DataTable'
 import ErrorState from '@/components/shared/ErrorState'
 import PageHeader from '@/components/shared/PageHeader'
 import Pagination from '@/components/shared/Pagination'
-import StatusBadge from '@/components/shared/StatusBadge'
+import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '@/features/auth/useAuth'
@@ -45,7 +45,7 @@ export default function UsersPage() {
   const columns = useMemo(
     () => [
       {
-        key: 'name',
+        accessorKey: 'name',
         header: 'Name',
         render: (row: any) => (
           <Link className="font-medium hover:underline" to={`/users/${row.id}`}>
@@ -53,9 +53,9 @@ export default function UsersPage() {
           </Link>
         ),
       },
-      { key: 'email', header: 'Email' },
+      { accessorKey: 'email', header: 'Email' },
       {
-        key: 'role',
+        accessorKey: 'role',
         header: 'Role',
         render: (row: any) => (
           <span className={`rounded-full px-2 py-1 text-xs ${getRoleBadgeColor(row.role)}`}>
@@ -64,17 +64,17 @@ export default function UsersPage() {
         ),
       },
       {
-        key: 'status',
+        accessorKey: 'status',
         header: 'Status',
-        render: (row: any) => <StatusBadge isActive={row.isActive} />,
+        render: (row: any) => <StatusBadge type="active" isActive={row.isActive} />,
       },
       {
-        key: 'createdAt',
+        accessorKey: 'createdAt',
         header: 'Created At',
         render: (row: any) => formatDate(row.createdAt),
       },
       {
-        key: 'actions',
+        accessorKey: 'actions',
         header: 'Actions',
         render: (row: any) =>
           isAdmin ? (

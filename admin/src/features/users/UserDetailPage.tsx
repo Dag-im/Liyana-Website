@@ -59,15 +59,15 @@ export default function UserDetailPage() {
         <CardContent>
           <DataTable
             columns={[
-              { key: 'action', header: 'Action' },
-              { key: 'performedBy', header: 'Performed By' },
+              { accessorKey: 'action', header: 'Action' },
+              { accessorKey: 'performedBy', header: 'Performed By' },
               {
-                key: 'metadata',
+                accessorKey: 'metadata',
                 header: 'Metadata',
                 render: (row: any) => truncate(JSON.stringify(row.metadata ?? {}), 60),
               },
               {
-                key: 'createdAt',
+                accessorKey: 'createdAt',
                 header: 'Created At',
                 render: (row: any) => formatDate(row.createdAt),
               },

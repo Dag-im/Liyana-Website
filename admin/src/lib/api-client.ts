@@ -72,3 +72,22 @@ export async function apiRequest<T>(
 
   return payload.data as T;
 }
+
+export async function fileRequest(path: string): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new ApiClientError(
+      {
+        code: 'FILE_FETCH_FAILED',
+        message: `Failed to fetch file: ${path}`,
+      },
+      response.status
+    );
+  }
+
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}

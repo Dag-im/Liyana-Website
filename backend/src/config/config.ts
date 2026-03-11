@@ -1,6 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import * as dotenv from 'dotenv';
-import path from 'node:path';
 import { validateEnv } from './env.validation';
 
 const parseDurationToMs = (value: string): number => {
@@ -19,12 +17,7 @@ const parseDurationToMs = (value: string): number => {
 };
 
 export default registerAs('app', () => {
-  // Load .env manually so validation has access to it
-  dotenv.config({
-    path: path.resolve(process.cwd(), '.env'),
-  });
-
-  const testDefaults: Record<string, string> =
+  const testDefaults =
     process.env.NODE_ENV === 'test'
       ? {
           PORT: '3000',
@@ -43,7 +36,6 @@ export default registerAs('app', () => {
           TRUST_PROXY_DEPTH: '0',
         }
       : {};
-
   const rawEnv = { ...testDefaults, ...process.env };
   const env = validateEnv(rawEnv);
 

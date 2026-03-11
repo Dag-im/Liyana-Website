@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import DataTable from '@/components/shared/DataTable'
 import PageHeader from '@/components/shared/PageHeader'
 import Pagination from '@/components/shared/Pagination'
-import StatusBadge from '@/components/shared/StatusBadge'
+import { StatusBadge } from '@/components/shared/StatusBadge'
 import UrgencyBadge from '@/components/shared/UrgencyBadge'
 import { Button } from '@/components/ui/button'
 import NotificationFilters from '@/features/notifications/NotificationFilters'
@@ -31,29 +31,29 @@ export default function NotificationsPage() {
 
   const columns = useMemo(
     () => [
-      { key: 'title', header: 'Title' },
+      { accessorKey: 'title', header: 'Title' },
       {
-        key: 'message',
+        accessorKey: 'message',
         header: 'Message',
         render: (row: any) => truncate(row.message, 80),
       },
       {
-        key: 'urgency',
+        accessorKey: 'urgency',
         header: 'Urgency',
         render: (row: any) => <UrgencyBadge urgency={row.urgency} />,
       },
       {
-        key: 'createdAt',
+        accessorKey: 'createdAt',
         header: 'Created At',
         render: (row: any) => formatDate(row.createdAt),
       },
       {
-        key: 'status',
+        accessorKey: 'status',
         header: 'Status',
-        render: (row: any) => <StatusBadge activeLabel="Read" inactiveLabel="Unread" isActive={row.isRead} />,
+        render: (row: any) => <StatusBadge type="read" isRead={row.isRead} />,
       },
       {
-        key: 'actions',
+        accessorKey: 'actions',
         header: 'Actions',
         render: (row: any) => (
           <Button
