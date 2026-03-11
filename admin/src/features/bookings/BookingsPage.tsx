@@ -1,55 +1,64 @@
-import DataTable from '@/components/shared/DataTable'
-import PageHeader from '@/components/shared/PageHeader'
-import { StatusBadge } from '@/components/shared/StatusBadge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BookingDetailDialog } from '@/features/bookings/BookingDetailDialog'
-import { UpdateBookingStatusDialog } from '@/features/bookings/UpdateBookingStatusDialog'
-import { useBookings } from '@/features/bookings/useBookings'
-import { useDivisions } from '@/features/divisions/useDivisions'
-import { usePagination } from '@/hooks/usePagination'
-import { BOOKING_STATUSES } from '@/lib/constants'
-import type { Booking } from '@/types/booking.types'
-import { CheckCircle, Eye, FilterX } from 'lucide-react'
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import DataTable from '@/components/shared/DataTable';
+import PageHeader from '@/components/shared/PageHeader';
+import { StatusBadge } from '@/components/shared/StatusBadge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { BookingDetailDialog } from '@/features/bookings/BookingDetailDialog';
+import { UpdateBookingStatusDialog } from '@/features/bookings/UpdateBookingStatusDialog';
+import { useBookings } from '@/features/bookings/useBookings';
+import { useDivisions } from '@/features/divisions/useDivisions';
+import { usePagination } from '@/hooks/usePagination';
+import { BOOKING_STATUSES } from '@/lib/constants';
+import type { Booking } from '@/types/booking.types';
+import { CheckCircle, Eye, FilterX } from 'lucide-react';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function BookingsPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { page, perPage, setPage } = usePagination()
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { page, perPage, setPage } = usePagination();
 
-  const divisionId = searchParams.get('divisionId') || undefined
+  const divisionId = searchParams.get('divisionId') || undefined;
   // search is handled via searchParams in useBookings implicitly or we can ignore it if unused
-  const status = (searchParams.get('status') as Booking['status']) || undefined
+  const status = (searchParams.get('status') as Booking['status']) || undefined;
 
   const { data: bookingsData, isLoading } = useBookings({
     page,
     perPage,
     divisionId,
     status: (searchParams.get('status') as Booking['status']) || undefined,
-  })
+  });
 
-  const { data: divisions } = useDivisions({ perPage: 100 })
+  const { data: divisions } = useDivisions({ perPage: 100 });
 
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const updateFilters = (key: string, value: string | undefined) => {
-    const newParams = new URLSearchParams(searchParams)
+    const newParams = new URLSearchParams(searchParams);
     if (value === 'all' || !value) {
-      newParams.delete(key)
+      newParams.delete(key);
     } else {
-      newParams.set(key, value)
+      newParams.set(key, value);
     }
-    setSearchParams(newParams)
-    setPage(1)
-  }
+    setSearchParams(newParams);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6 p-6">
-      <PageHeader heading="Bookings" text="Track and manage patient service requests." />
+      <PageHeader
+        heading="Bookings"
+        text="Track and manage patient service requests."
+      />
 
       <Card className="p-4 bg-muted/20">
         <div className="flex flex-wrap gap-4 items-end">
@@ -59,13 +68,15 @@ export default function BookingsPage() {
               value={divisionId || 'all'}
               onValueChange={(v) => updateFilters('divisionId', v || undefined)}
             >
-              <SelectTrigger className="w-[200px] h-9">
+              <SelectTrigger className="w-50 h-9">
                 <SelectValue placeholder="All Divisions" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Divisions</SelectItem>
                 {divisions?.data.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -77,13 +88,15 @@ export default function BookingsPage() {
               value={status || 'all'}
               onValueChange={(v) => updateFilters('status', v || undefined)}
             >
-              <SelectTrigger className="w-[180px] h-9">
+              <SelectTrigger className="w-45 h-9">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 {BOOKING_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -94,8 +107,8 @@ export default function BookingsPage() {
             size="sm"
             className="h-9"
             onClick={() => {
-              setSearchParams(new URLSearchParams())
-              setPage(1)
+              setSearchParams(new URLSearchParams());
+              setPage(1);
             }}
           >
             <FilterX className="mr-2 h-4 w-4" />
@@ -120,7 +133,9 @@ export default function BookingsPage() {
             cell: ({ row }: { row: { original: Booking } }) => (
               <div>
                 <p className="font-medium">{row.original.patientName}</p>
-                <p className="text-xs text-muted-foreground">{row.original.patientPhone}</p>
+                <p className="text-xs text-muted-foreground">
+                  {row.original.patientPhone}
+                </p>
               </div>
             ),
           },
@@ -129,28 +144,42 @@ export default function BookingsPage() {
             accessorKey: 'selectionLabel',
             cell: ({ row }: { row: { original: Booking } }) => (
               <div>
-                <p className="text-sm font-medium">{row.original.selectionLabel}</p>
-                <p className="text-[10px] text-muted-foreground uppercase">{row.original.selectionType}</p>
+                <p className="text-sm font-medium">
+                  {row.original.selectionLabel}
+                </p>
+                <p className="text-[10px] text-muted-foreground uppercase">
+                  {row.original.selectionType}
+                </p>
               </div>
             ),
           },
           {
             header: 'Division',
             id: 'division',
-            cell: ({ row }: { row: { original: Booking } }) => row.original.divisionName || '-',
+            cell: ({ row }: { row: { original: Booking } }) =>
+              row.original.divisionName || '-',
           },
           {
             header: 'Status',
             id: 'status',
-            cell: ({ row }: { row: { original: Booking } }) => <StatusBadge type="booking" status={row.original.status} />,
+            cell: ({ row }: { row: { original: Booking } }) => (
+              <StatusBadge type="booking" status={row.original.status} />
+            ),
           },
           {
             header: 'Received',
             id: 'createdAt',
             cell: ({ row }: { row: { original: Booking } }) => (
               <div className="flex flex-col text-xs">
-                <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
-                <span className="text-muted-foreground">{new Date(row.original.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>
+                  {new Date(row.original.createdAt).toLocaleDateString()}
+                </span>
+                <span className="text-muted-foreground">
+                  {new Date(row.original.createdAt).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
               </div>
             ),
           },
@@ -159,11 +188,22 @@ export default function BookingsPage() {
             id: 'actions',
             cell: ({ row }: { row: { original: Booking } }) => (
               <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => setSelectedBooking(row.original)} title="View Details">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setSelectedBooking(row.original)}
+                  title="View Details"
+                >
                   <Eye className="h-4 w-4" />
                 </Button>
                 {row.original.status === 'PENDING' && (
-                  <Button size="icon" variant="ghost" className="text-primary hover:text-primary" onClick={() => setUpdatingId(row.original.id)} title="Update Status">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-primary hover:text-primary"
+                    onClick={() => setUpdatingId(row.original.id)}
+                    title="Update Status"
+                  >
                     <CheckCircle className="h-4 w-4" />
                   </Button>
                 )}
@@ -179,8 +219,8 @@ export default function BookingsPage() {
           open={!!selectedBooking}
           onOpenChange={(open: boolean) => !open && setSelectedBooking(null)}
           onUpdateStatus={() => {
-            setUpdatingId(selectedBooking.id)
-            setSelectedBooking(null)
+            setUpdatingId(selectedBooking.id);
+            setSelectedBooking(null);
           }}
         />
       )}
@@ -193,5 +233,5 @@ export default function BookingsPage() {
         />
       )}
     </div>
-  )
+  );
 }

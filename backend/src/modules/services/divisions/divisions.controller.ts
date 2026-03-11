@@ -27,6 +27,9 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { UserRole } from '../../../common/types/user-role.enum';
 import { UploadsService } from '../../../uploads/uploads.service';
 import { DivisionsService } from './divisions.service';
+import multer from 'multer';
+import { BadRequestException, Res } from '@nestjs/common';
+import { ApiEnvelope } from '../../../common/types/api-envelope.type';
 import { CreateDivisionDto } from './dto/create-division.dto';
 import { QueryDivisionDto } from './dto/query-division.dto';
 import { UpdateDivisionDto } from './dto/update-division.dto';
@@ -43,18 +46,7 @@ export class DivisionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiCookieAuth()
-  @UseInterceptors(
-    new (new UploadsService({
-      getOrThrow: (key: string) => {
-        if (key === 'app.upload.path') return 'uploads';
-        if (key === 'app.upload.allowedMimeTypes')
-          return ['image/jpeg', 'image/png', 'image/webp'];
-        if (key === 'app.upload.maxFileSizeBytes') return 5 * 1024 * 1024;
-        if (key === 'app.upload.blockedExtensions') return ['.exe', '.sh'];
-        return '';
-      },
-    } as any).uploadMultiple('files', 10))(),
-  )
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -62,21 +54,34 @@ export class DivisionsController {
       properties: {
         files: {
           type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
+          items: { type: 'string', format: 'binary' },
         },
       },
     },
   })
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary: 'Upload images for division (logo, group photo, gallery)',
   })
   @ApiResponse({ status: 201, description: 'Files uploaded successfully.' })
-  uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    return files.map((file) => ({ url: `/uploads/${file.filename}` }));
+  @ApiResponse({
+    status: 400,
+    description: 'No files uploaded or invalid file type.',
+  })
+  async uploadFiles(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: any,
+  ): Promise<ApiEnvelope<{ path: string }[]>> {
+    await new Promise<void>((resolve, reject) => {
+      multer(this.uploadsService.buildMulterOptions())
+        .array('files', 10)(req, res, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+    });
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0)
+      throw new BadRequestException('No files uploaded');
+    return files.map((file) => ({ path: file.filename })) as any;
   }
 
   @Get()

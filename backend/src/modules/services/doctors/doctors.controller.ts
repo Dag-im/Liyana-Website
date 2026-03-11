@@ -24,6 +24,9 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { UserRole } from '../../../common/types/user-role.enum';
 import { UploadsService } from '../../../uploads/uploads.service';
 import { DoctorsService } from './doctors.service';
+import multer from 'multer';
+import { BadRequestException, Req, Res } from '@nestjs/common';
+import { ApiEnvelope } from '../../../common/types/api-envelope.type';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 
@@ -39,35 +42,36 @@ export class DoctorsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiCookieAuth()
-  @UseInterceptors(
-    new (new UploadsService({
-      getOrThrow: (key: string) => {
-        if (key === 'app.upload.path') return 'uploads';
-        if (key === 'app.upload.allowedMimeTypes')
-          return ['image/jpeg', 'image/png', 'image/webp'];
-        if (key === 'app.upload.maxFileSizeBytes') return 5 * 1024 * 1024;
-        if (key === 'app.upload.blockedExtensions') return ['.exe', '.sh'];
-        return '';
-      },
-    } as any).uploadSingle('file'))(),
-  )
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
+        file: { type: 'string', format: 'binary' },
       },
     },
   })
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Upload profile image for doctor' })
   @ApiResponse({ status: 201, description: 'File uploaded successfully.' })
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return { url: `/uploads/${file.filename}` };
+  @ApiResponse({
+    status: 400,
+    description: 'No file uploaded or invalid file type.',
+  })
+  async uploadFile(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: any,
+  ): Promise<ApiEnvelope<{ path: string }>> {
+    await new Promise<void>((resolve, reject) => {
+      multer(this.uploadsService.buildMulterOptions())
+        .single('file')(req, res, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+    });
+    const file = req.file as Express.Multer.File;
+    if (!file) throw new BadRequestException('No file uploaded');
+    return { path: file.filename } as any;
   }
 
   @Post()

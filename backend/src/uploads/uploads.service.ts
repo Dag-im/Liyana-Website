@@ -40,7 +40,6 @@ export class UploadsService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    console.log(`Ensuring upload directory exists at: ${this.uploadPath}`);
     await fs.mkdir(this.uploadPath, { recursive: true });
   }
 
@@ -71,7 +70,7 @@ export class UploadsService implements OnModuleInit {
     );
   }
 
-  private buildMulterOptions(options?: UploadOptions) {
+  public buildMulterOptions(options?: UploadOptions) {
     const allowedMimeTypes =
       options?.allowedMimeTypes ?? this.defaultAllowedMimeTypes;
     const uploadPath = this.uploadPath; // capture for closure

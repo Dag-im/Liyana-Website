@@ -5,7 +5,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 type FileUploadProps = {
-  onUpload: (file: File) => Promise<{ url: string }>;
+  onUpload: (file: File) => Promise<{ path: string }>;
   onSuccess: (path: string) => void;
   accept?: string;
   maxSizeMB?: number;
@@ -36,7 +36,7 @@ export function FileUpload({
       setIsUploading(true);
       try {
         const result = await onUpload(file);
-        onSuccess(result.url);
+        onSuccess(result.path);
 
         if (file.type.startsWith('image/')) {
           setPreview(URL.createObjectURL(file));

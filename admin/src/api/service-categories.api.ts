@@ -11,7 +11,7 @@ export const serviceCategoriesApi = {
   uploadServiceCategoryFile: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiRequest<{ url: string }>('/service-categories/upload', {
+    return apiRequest<{ path: string }>('/service-categories/upload', {
       method: 'POST',
       body: formData,
       // Note: Content-Type: application/json in api-client.ts might conflict with FormData.

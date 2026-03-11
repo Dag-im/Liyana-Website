@@ -14,7 +14,7 @@ export const divisionsApi = {
   uploadDivisionFile: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiRequest<{ url: string }>('/divisions/upload', {
+    return apiRequest<{ path: string }>('/divisions/upload', {
       method: 'POST',
       body: formData,
       headers: {},

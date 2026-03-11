@@ -1,46 +1,52 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
-import DataTable from '@/components/shared/DataTable'
-import ErrorState from '@/components/shared/ErrorState'
-import PageHeader from '@/components/shared/PageHeader'
-import Pagination from '@/components/shared/Pagination'
-import { StatusBadge } from '@/components/shared/StatusBadge'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useAuth } from '@/features/auth/useAuth'
-import ChangePasswordDialog from '@/features/users/ChangePasswordDialog'
-import CreateUserDialog from '@/features/users/CreateUserDialog'
-import DeactivateUserDialog from '@/features/users/DeactivateUserDialog'
-import EditUserDialog from '@/features/users/EditUserDialog'
-import { useUsers } from '@/features/users/useUsers'
-import { useDebounce } from '@/hooks/useDebounce'
-import { usePagination } from '@/hooks/usePagination'
-import { ROLES } from '@/lib/constants'
-import { formatDate, getRoleBadgeColor } from '@/lib/utils'
-import type { UserRole } from '@/types/user.types'
+import DataTable from '@/components/shared/DataTable';
+import ErrorState from '@/components/shared/ErrorState';
+import PageHeader from '@/components/shared/PageHeader';
+import Pagination from '@/components/shared/Pagination';
+import { StatusBadge } from '@/components/shared/StatusBadge';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useAuth } from '@/features/auth/useAuth';
+import ChangePasswordDialog from '@/features/users/ChangePasswordDialog';
+import CreateUserDialog from '@/features/users/CreateUserDialog';
+import DeactivateUserDialog from '@/features/users/DeactivateUserDialog';
+import EditUserDialog from '@/features/users/EditUserDialog';
+import { useUsers } from '@/features/users/useUsers';
+import { useDebounce } from '@/hooks/useDebounce';
+import { usePagination } from '@/hooks/usePagination';
+import { ROLES } from '@/lib/constants';
+import { formatDate, getRoleBadgeColor } from '@/lib/utils';
+import type { UserRole } from '@/types/user.types';
 
-type RoleFilter = UserRole | 'ALL'
+type RoleFilter = UserRole | 'ALL';
 
 export default function UsersPage() {
-  const queryClient = useQueryClient()
-  const authQuery = useAuth()
-  const { page, perPage, resetPage, setPage } = usePagination()
-  const [search, setSearch] = useState('')
-  const [role, setRole] = useState<RoleFilter>('ALL')
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const debouncedSearch = useDebounce(search, 400)
+  const queryClient = useQueryClient();
+  const authQuery = useAuth();
+  const { page, perPage, resetPage, setPage } = usePagination();
+  const [search, setSearch] = useState('');
+  const [role, setRole] = useState<RoleFilter>('ALL');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const debouncedSearch = useDebounce(search, 400);
 
   const usersQuery = useUsers({
     page,
     perPage,
     search: debouncedSearch || undefined,
     role: role === 'ALL' ? undefined : role,
-  })
+  });
 
-  const isAdmin = authQuery.data?.role === 'ADMIN'
+  const isAdmin = authQuery.data?.role === 'ADMIN';
 
   const columns = useMemo(
     () => [
@@ -58,7 +64,9 @@ export default function UsersPage() {
         accessorKey: 'role',
         header: 'Role',
         render: (row: any) => (
-          <span className={`rounded-full px-2 py-1 text-xs ${getRoleBadgeColor(row.role)}`}>
+          <span
+            className={`rounded-full px-2 py-1 text-xs ${getRoleBadgeColor(row.role)}`}
+          >
             {row.role}
           </span>
         ),
@@ -66,7 +74,9 @@ export default function UsersPage() {
       {
         accessorKey: 'status',
         header: 'Status',
-        render: (row: any) => <StatusBadge type="active" isActive={row.isActive} />,
+        render: (row: any) => (
+          <StatusBadge type="active" isActive={row.isActive} />
+        ),
       },
       {
         accessorKey: 'createdAt',
@@ -88,45 +98,50 @@ export default function UsersPage() {
           ),
       },
     ],
-    [isAdmin],
-  )
+    [isAdmin]
+  );
 
   if (usersQuery.isError) {
     return (
       <ErrorState
         onRetry={() => {
-          void queryClient.invalidateQueries({ queryKey: ['users'] })
-          toast.error('Failed to load users')
+          void queryClient.invalidateQueries({ queryKey: ['users'] });
+          toast.error('Failed to load users');
         }}
       />
-    )
+    );
   }
 
   return (
     <div>
       <PageHeader title="Users">
-        {isAdmin ? <CreateUserDialog onOpenChange={setCreateDialogOpen} open={createDialogOpen} /> : null}
+        {isAdmin ? (
+          <CreateUserDialog
+            onOpenChange={setCreateDialogOpen}
+            open={createDialogOpen}
+          />
+        ) : null}
       </PageHeader>
 
       <div className="mb-4 flex flex-wrap gap-3">
         <Input
           className="max-w-sm"
           onChange={(event) => {
-            setSearch(event.target.value)
-            resetPage()
+            setSearch(event.target.value);
+            resetPage();
           }}
           placeholder="Search users"
           value={search}
         />
         <Select
           onValueChange={(value) => {
-            const nextValue = (value ?? 'ALL') as RoleFilter
-            setRole(nextValue)
-            resetPage()
+            const nextValue = (value ?? 'ALL') as RoleFilter;
+            setRole(nextValue);
+            resetPage();
           }}
           value={role}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-50">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
@@ -155,5 +170,5 @@ export default function UsersPage() {
         total={usersQuery.data?.total ?? 0}
       />
     </div>
-  )
+  );
 }

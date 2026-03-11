@@ -14,9 +14,6 @@ export class UploadsController {
     const uploadPath = this.configService.getOrThrow<string>('app.upload.path');
     const filePath = join(uploadPath, filename);
 
-    console.log('UPLOAD PATH:', uploadPath);
-    console.log('FULL FILE PATH:', filePath);
-
     if (!existsSync(filePath)) {
       throw new NotFoundException('File not found');
     }
