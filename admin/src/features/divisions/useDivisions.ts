@@ -1,5 +1,6 @@
 import { divisionsApi, type GetDivisionsParams } from '@/api/divisions.api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Doctor } from '@/types/services.types'
 
 export function useDivisions(params: GetDivisionsParams) {
   return useQuery({
@@ -58,7 +59,7 @@ export function useDeleteDivision() {
 export function useCreateDoctor(divisionId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (dto: any) => divisionsApi.createDoctor(divisionId, dto),
+    mutationFn: (dto: Omit<Doctor, 'id' | 'divisionId'>) => divisionsApi.createDoctor(divisionId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['divisions', divisionId] })
       queryClient.invalidateQueries({ queryKey: ['divisions', divisionId, 'doctors'] })
@@ -69,7 +70,7 @@ export function useCreateDoctor(divisionId: string) {
 export function useUpdateDoctor(divisionId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: any }) => divisionsApi.updateDoctor(divisionId, id, dto),
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<Omit<Doctor, 'id' | 'divisionId'>> }) => divisionsApi.updateDoctor(divisionId, id, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['divisions', divisionId] })
       queryClient.invalidateQueries({ queryKey: ['divisions', divisionId, 'doctors'] })

@@ -14,7 +14,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { CreateDoctorDto } from '../../doctors/dto/create-doctor.dto';
+
 
 export class StatDto {
   @IsString()
@@ -152,12 +152,7 @@ export class CreateDivisionDto {
   @ApiProperty({ required: false, type: [StatDto] })
   stats?: StatDto[];
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateDoctorDto)
-  @ApiProperty({ required: false, type: [CreateDoctorDto] })
-  doctors?: CreateDoctorDto[];
+
 
   @IsOptional()
   @ValidateNested()

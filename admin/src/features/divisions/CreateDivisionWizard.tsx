@@ -33,7 +33,6 @@ import {
   Loader2,
   Plus,
   Trash2,
-  Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -46,7 +45,6 @@ const STEPS = [
   { id: 2, title: 'Content', icon: FileText },
   { id: 3, title: 'Media', icon: ImageIcon },
   { id: 4, title: 'Stats', icon: BarChart },
-  { id: 5, title: 'Doctors', icon: Users },
 ];
 
 export function CreateDivisionWizard({
@@ -99,7 +97,7 @@ export function CreateDivisionWizard({
     });
   };
 
-  const handleNext = () => step < 5 && setStep(step + 1);
+  const handleNext = () => step < 4 && setStep(step + 1);
   const handleBack = () => step > 1 && setStep(step - 1);
 
   const onSubmit = () => {
@@ -124,7 +122,7 @@ export function CreateDivisionWizard({
         <DialogHeader className="p-6 border-b">
           <DialogTitle>Create New Division</DialogTitle>
           <DialogDescription>
-            Complete the 5 steps to establish a new medical division.
+            Complete the 4 steps to establish a new medical division.
           </DialogDescription>
 
           <div className="flex items-center justify-between mt-6">
@@ -159,10 +157,10 @@ export function CreateDivisionWizard({
                 </span>
               </div>
             ))}
-            <div className="absolute top-27 left-[10%] right-[10%] h-0.5 bg-muted z-0" />
+            <div className="absolute top-27 left-[12.5%] right-[12.5%] h-0.5 bg-muted z-0" />
             <div
-              className="absolute top-27 left-[10%] h-0.5 bg-primary transition-all duration-300 z-0"
-              style={{ width: `${(step - 1) * 20}%` }}
+              className="absolute top-27 left-[12.5%] h-0.5 bg-primary transition-all duration-300 z-0"
+              style={{ width: `${(step - 1) * 25}%` }}
             />
           </div>
         </DialogHeader>
@@ -517,96 +515,7 @@ export function CreateDivisionWizard({
             </div>
           )}
 
-          {step === 5 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex items-center justify-between">
-                <Label>Medical Team (Doctors)</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setFormData({
-                      ...formData,
-                      doctors: [
-                        ...formData.doctors,
-                        {
-                          name: '',
-                          specialty: '',
-                          image: '',
-                          availability: 'Available during business hours',
-                        },
-                      ],
-                    })
-                  }
-                >
-                  <Plus className="h-3 w-3 mr-1" /> Add Doctor
-                </Button>
-              </div>
-              <div className="space-y-4">
-                {formData.doctors.map((doc: any, i: number) => (
-                  <div
-                    key={i}
-                    className="p-4 border rounded-xl grid grid-cols-3 gap-4 relative bg-muted/5"
-                  >
-                    <div className="col-span-1">
-                      <FileUpload
-                        onUpload={divisionsApi.uploadDivisionFile}
-                        onSuccess={(path) => {
-                          const next = [...formData.doctors];
-                          next[i].image = path;
-                          setFormData({ ...formData, doctors: next });
-                        }}
-                        currentPath={doc.image}
-                        label="Doctor Photo"
-                      />
-                    </div>
-                    <div className="col-span-2 space-y-2">
-                      <Input
-                        placeholder="Doctor Name"
-                        value={doc.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const next = [...formData.doctors];
-                          next[i].name = e.target.value;
-                          setFormData({ ...formData, doctors: next });
-                        }}
-                      />
-                      <Input
-                        placeholder="Specialty"
-                        value={doc.specialty}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const next = [...formData.doctors];
-                          next[i].specialty = e.target.value;
-                          setFormData({ ...formData, doctors: next });
-                        }}
-                      />
-                      <Input
-                        placeholder="Availability (e.g. Mon-Fri, 9AM-5PM)"
-                        value={doc.availability}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const next = [...formData.doctors];
-                          next[i].availability = e.target.value;
-                          setFormData({ ...formData, doctors: next });
-                        }}
-                      />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-background border"
-                      onClick={() => {
-                        const next = formData.doctors.filter(
-                          (_: any, idx: number) => idx !== i
-                        );
-                        setFormData({ ...formData, doctors: next });
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
         </div>
 
         <DialogFooter className="p-6 border-t bg-muted/30">
@@ -619,7 +528,7 @@ export function CreateDivisionWizard({
               <ChevronLeft className="mr-2 h-4 w-4" /> Back
             </Button>
 
-            {step < 5 ? (
+            {step < 4 ? (
               <Button onClick={handleNext}>
                 Next <ChevronRight className="ml-2 h-4 w-4" />
               </Button>

@@ -181,16 +181,7 @@ export class DivisionsService {
         await queryRunner.manager.save(statEntities);
       }
 
-      if (createDto.doctors?.length) {
-        const doctorEntities = createDto.doctors.map((doc) =>
-          queryRunner.manager.create(Doctor, {
-            ...doc,
-            availability: doc.availability || 'Available during business hours',
-            divisionId: savedDivision.id,
-          }),
-        );
-        await queryRunner.manager.save(doctorEntities);
-      }
+
 
       if (createDto.contact) {
         const contactEntity = queryRunner.manager.create(DivisionContact, {
