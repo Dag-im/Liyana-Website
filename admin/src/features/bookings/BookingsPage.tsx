@@ -17,6 +17,7 @@ import { useBookings } from '@/features/bookings/useBookings';
 import { useDivisions } from '@/features/divisions/useDivisions';
 import { usePagination } from '@/hooks/usePagination';
 import { BOOKING_STATUSES } from '@/lib/constants';
+import { formatEnumLabel } from '@/lib/utils';
 import type { Booking } from '@/types/booking.types';
 import { CheckCircle, Eye, FilterX } from 'lucide-react';
 import { useState } from 'react';
@@ -69,7 +70,12 @@ export default function BookingsPage() {
               onValueChange={(v) => updateFilters('divisionId', v || undefined)}
             >
               <SelectTrigger className="w-50 h-9">
-                <SelectValue placeholder="All Divisions" />
+                <SelectValue placeholder="All Divisions">
+                  {divisionId && divisionId !== 'all'
+                    ? divisions?.data.find((d) => d.id === divisionId)?.name ??
+                      'All Divisions'
+                    : 'All Divisions'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Divisions</SelectItem>
@@ -89,13 +95,15 @@ export default function BookingsPage() {
               onValueChange={(v) => updateFilters('status', v || undefined)}
             >
               <SelectTrigger className="w-45 h-9">
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder="All Statuses">
+                  {status ? formatEnumLabel(status) : 'All Statuses'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 {BOOKING_STATUSES.map((s) => (
                   <SelectItem key={s} value={s}>
-                    {s}
+                    {formatEnumLabel(s)}
                   </SelectItem>
                 ))}
               </SelectContent>

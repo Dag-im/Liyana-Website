@@ -25,7 +25,7 @@ import { useUsers } from '@/features/users/useUsers';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { ROLES } from '@/lib/constants';
-import { formatDate, getRoleBadgeColor } from '@/lib/utils';
+import { formatDate, formatEnumLabel, getRoleBadgeColor } from '@/lib/utils';
 import type { UserRole } from '@/types/user.types';
 
 type RoleFilter = UserRole | 'ALL';
@@ -148,7 +148,7 @@ export default function UsersPage() {
             <SelectItem value="ALL">All Roles</SelectItem>
             {ROLES.map((roleOption) => (
               <SelectItem key={roleOption} value={roleOption}>
-                {roleOption}
+                {formatEnumLabel(roleOption)}
               </SelectItem>
             ))}
           </SelectContent>

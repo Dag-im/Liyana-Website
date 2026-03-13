@@ -23,6 +23,7 @@ import { Switch } from '@/components/ui/switch'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useUpdateUser } from '@/features/users/useUsers'
 import { ROLES } from '@/lib/constants'
+import { formatEnumLabel } from '@/lib/utils'
 import type { User } from '@/types/user.types'
 
 const updateUserSchema = z.object({
@@ -143,13 +144,13 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
                   }}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {ROLES.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {role.replace('_', ' ')}
+                          {formatEnumLabel(role)}
                         </SelectItem>
                       ))}
                     </SelectContent>

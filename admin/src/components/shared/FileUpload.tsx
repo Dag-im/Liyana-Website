@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils';
 import { FileIcon, Loader2, Upload, X } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { getUploadUrl } from '@/lib/upload-utils';
 import { FileImage } from '@/components/shared/FileImage';
 
 type FileUploadProps = {
@@ -13,7 +12,13 @@ type FileUploadProps = {
   maxSizeMB?: number;
   label?: string;
   currentPath?: string;
-  multiple?: false;
+  multiple?: boolean;
+  /**
+   * Whether to show an inline preview inside the dropzone.
+   * For gallery-style multi uploads, you can hide this and
+   * render previews from the parent list instead.
+   */
+  showPreview?: boolean;
 };
 
 export function FileUpload({
@@ -23,15 +28,19 @@ export function FileUpload({
   maxSizeMB = 5,
   label = 'Click to upload or drag and drop',
   currentPath,
+  multiple = false,
+  showPreview,
 }: FileUploadProps) {
+  const shouldShowPreview = showPreview ?? !multiple;
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(
-    getUploadUrl(currentPath) || null
+    shouldShowPreview && currentPath ? currentPath : null
   );
 
   React.useEffect(() => {
-    setPreview(getUploadUrl(currentPath) || null);
-  }, [currentPath]);
+    if (!shouldShowPreview) return;
+    setPreview(currentPath || null);
+  }, [currentPath, shouldShowPreview]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
@@ -47,7 +56,9 @@ export function FileUpload({
         onSuccess(result.path);
 
         if (file.type.startsWith('image/')) {
-          setPreview(getUploadUrl(result.path));
+          if (shouldShowPreview) {
+            setPreview(result.path);
+          }
         } else {
           setPreview(null);
         }
@@ -59,21 +70,31 @@ export function FileUpload({
         setIsUploading(false);
       }
     },
-    [maxSizeMB, onUpload, onSuccess]
+    [maxSizeMB, onUpload, onSuccess, shouldShowPreview]
   );
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      const files = Array.from(e.dataTransfer.files || []);
+      if (!files.length) return;
+      if (multiple) {
+        files.forEach((file) => handleFile(file));
+      } else {
+        handleFile(files[0]);
+      }
     },
-    [handleFile]
+    [handleFile, multiple]
   );
 
   const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    if (multiple) {
+      files.forEach((file) => handleFile(file));
+    } else {
+      handleFile(files[0]);
+    }
   };
 
   const removeFile = () => {
@@ -100,7 +121,7 @@ export function FileUpload({
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <span className="text-sm font-medium">Uploading...</span>
           </div>
-        ) : preview ? (
+        ) : shouldShowPreview && preview ? (
           <div className="relative w-full h-full p-4 flex flex-col items-center justify-center">
             {preview ? (
               <FileImage

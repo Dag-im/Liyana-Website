@@ -24,6 +24,24 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.DIVISION_UPDATED]: 'division',
   [AuditAction.DIVISION_DELETED]: 'division',
 
+  [AuditAction.NEWS_EVENT_CREATED]: 'news_event',
+  [AuditAction.NEWS_EVENT_UPDATED]: 'news_event',
+  [AuditAction.NEWS_EVENT_PUBLISHED]: 'news_event',
+  [AuditAction.NEWS_EVENT_UNPUBLISHED]: 'news_event',
+  [AuditAction.NEWS_EVENT_DELETED]: 'news_event',
+
+  [AuditAction.BLOG_CATEGORY_CREATED]: 'blog_category',
+  [AuditAction.BLOG_CATEGORY_UPDATED]: 'blog_category',
+  [AuditAction.BLOG_CATEGORY_DELETED]: 'blog_category',
+  [AuditAction.BLOG_CREATED]: 'blog',
+  [AuditAction.BLOG_UPDATED]: 'blog',
+  [AuditAction.BLOG_SUBMITTED]: 'blog',
+  [AuditAction.BLOG_PUBLISHED]: 'blog',
+  [AuditAction.BLOG_REJECTED]: 'blog',
+  [AuditAction.BLOG_FEATURED]: 'blog',
+  [AuditAction.BLOG_UNFEATURED]: 'blog',
+  [AuditAction.BLOG_DELETED]: 'blog',
+
   // Bookings
   [AuditAction.BOOKING_CREATED]: 'booking',
   [AuditAction.BOOKING_STATUS_UPDATED]: 'booking',

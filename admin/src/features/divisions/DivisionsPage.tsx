@@ -93,7 +93,13 @@ export default function DivisionsPage() {
               }
             >
               <SelectTrigger className="w-50 h-9">
-                <SelectValue placeholder="All Service Categories" />
+                <SelectValue placeholder="All Service Categories">
+                  {serviceCategoryId && serviceCategoryId !== 'all'
+                    ? serviceCategories?.data.find(
+                        (c) => c.id === serviceCategoryId
+                      )?.title ?? 'All Service Categories'
+                    : 'All Service Categories'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
@@ -115,7 +121,13 @@ export default function DivisionsPage() {
               }
             >
               <SelectTrigger className="w-50 h-9">
-                <SelectValue placeholder="All Division Categories" />
+                <SelectValue placeholder="All Division Categories">
+                  {divisionCategoryId && divisionCategoryId !== 'all'
+                    ? divisionCategories?.find(
+                        (c) => c.id === divisionCategoryId
+                      )?.label ?? 'All Division Categories'
+                    : 'All Division Categories'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>

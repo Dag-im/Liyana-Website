@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/switch'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useCreateUser } from '@/features/users/useUsers'
 import { ROLES } from '@/lib/constants'
+import { formatEnumLabel } from '@/lib/utils'
 
 const createUserSchema = z.object({
   name: z.string().min(2),
@@ -151,7 +152,7 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
                     <SelectContent>
                       {ROLES.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {role.replace('_', ' ')}
+                          {formatEnumLabel(role)}
                         </SelectItem>
                       ))}
                     </SelectContent>

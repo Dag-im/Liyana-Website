@@ -25,6 +25,8 @@ const database_module_1 = require("./database/database.module");
 const audit_log_module_1 = require("./modules/audit-log/audit-log.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const bookings_module_1 = require("./modules/bookings/bookings.module");
+const blogs_module_1 = require("./modules/blogs/blogs.module");
+const news_events_module_1 = require("./modules/news-events/news-events.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const services_module_1 = require("./modules/services/services.module");
 const users_module_1 = require("./modules/users/users.module");
@@ -57,6 +59,8 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             services_module_1.ServicesModule,
             bookings_module_1.BookingsModule,
+            news_events_module_1.NewsEventsModule,
+            blogs_module_1.BlogsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

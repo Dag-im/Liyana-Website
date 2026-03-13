@@ -44,8 +44,15 @@ export class UploadsService implements OnModuleInit {
   }
 
   async cleanup(filePath: string): Promise<void> {
+    // Stored file references are typically just filenames.
+    // Resolve them against the configured upload directory,
+    // but still support absolute paths just in case.
+    const resolvedPath = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(this.uploadPath, filePath);
+
     try {
-      await fs.unlink(filePath);
+      await fs.unlink(resolvedPath);
     } catch {
       // Ignore errors if file doesn't exist or cannot be deleted
     }

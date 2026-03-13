@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { AUDIT_ACTIONS } from '@/lib/constants'
+import { formatEnumLabel } from '@/lib/utils'
 import type { AuditAction } from '@/types/audit-log.types'
 
 type AuditLogFilterValues = {
@@ -30,7 +31,7 @@ export default function AuditLogFilters({ value, onChange }: AuditLogFiltersProp
           <SelectItem value="ALL">All actions</SelectItem>
           {AUDIT_ACTIONS.map((action) => (
             <SelectItem key={action} value={action}>
-              {action}
+              {formatEnumLabel(action)}
             </SelectItem>
           ))}
         </SelectContent>

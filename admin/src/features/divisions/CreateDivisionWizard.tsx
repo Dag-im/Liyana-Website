@@ -58,7 +58,6 @@ export function CreateDivisionWizard({
   const createMutation = useCreateDivision();
   const { data: serviceCategories } = useServiceCategories({ perPage: 100 });
   const { data: divisionCategories } = useDivisionCategories();
-  const [uploadKey, setUploadKey] = useState(0);
 
   const [formData, setFormData] = useState<any>({
     name: '',
@@ -205,7 +204,13 @@ export function CreateDivisionWizard({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Service Category" />
+                      <SelectValue placeholder="Select Service Category">
+                        {formData.serviceCategoryId
+                          ? serviceCategories?.data.find(
+                              (c) => c.id === formData.serviceCategoryId
+                            )?.title ?? 'Select Service Category'
+                          : 'Select Service Category'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {serviceCategories?.data.map((c) => (
@@ -225,7 +230,13 @@ export function CreateDivisionWizard({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Division Category" />
+                      <SelectValue placeholder="Select Division Category">
+                        {formData.divisionCategoryId
+                          ? divisionCategories?.find(
+                              (c) => c.id === formData.divisionCategoryId
+                            )?.label ?? 'Select Division Category'
+                          : 'Select Division Category'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {divisionCategories?.map((c) => (
@@ -432,15 +443,15 @@ export function CreateDivisionWizard({
                   ))}
                   <div className="aspect-video">
                     <FileUpload
-                      key={uploadKey}
                       onUpload={divisionsApi.uploadDivisionFile}
                       onSuccess={(path) => {
                         setFormData({
                           ...formData,
                           images: [...formData.images, { path, alt: '' }],
                         });
-                        setUploadKey((prev) => prev + 1);
                       }}
+                      multiple
+                      showPreview={false}
                       label="Add Image"
                     />
                   </div>

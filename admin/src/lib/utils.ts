@@ -30,6 +30,19 @@ export const getRoleBadgeColor = (role: UserRole): string => {
   }
 };
 
+/**
+ * Turn enum-like codes (e.g. "SERVICE_CATEGORY", "PENDING")
+ * into human readable labels ("Service Category", "Pending").
+ */
+export function formatEnumLabel(value: string): string {
+  if (!value) return '';
+  return value
+    .toLowerCase()
+    .split(/[_\s]+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 // src/lib/utils.ts — add this helper
 export function getFileUrl(path: string): string {
   if (!path) return '';
