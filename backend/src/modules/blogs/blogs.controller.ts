@@ -26,6 +26,7 @@ import multer from 'multer';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt-auth.guard';
 import { FileValidationPipe } from '../../common/pipes/file-validation.pipe';
 import { ApiEnvelope } from '../../common/types/api-envelope.type';
 import { UserRole } from '../../common/types/user-role.enum';
@@ -91,6 +92,7 @@ export class BlogsController {
   }
 
   @Get()
+  @UseGuards(OptionalJwtAuthGuard)
   @Throttle({ default: { limit: 120, ttl: 60000 } })
   @ApiOperation({
     summary:

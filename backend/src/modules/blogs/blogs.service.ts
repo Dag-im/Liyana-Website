@@ -92,8 +92,9 @@ export class BlogsService {
         status: BlogStatus.PUBLISHED,
       });
     } else if (isAdminOrComm) {
-      const effectiveStatus = queryDto.status ?? BlogStatus.PUBLISHED;
-      query.andWhere('blog.status = :status', { status: effectiveStatus });
+      if (queryDto.status) {
+        query.andWhere('blog.status = :status', { status: queryDto.status });
+      }
     } else if (isBlogger) {
       if (queryDto.status) {
         if (queryDto.status === BlogStatus.PUBLISHED) {
@@ -283,9 +284,12 @@ export class BlogsService {
   async publish(id: string, performedBy: string): Promise<Blog> {
     const blog = await this.findOne(id);
 
-    if (blog.status !== BlogStatus.PENDING_REVIEW) {
+    if (
+      blog.status !== BlogStatus.PENDING_REVIEW &&
+      blog.status !== BlogStatus.DRAFT
+    ) {
       throw new BadRequestException(
-        'Only posts in PENDING_REVIEW can be published',
+        'Only draft or pending review posts can be published',
       );
     }
 

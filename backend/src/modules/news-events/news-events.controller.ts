@@ -26,6 +26,7 @@ import multer from 'multer';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt-auth.guard';
 import { FileValidationPipe } from '../../common/pipes/file-validation.pipe';
 import { ApiEnvelope } from '../../common/types/api-envelope.type';
 import { UserRole } from '../../common/types/user-role.enum';
@@ -96,14 +97,15 @@ export class NewsEventsController {
   }
 
   @Get()
+  @UseGuards(OptionalJwtAuthGuard)
   @Throttle({ default: { limit: 120, ttl: 60000 } })
   @ApiOperation({
     summary:
       'Get all News & Events entries (public). Unauthenticated requests return PUBLISHED only.',
   })
   @ApiResponse({ status: 200, description: 'Paginated News & Events list.' })
-  findAll(@Query() query: QueryNewsEventDto) {
-    return this.newsEventsService.findAll(query);
+  findAll(@Query() query: QueryNewsEventDto, @Req() req: AuthenticatedRequest) {
+    return this.newsEventsService.findAll(query, req.user);
   }
 
   @Get(':id')
@@ -195,4 +197,3 @@ export class NewsEventsController {
     return this.newsEventsService.remove(id, req.user.sub);
   }
 }
-

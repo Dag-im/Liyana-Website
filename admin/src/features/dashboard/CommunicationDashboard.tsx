@@ -1,11 +1,126 @@
+import { Link } from 'react-router-dom'
+
+import DataTable from '@/components/shared/DataTable'
 import PageHeader from '@/components/shared/PageHeader'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useNewsEvents } from '@/features/news-events/useNewsEvents'
 import { useUnreadCount } from '@/features/notifications/useNotifications'
-import { Bell } from 'lucide-react'
+import { formatDate, truncate } from '@/lib/utils'
+import type { NewsEvent } from '@/types/news-events.types'
+import { Bell, CalendarDays, FileText, Newspaper } from 'lucide-react'
+import NewsEventStatusBadge from '@/features/news-events/components/NewsEventStatusBadge'
 
 export function CommunicationDashboard() {
+  const { data: publishedNews } = useNewsEvents({ status: 'PUBLISHED', type: 'news', perPage: 1 })
+  const { data: publishedEvents } = useNewsEvents({ status: 'PUBLISHED', type: 'event', perPage: 1 })
+  const { data: draftEntries } = useNewsEvents({ status: 'DRAFT', perPage: 1 })
+  const recentEntriesQuery = useNewsEvents({ perPage: 5, sortBy: 'createdAt', sortOrder: 'DESC' })
   const { data: unreadCount } = useUnreadCount()
-  return <PlaceholderDashboard title="Communication Dashboard" count={unreadCount} />
+
+  return (
+    <div className="space-y-6 p-6">
+      <PageHeader heading="Communication Dashboard" text="Manage news and events content." />
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Published News</CardTitle>
+            <Newspaper className="h-4 w-4 text-sky-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{publishedNews?.total ?? 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Published Events</CardTitle>
+            <CalendarDays className="h-4 w-4 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{publishedEvents?.total ?? 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Draft Entries</CardTitle>
+            <FileText className="h-4 w-4 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{draftEntries?.total ?? 0}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Recent Entries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={[
+                {
+                  header: 'Title',
+                  accessorKey: 'title',
+                  cell: ({ row }: { row: { original: NewsEvent } }) => (
+                    <span className="font-medium">{truncate(row.original.title, 60)}</span>
+                  ),
+                },
+                {
+                  header: 'Type',
+                  accessorKey: 'type',
+                  cell: ({ row }: { row: { original: NewsEvent } }) => (
+                    <Badge variant="outline">
+                      {row.original.type === 'event' ? 'Event' : 'News'}
+                    </Badge>
+                  ),
+                },
+                {
+                  header: 'Status',
+                  accessorKey: 'status',
+                  cell: ({ row }: { row: { original: NewsEvent } }) => (
+                    <NewsEventStatusBadge status={row.original.status} />
+                  ),
+                },
+                {
+                  header: 'Date',
+                  accessorKey: 'date',
+                  cell: ({ row }: { row: { original: NewsEvent } }) => formatDate(row.original.date),
+                },
+              ]}
+              data={recentEntriesQuery.data?.data ?? []}
+              isLoading={recentEntriesQuery.isLoading}
+              isError={recentEntriesQuery.isError}
+              onRetry={() => recentEntriesQuery.refetch()}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+        <CardContent className="grid gap-2">
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/news">Go to News</Link>
+          </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/events">Go to Events</Link>
+          </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/notifications">View Notifications</Link>
+          </Button>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
+              <Bell className="h-4 w-4 text-purple-600" />
+              Unread notifications: {typeof unreadCount === 'number' ? unreadCount : (unreadCount?.count ?? 0)}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
 }
 
 export function HrDashboard() {

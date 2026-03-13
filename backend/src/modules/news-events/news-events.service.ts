@@ -68,7 +68,10 @@ export class NewsEventsService {
     return saved;
   }
 
-  async findAll(queryDto: QueryNewsEventDto): Promise<{
+  async findAll(
+    queryDto: QueryNewsEventDto,
+    user?: JwtUserPayload | null,
+  ): Promise<{
     data: NewsEvent[];
     total: number;
     page: number;
@@ -79,10 +82,16 @@ export class NewsEventsService {
 
     const query = this.newsEventsRepository.createQueryBuilder('entry');
 
-    const effectiveStatus =
-      queryDto.status ?? NewsEventStatus.PUBLISHED; // public default enforcement
+    const isPrivileged =
+      user?.role === 'ADMIN' || user?.role === 'COMMUNICATION';
 
-    query.andWhere('entry.status = :status', { status: effectiveStatus });
+    if (queryDto.status) {
+      query.andWhere('entry.status = :status', { status: queryDto.status });
+    } else if (!isPrivileged) {
+      query.andWhere('entry.status = :status', {
+        status: NewsEventStatus.PUBLISHED,
+      });
+    }
 
     if (queryDto.type) {
       query.andWhere('entry.type = :type', { type: queryDto.type });
@@ -236,4 +245,3 @@ export class NewsEventsService {
     return { message: 'News & event entry deleted successfully' };
   }
 }
-

@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuditLogs } from '@/features/audit-logs/useAuditLogs'
 import { useDivisions } from '@/features/divisions/useDivisions'
+import { useNewsEvents } from '@/features/news-events/useNewsEvents'
 import { useUnreadCount } from '@/features/notifications/useNotifications'
 import { useUsers } from '@/features/users/useUsers'
-import { Activity, ArrowRight, Bell, Building2, CalendarCheck, Users } from 'lucide-react'
+import { Activity, ArrowRight, Bell, Building2, CalendarCheck, Newspaper, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 // Relative imports for local dialogs/wizards and hooks
@@ -20,6 +21,7 @@ export function AdminDashboard() {
   const { data: bookingsData } = useBookings({ perPage: 1, status: 'PENDING' })
   const { data: unreadCount } = useUnreadCount()
   const { data: auditLogs } = useAuditLogs({ perPage: 5 })
+  const { data: publishedNewsEvents } = useNewsEvents({ status: 'PUBLISHED', perPage: 1 })
 
   const stats = [
     {
@@ -47,6 +49,14 @@ export function AdminDashboard() {
       link: '/bookings',
     },
     {
+      label: 'Published News & Events',
+      value: publishedNewsEvents?.total ?? 0,
+      icon: Newspaper,
+      color: 'text-sky-600',
+      bg: 'bg-sky-50',
+      link: '/news',
+    },
+    {
       label: 'Unread Notifications',
       value: unreadCount ?? 0,
       icon: Bell,
@@ -60,7 +70,7 @@ export function AdminDashboard() {
     <div className="space-y-6 p-6">
       <PageHeader heading="Admin Dashboard" text="System overview and quick actions." />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

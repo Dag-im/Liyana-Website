@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
   IsArray,
   IsDateString,
   IsEnum,
@@ -35,8 +36,9 @@ export class CreateNewsEventDto {
   summary!: string;
 
   @IsArray()
+  @ArrayMinSize(1)
   @IsString({ each: true })
-  @MinLength(1)
+  @MinLength(1, { each: true })
   @ApiProperty({ type: [String] })
   content!: string[];
 
@@ -58,4 +60,3 @@ export class CreateNewsEventDto {
   @ApiProperty()
   image2!: string;
 }
-
