@@ -11,7 +11,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useDivision } from './useDivisions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DoctorManagement } from './DoctorManagement'
-import { EditDivisionDialog } from './EditDivisionDialog'
+import { EditDivisionWizard } from './EditDivisionWizard'
 import { useState } from 'react'
 
 
@@ -46,7 +46,7 @@ export default function DivisionDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+          <Button size="sm" onClick={() => setIsEditDialogOpen(true)}>
             <Settings className="mr-2 h-4 w-4" />
             Edit Division
           </Button>
@@ -195,8 +195,8 @@ export default function DivisionDetailPage() {
         </TabsContent>
       </Tabs>
 
-      <EditDivisionDialog
-        division={division}
+      <EditDivisionWizard
+        divisionId={division.id}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
       />

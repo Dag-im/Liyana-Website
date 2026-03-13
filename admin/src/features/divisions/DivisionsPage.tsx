@@ -21,7 +21,7 @@ import { Edit, Eye, FilterX, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CreateDivisionWizard } from './CreateDivisionWizard';
-import { EditDivisionDialog } from './EditDivisionDialog';
+import { EditDivisionWizard } from './EditDivisionWizard';
 import { useDeleteDivision, useDivisions } from './useDivisions';
 
 export default function DivisionsPage() {
@@ -243,12 +243,16 @@ export default function DivisionsPage() {
                   </Link>
                 </Button>
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setEditingDivision(row.original)}
-                  title="Quick Edit"
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDivision(row.original);
+                  }}
+                  className="h-8 gap-2"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-3.5 w-3.5" />
+                  Edit
                 </Button>
                 <ConfirmDialog
                   title="Delete Division"
@@ -278,8 +282,9 @@ export default function DivisionsPage() {
       />
 
       {editingDivision && (
-        <EditDivisionDialog
-          division={editingDivision}
+        <EditDivisionWizard
+          key={editingDivision.id}
+          divisionId={editingDivision.id}
           open={!!editingDivision}
           onOpenChange={(open: boolean) => !open && setEditingDivision(null)}
         />

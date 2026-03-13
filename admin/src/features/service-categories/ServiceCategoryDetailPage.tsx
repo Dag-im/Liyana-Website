@@ -1,6 +1,7 @@
 import ErrorState from '@/components/shared/ErrorState';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import PageHeader from '@/components/shared/PageHeader';
+import { FileImage } from '@/components/shared/FileImage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,6 @@ import {
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useServiceCategory } from './useServiceCategories';
-import { getFileUrl } from '@/lib/utils';
 
 export default function ServiceCategoryDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,22 +45,25 @@ export default function ServiceCategoryDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-1 overflow-hidden h-fit">
-          <img
-            src={getFileUrl(category.heroImage)}
-            alt={category.title}
-            className="w-full h-48 object-cover"
-          />
+           <FileImage
+             path={category.heroImage}
+             alt={category.title}
+             className="w-full h-48 object-cover"
+           />
           <CardHeader>
             <CardTitle>Highlights</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {category.attributes.map((attr, i) => (
+              {category.attributes?.map((attr, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
                   <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                   <span>{attr}</span>
                 </li>
               ))}
+              {(!category.attributes || category.attributes.length === 0) && (
+                <p className="text-xs text-muted-foreground italic">No highlights listed.</p>
+              )}
             </ul>
           </CardContent>
         </Card>
@@ -85,16 +88,13 @@ export default function ServiceCategoryDetailPage() {
                 className="group hover:border-primary/50 transition-colors"
               >
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                    {division.logo ? (
-                      <img
-                        src={division.logo}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Building2 className="h-6 w-6 text-muted-foreground" />
-                    )}
+                   <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                    <FileImage
+                      path={division.logo}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      fallback={<Building2 className="h-6 w-6 text-muted-foreground" />}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate">{division.name}</p>

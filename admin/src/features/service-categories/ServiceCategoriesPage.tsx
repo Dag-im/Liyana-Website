@@ -75,15 +75,13 @@ export default function ServiceCategoriesPage() {
             ),
           },
           {
-            header: 'Short Name',
-            accessorKey: 'shortName',
-          },
-          {
             header: 'Divisions',
             id: 'divisionsCount',
             cell: ({ row }: { row: { original: ServiceCategory } }) => (
               <Badge variant="secondary">
-                {row.original.divisions?.length || 0}
+                {row.original.divisionsCount ??
+                  row.original.divisions?.length ??
+                  0}
               </Badge>
             ),
           },

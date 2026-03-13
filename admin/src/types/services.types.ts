@@ -14,6 +14,9 @@ export type ServiceCategory = {
   heroImage: string
   attributes: string[]
   divisions: Division[]
+  // When listing service categories, the backend returns a relation
+  // count instead of full division relations for performance.
+  divisionsCount?: number
   createdAt: string
   updatedAt: string
 }

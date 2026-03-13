@@ -4,6 +4,7 @@ import { FileIcon, Loader2, Upload, X } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getUploadUrl } from '@/lib/upload-utils';
+import { FileImage } from '@/components/shared/FileImage';
 
 type FileUploadProps = {
   onUpload: (file: File) => Promise<{ path: string }>;
@@ -27,6 +28,10 @@ export function FileUpload({
   const [preview, setPreview] = useState<string | null>(
     getUploadUrl(currentPath) || null
   );
+
+  React.useEffect(() => {
+    setPreview(getUploadUrl(currentPath) || null);
+  }, [currentPath]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
@@ -42,7 +47,7 @@ export function FileUpload({
         onSuccess(result.path);
 
         if (file.type.startsWith('image/')) {
-          setPreview(URL.createObjectURL(file));
+          setPreview(getUploadUrl(result.path));
         } else {
           setPreview(null);
         }
@@ -97,13 +102,12 @@ export function FileUpload({
           </div>
         ) : preview ? (
           <div className="relative w-full h-full p-4 flex flex-col items-center justify-center">
-            {preview.startsWith('http') ||
-            preview.startsWith('/') ||
-            preview.startsWith('blob:') ? (
-              <img
-                src={preview}
+            {preview ? (
+              <FileImage
+                path={preview}
                 alt="Preview"
                 className="max-h-30 rounded object-contain mb-2"
+                fallback={<FileIcon className="w-12 h-12 text-muted-foreground mb-2" />}
               />
             ) : (
               <FileIcon className="w-12 h-12 text-muted-foreground mb-2" />

@@ -29,6 +29,14 @@ export class ServiceCategoriesService {
 
     const query = this.categoryRepository.createQueryBuilder('category');
 
+    // Include a relation count so the admin UI can display
+    // the number of divisions per service category without
+    // needing to load full division relations for the list view.
+    query.loadRelationCountAndMap(
+      'category.divisionsCount',
+      'category.divisions',
+    );
+
     if (queryDto.search) {
       const search = `%${queryDto.search}%`;
       query.andWhere(
