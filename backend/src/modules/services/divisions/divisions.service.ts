@@ -159,13 +159,14 @@ export class DivisionsService {
       }
 
       if (createDto.coreServices?.length) {
-        const coreServicesEntities = createDto.coreServices.map((service, index) =>
-          queryRunner.manager.create(DivisionCoreService, {
-            name: service.name,
-            description: service.description,
-            sortOrder: index,
-            divisionId: savedDivision.id,
-          }),
+        const coreServicesEntities = createDto.coreServices.map(
+          (service, index) =>
+            queryRunner.manager.create(DivisionCoreService, {
+              name: service.name,
+              description: service.description,
+              sortOrder: index,
+              divisionId: savedDivision.id,
+            }),
         );
         await queryRunner.manager.save(coreServicesEntities);
       }
@@ -180,8 +181,6 @@ export class DivisionsService {
         );
         await queryRunner.manager.save(statEntities);
       }
-
-
 
       if (createDto.contact) {
         const contactEntity = queryRunner.manager.create(DivisionContact, {
@@ -288,7 +287,8 @@ export class DivisionsService {
         }
 
         // Cleanup files for deleted images
-        const currentImagePaths = updateDto.images?.map(img => img.path) || [];
+        const currentImagePaths =
+          updateDto.images?.map((img) => img.path) || [];
         for (const oldImage of oldImages) {
           if (!currentImagePaths.includes(oldImage.path)) {
             await this.uploadsService.cleanup(oldImage.path);

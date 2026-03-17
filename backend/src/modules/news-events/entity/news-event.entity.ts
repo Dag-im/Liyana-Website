@@ -77,4 +77,3 @@ export class NewsEvent {
   @DeleteDateColumn()
   deletedAt!: Date | null;
 }
-

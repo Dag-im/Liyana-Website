@@ -15,4 +15,3 @@ export class QueryNewsEventDto extends QueryDto {
   @ApiPropertyOptional({ enum: NewsEventStatus })
   status?: NewsEventStatus;
 }
-

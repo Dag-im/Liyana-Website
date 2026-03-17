@@ -90,8 +90,8 @@ export default function CorporateHero() {
             className="flex items-center gap-3"
           >
             <div className="h-[2px] w-8 lg:w-12 bg-cyan-500" />
-            <span className="text-cyan-400 text-xs font-bold uppercase tracking-[0.2em]">
-              LIYANA HEALTHCARE
+            <span className="text-cyan-400 text-md font-bold uppercase tracking-[0.2em]">
+              Hearts + Minds for Healthcare
             </span>
           </motion.div>
 
@@ -102,9 +102,8 @@ export default function CorporateHero() {
             transition={{ duration: 0.6 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[1.1] lg:leading-[0.95] tracking-tight"
           >
-            Hearts + Minds <br />
+            Liyana <br />
             <span className="block mt-2">
-              for{' '}
               <span className="bg-gradient-to-r from-[#d62839] to-[#7f3aaf] bg-clip-text text-transparent">
                 Healthcare
               </span>

@@ -78,11 +78,14 @@ export class NewsEventsController {
     @Res({ passthrough: true }) res: any,
   ): Promise<ApiEnvelope<{ path: string }>> {
     await new Promise<void>((resolve, reject) => {
-      multer(this.uploadsService.buildMulterOptions())
-        .single('file')(req, res, (err) => {
+      multer(this.uploadsService.buildMulterOptions()).single('file')(
+        req,
+        res,
+        (err) => {
           if (err) reject(err);
           else resolve();
-        });
+        },
+      );
     });
 
     const file = req.file as Express.Multer.File | undefined;

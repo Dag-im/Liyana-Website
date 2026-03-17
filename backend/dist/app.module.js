@@ -31,6 +31,7 @@ const notifications_module_1 = require("./modules/notifications/notifications.mo
 const services_module_1 = require("./modules/services/services.module");
 const users_module_1 = require("./modules/users/users.module");
 const uploads_module_1 = require("./uploads/uploads.module");
+const corporate_network_module_1 = require("./modules/corporate-network/corporate-network.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,6 +62,7 @@ exports.AppModule = AppModule = __decorate([
             bookings_module_1.BookingsModule,
             news_events_module_1.NewsEventsModule,
             blogs_module_1.BlogsModule,
+            corporate_network_module_1.CorporateNetworkModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

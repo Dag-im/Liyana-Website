@@ -15,7 +15,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-
 export class StatDto {
   @IsString()
   @ApiProperty()
@@ -151,8 +150,6 @@ export class CreateDivisionDto {
   @Type(() => StatDto)
   @ApiProperty({ required: false, type: [StatDto] })
   stats?: StatDto[];
-
-
 
   @IsOptional()
   @ValidateNested()

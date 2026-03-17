@@ -115,7 +115,7 @@ const NavBar = () => {
       <header
         className={cn(
           'fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-slate-200 bg-white/95 backdrop-blur-md',
-          scrolled ? 'shadow-sm h-[72px]' : 'h-[88px]'
+          scrolled ? 'shadow-sm h-[84px]' : 'h-[92px]'
         )}
       >
         {/* Top Brand Stripe */}
@@ -131,9 +131,9 @@ const NavBar = () => {
             <Image
               src="/images/logo.png"
               alt="Liyana Healthcare"
-              width={140}
-              height={50}
-              className="w-auto h-9 lg:h-10 object-contain"
+              width={250}
+              height={90}
+              className="w-auto h-12 lg:h-14 object-contain"
               priority
             />
           </Link>

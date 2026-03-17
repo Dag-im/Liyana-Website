@@ -13,10 +13,7 @@ import { UsersService } from '../users/users.service';
 import { CreateNewsEventDto } from './dto/create-news-event.dto';
 import { QueryNewsEventDto } from './dto/query-news-event.dto';
 import { UpdateNewsEventDto } from './dto/update-news-event.dto';
-import {
-  NewsEvent,
-  NewsEventStatus,
-} from './entity/news-event.entity';
+import { NewsEvent, NewsEventStatus } from './entity/news-event.entity';
 
 type JwtUserPayload = {
   sub: string;
@@ -152,7 +149,9 @@ export class NewsEventsService {
       dto.image2 !== undefined;
 
     if (entry.status === NewsEventStatus.PUBLISHED && wantsToEditImages) {
-      throw new BadRequestException('Unpublish the entry before editing images');
+      throw new BadRequestException(
+        'Unpublish the entry before editing images',
+      );
     }
 
     if (dto.mainImage && entry.mainImage && dto.mainImage !== entry.mainImage) {

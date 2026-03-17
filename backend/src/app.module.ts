@@ -25,6 +25,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { ServicesModule } from './modules/services/services.module';
 import { UsersModule } from './modules/users/users.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { CorporateNetworkModule } from './modules/corporate-network/corporate-network.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UploadsModule } from './uploads/uploads.module';
     BookingsModule,
     NewsEventsModule,
     BlogsModule,
+    CorporateNetworkModule,
   ],
   controllers: [AppController],
   providers: [

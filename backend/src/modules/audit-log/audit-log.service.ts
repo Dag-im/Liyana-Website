@@ -45,6 +45,15 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   // Bookings
   [AuditAction.BOOKING_CREATED]: 'booking',
   [AuditAction.BOOKING_STATUS_UPDATED]: 'booking',
+
+  // Corporate Network
+  [AuditAction.NETWORK_RELATION_CREATED]: 'network_relation',
+  [AuditAction.NETWORK_RELATION_UPDATED]: 'network_relation',
+  [AuditAction.NETWORK_RELATION_DELETED]: 'network_relation',
+  [AuditAction.NETWORK_ENTITY_CREATED]: 'network_entity',
+  [AuditAction.NETWORK_ENTITY_UPDATED]: 'network_entity',
+  [AuditAction.NETWORK_ENTITY_MOVED]: 'network_entity',
+  [AuditAction.NETWORK_ENTITY_DELETED]: 'network_entity',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([

@@ -28,9 +28,7 @@ import { BlogCategoriesService } from './blog-categories.service';
 @ApiTags('Blog Categories')
 @Controller('blog-categories')
 export class BlogCategoriesController {
-  constructor(
-    private readonly blogCategoriesService: BlogCategoriesService,
-  ) {}
+  constructor(private readonly blogCategoriesService: BlogCategoriesService) {}
 
   @Get()
   @Throttle({ default: { limit: 120, ttl: 60000 } })
@@ -81,7 +79,10 @@ export class BlogCategoriesController {
   })
   @ApiResponse({ status: 200, description: 'Category deleted.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
-  @ApiResponse({ status: 409, description: 'Category has assigned blog posts.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Category has assigned blog posts.',
+  })
   remove(@Param('id') id: string, @Req() req: any) {
     return this.blogCategoriesService.remove(id, req.user.sub);
   }
