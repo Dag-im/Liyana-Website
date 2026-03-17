@@ -3,39 +3,52 @@
 import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TagBadge } from './TagBadge';
-import { Folder, MediaItem } from './types';
+import { TagBadge, MediaItemCard } from './MediaComponents';
+import { Folder } from '@/data/media';
 
 export const FolderDetails = ({ folder }: { folder: Folder }) => {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-8">
         <Link
           href="/media"
-          className="inline-flex items-center text-cyan-600 hover:text-cyan-800 transition-colors"
+          className="inline-flex items-center text-cyan-600 hover:text-cyan-800 transition-colors font-semibold"
         >
           <ChevronLeft className="w-5 h-5 mr-1" />
           Back to Library
         </Link>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 items-start">
+      <div className="grid md:grid-cols-2 gap-12 items-start mb-16">
         {/* Text block */}
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold text-gray-900">{folder.name}</h1>
-          <TagBadge tag={folder.tag} />
-          <p className="text-sm text-gray-600">
-            <strong className="text-gray-900">{folder.mediaCount}</strong>{' '}
-            {folder.mediaCount === 1 ? 'file' : 'files'} total
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <TagBadge tag={folder.tag} />
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              {folder.name}
+            </h1>
+          </div>
+          
+          <p className="text-slate-600 leading-relaxed text-lg">
+            {folder.description}
           </p>
-          <p className="text-sm text-gray-400">
-            Last updated {folder.lastUpdated}
-          </p>
+
+          <div className="flex items-center gap-6 pt-6 border-t border-slate-100">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Files</p>
+              <p className="text-xl font-bold text-slate-900">{folder.mediaCount}</p>
+            </div>
+            <div className="w-px h-8 bg-slate-100" />
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Updated</p>
+              <p className="text-sm font-bold text-slate-600">{folder.lastUpdated}</p>
+            </div>
+          </div>
         </div>
 
         {/* Cover image */}
-        <div className="relative h-64 md:h-80 rounded-xl overflow-hidden shadow-inner">
+        <div className="relative aspect-[16/10] rounded-sm overflow-hidden shadow-2xl bg-slate-100 border border-slate-200">
           <Image
             src={folder.coverImage}
             alt={folder.name}
@@ -46,76 +59,24 @@ export const FolderDetails = ({ folder }: { folder: Folder }) => {
       </div>
 
       {/* Media Grid */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-800">Media Files</h2>
+      <section className="space-y-8">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <h2 className="text-2xl font-bold text-slate-900">Media Assets</h2>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{folder.mediaCount} Items Total</span>
+        </div>
+        
         {folder.media && folder.media.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {folder.media.map((item) => (
               <MediaItemCard key={item.id} item={item} />
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500 italic">No media files yet.</p>
+          <div className="py-20 text-center bg-slate-50 border border-dashed border-slate-200 rounded-sm">
+            <p className="text-slate-500 font-medium italic">No media files found in this collection.</p>
+          </div>
         )}
       </section>
     </div>
-  );
-};
-
-/* ---------- MediaItemCard (new) ---------- */
-const MediaItemCard = ({ item }: { item: MediaItem }) => {
-  const isImage = item.type === 'image';
-  const isVideo = item.type === 'video';
-
-  return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block rounded-lg overflow-hidden border border-gray-200 bg-gray-50 shadow-sm hover:shadow-md transition-shadow"
-    >
-      <div className="relative aspect-video bg-gray-200">
-        {isImage && (
-          <Image
-            src={item.url}
-            alt={item.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform"
-          />
-        )}
-        {isVideo && item.thumbnail && (
-          <Image
-            src={item.thumbnail}
-            alt={item.title}
-            fill
-            className="object-cover"
-          />
-        )}
-
-        {/* Play icon overlay for videos */}
-        {isVideo && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-cyan-600"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M8 5v14l11-7L8 5z" />
-              </svg>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="p-3">
-        <p className="text-sm font-medium text-gray-800 line-clamp-2">
-          {item.title}
-        </p>
-        <span className="inline-block mt-1 text-xs text-gray-500 capitalize">
-          {item.type}
-        </span>
-      </div>
-    </a>
   );
 };

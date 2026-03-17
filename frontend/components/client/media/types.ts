@@ -2,8 +2,8 @@ export interface MediaItem {
   id: string;
   title: string;
   type: 'image' | 'video';
-  url: string; // direct link to the file
-  thumbnail?: string; // optional small preview (used for videos / docs)
+  url: string; // Direct link or YouTube URL
+  thumbnail?: string; // Preview image
 }
 
 export interface Folder {

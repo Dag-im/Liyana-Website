@@ -53,9 +53,22 @@ export const FolderCard = ({ folder }: { folder: Folder }) => {
   );
 };
 
+// --- Helpers ---
+const getYouTubeThumbnail = (url: string) => {
+  const regExp =
+    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg`;
+  }
+  return null;
+};
+
 // --- Media Item Card ---
 export const MediaItemCard = ({ item }: { item: MediaItem }) => {
   const isVideo = item.type === 'video';
+  const youtubeThumbnail = isVideo ? getYouTubeThumbnail(item.url) : null;
+  const displayImage = item.thumbnail || youtubeThumbnail || item.url;
 
   return (
     <a
@@ -64,9 +77,9 @@ export const MediaItemCard = ({ item }: { item: MediaItem }) => {
       rel="noopener noreferrer"
       className="group flex flex-col bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
     >
-      <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden border-b border-slate-200">
+      <div className="relative aspect-video bg-slate-100 overflow-hidden border-b border-slate-200">
         <Image
-          src={(isVideo ? item.thumbnail : item.url) || ''}
+          src={displayImage}
           alt={item.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -74,21 +87,21 @@ export const MediaItemCard = ({ item }: { item: MediaItem }) => {
 
         {isVideo && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10 group-hover:bg-slate-900/20 transition-colors">
-            <div className="w-12 h-12 bg-white rounded-sm flex items-center justify-center shadow-md transform group-hover:scale-110 transition-transform duration-300">
-              <Play className="w-5 h-5 text-cyan-700 ml-1" />
+            <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+              <Play className="w-5 h-5 text-cyan-700 ml-1 fill-current" />
             </div>
           </div>
         )}
 
         <div className="absolute top-3 left-3">
-          <span className="bg-white/95 backdrop-blur-sm px-2 py-1 text-[10px] font-bold text-slate-800 uppercase tracking-wider rounded-sm shadow-sm border border-slate-200">
+          <span className="bg-slate-900/80 backdrop-blur-md px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider rounded-sm shadow-sm">
             {item.type}
           </span>
         </div>
       </div>
 
-      <div className="p-4">
-        <p className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-cyan-700 transition-colors">
+      <div className="p-4 bg-white">
+        <p className="text-sm font-bold text-slate-800 line-clamp-2 group-hover:text-cyan-700 transition-colors leading-tight">
           {item.title}
         </p>
       </div>

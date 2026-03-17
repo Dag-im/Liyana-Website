@@ -18,6 +18,7 @@ export const APP_NAVIGATION: AppRoute[] = [
   { path: '/news', label: 'News', icon: Newspaper, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/events', label: 'Events', icon: CalendarDays, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/blogs', label: 'Blogs', icon: BookOpen, roles: ['ADMIN', 'COMMUNICATION', 'BLOGGER'] },
+  { path: '/corporate-network', label: 'Corporate Network', icon: LandPlot, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/blog-categories', label: 'Blog Categories', icon: LayoutGrid, roles: ['ADMIN'] },
   { path: '/bookings', label: 'Bookings', icon: CalendarCheck, roles: ['ADMIN', 'CUSTOMER_SERVICE'] },
   { path: '/notifications', label: 'Notifications', icon: Bell },

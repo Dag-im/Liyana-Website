@@ -4,10 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuditLogs } from '@/features/audit-logs/useAuditLogs'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useNewsEvents } from '@/features/news-events/useNewsEvents'
-import { useUnreadCount } from '@/features/notifications/useNotifications'
 import { useUsers } from '@/features/users/useUsers'
-import { Activity, ArrowRight, Bell, Building2, CalendarCheck, Newspaper, Users } from 'lucide-react'
+import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useNetworkMeta } from '@/features/corporate-network/useNetworkEntities'
 
 // Relative imports for local dialogs/wizards and hooks
 import { useBookings } from '@/features/bookings/useBookings'
@@ -19,9 +19,9 @@ export function AdminDashboard() {
   const { data: usersData } = useUsers({ perPage: 1 })
   const { data: divisionsData } = useDivisions({ perPage: 1, isActive: true })
   const { data: bookingsData } = useBookings({ perPage: 1, status: 'PENDING' })
-  const { data: unreadCount } = useUnreadCount()
   const { data: auditLogs } = useAuditLogs({ perPage: 5 })
   const { data: publishedNewsEvents } = useNewsEvents({ status: 'PUBLISHED', perPage: 1 })
+  const { data: metaData } = useNetworkMeta()
 
   const stats = [
     {
@@ -41,6 +41,14 @@ export function AdminDashboard() {
       link: '/divisions',
     },
     {
+      label: 'Network Entities',
+      value: metaData?.totalEntities ?? 0,
+      icon: Network,
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-50',
+      link: '/corporate-network',
+    },
+    {
       label: 'Pending Bookings',
       value: bookingsData?.total ?? 0,
       icon: CalendarCheck,
@@ -55,14 +63,6 @@ export function AdminDashboard() {
       color: 'text-sky-600',
       bg: 'bg-sky-50',
       link: '/news',
-    },
-    {
-      label: 'Unread Notifications',
-      value: unreadCount ?? 0,
-      icon: Bell,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
-      link: '/notifications',
     },
   ]
 
@@ -130,6 +130,7 @@ export function AdminDashboard() {
               { label: 'Division Categories', path: '/division-categories' },
               { label: 'Service Categories', path: '/service-categories' },
               { label: 'Manage Divisions', path: '/divisions' },
+              { label: 'Corporate Network', path: '/corporate-network' },
               { label: 'Review Bookings', path: '/bookings' },
               { label: 'System Logs', path: '/audit-logs' },
             ].map((link) => (

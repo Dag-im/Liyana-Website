@@ -2,8 +2,8 @@ export interface MediaItem {
   id: string;
   title: string;
   type: 'image' | 'video';
-  url: string;
-  thumbnail?: string;
+  url: string; // Direct link or YouTube URL
+  thumbnail?: string; // Preview image
 }
 
 export interface Folder {
@@ -33,9 +33,7 @@ export const mediaFolders: Folder[] = [
         id: 'm1-1',
         title: 'CEO Keynote Summary',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
       {
         id: 'm1-2',
@@ -53,9 +51,7 @@ export const mediaFolders: Folder[] = [
         id: 'm1-4',
         title: 'CFO Financial Breakdown',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
       {
         id: 'm1-5',
@@ -110,9 +106,7 @@ export const mediaFolders: Folder[] = [
         id: 'm2-5',
         title: 'Innovation Lab Walkthrough',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
       {
         id: 'm2-6',
@@ -130,9 +124,7 @@ export const mediaFolders: Folder[] = [
         id: 'm2-8',
         title: 'Ribbon Cutting Ceremony',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
     ],
   },
@@ -200,9 +192,7 @@ export const mediaFolders: Folder[] = [
         id: 'm4-2',
         title: 'Zero-Waste Facility Rollout',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
       {
         id: 'm4-3',
@@ -214,9 +204,7 @@ export const mediaFolders: Folder[] = [
         id: 'm4-4',
         title: 'Annual ESG Report Overview',
         type: 'video',
-        url: '#',
-        thumbnail:
-          'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       },
     ],
   },

@@ -19,6 +19,8 @@ import ServiceCategoriesPage from '@/features/service-categories/ServiceCategori
 import ServiceCategoryDetailPage from '@/features/service-categories/ServiceCategoryDetailPage'
 import UserDetailPage from '@/features/users/UserDetailPage'
 import UsersPage from '@/features/users/UsersPage'
+import CorporateNetworkPage from '@/features/corporate-network/CorporateNetworkPage'
+import NetworkRelationsPage from '@/features/corporate-network/NetworkRelationsPage'
 import CommunicationRoute from '@/components/auth/CommunicationRoute'
 import NotFoundPage from '@/pages/NotFoundPage'
 import AdminRoute from '@/router/AdminRoute'
@@ -64,6 +66,8 @@ export default function App() {
             <Route element={<ServiceCategoryDetailPage />} path="service-categories/:id" />
             <Route element={<DivisionsPage />} path="divisions" />
             <Route element={<DivisionDetailPage />} path="divisions/:id" />
+            <Route element={<CorporateNetworkPage />} path="corporate-network" />
+            <Route element={<NetworkRelationsPage />} path="corporate-network/relations" />
             <Route element={<AuditLogsPage />} path="audit-logs" />
           </Route>
         </Route>
