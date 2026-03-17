@@ -5,9 +5,11 @@ import { useAuditLogs } from '@/features/audit-logs/useAuditLogs'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useNewsEvents } from '@/features/news-events/useNewsEvents'
 import { useUsers } from '@/features/users/useUsers'
-import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network } from 'lucide-react'
+import { useMediaFolders } from '@/features/media/useMedia'
+import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network, Image, UserCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useNetworkMeta } from '@/features/corporate-network/useNetworkEntities'
+import { useTeamMembers } from '@/features/team/useTeam'
 
 // Relative imports for local dialogs/wizards and hooks
 import { useBookings } from '@/features/bookings/useBookings'
@@ -22,6 +24,8 @@ export function AdminDashboard() {
   const { data: auditLogs } = useAuditLogs({ perPage: 5 })
   const { data: publishedNewsEvents } = useNewsEvents({ status: 'PUBLISHED', perPage: 1 })
   const { data: metaData } = useNetworkMeta()
+  const { data: mediaData } = useMediaFolders({ perPage: 1 })
+  const { data: teamData } = useTeamMembers({ perPage: 1, includeHidden: true })
 
   const stats = [
     {
@@ -63,6 +67,22 @@ export function AdminDashboard() {
       color: 'text-sky-600',
       bg: 'bg-sky-50',
       link: '/news',
+    },
+    {
+      label: 'Media Folders',
+      value: mediaData?.total ?? 0,
+      icon: Image,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      link: '/media',
+    },
+    {
+      label: 'Team Members',
+      value: teamData?.total ?? 0,
+      icon: UserCircle,
+      color: 'text-cyan-700',
+      bg: 'bg-cyan-50',
+      link: '/team',
     },
   ]
 
@@ -131,6 +151,8 @@ export function AdminDashboard() {
               { label: 'Service Categories', path: '/service-categories' },
               { label: 'Manage Divisions', path: '/divisions' },
               { label: 'Corporate Network', path: '/corporate-network' },
+              { label: 'Media Gallery', path: '/media' },
+              { label: 'Team & Leadership', path: '/team' },
               { label: 'Review Bookings', path: '/bookings' },
               { label: 'System Logs', path: '/audit-logs' },
             ].map((link) => (

@@ -58,6 +58,10 @@ export class UploadsService implements OnModuleInit {
     }
   }
 
+  async delete(filePath: string): Promise<void> {
+    return this.cleanup(filePath);
+  }
+
   uploadSingle(
     fieldName: string,
     options?: UploadOptions,

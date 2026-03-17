@@ -26,6 +26,8 @@ import { ServicesModule } from './modules/services/services.module';
 import { UsersModule } from './modules/users/users.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { CorporateNetworkModule } from './modules/corporate-network/corporate-network.module';
+import { MediaModule } from './modules/media/media.module';
+import { TeamModule } from './modules/team/team.module';
 
 @Module({
   imports: [
@@ -54,6 +56,8 @@ import { CorporateNetworkModule } from './modules/corporate-network/corporate-ne
     NewsEventsModule,
     BlogsModule,
     CorporateNetworkModule,
+    MediaModule,
+    TeamModule,
   ],
   controllers: [AppController],
   providers: [

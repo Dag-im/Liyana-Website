@@ -115,6 +115,12 @@ export function CommunicationDashboard() {
           <Button variant="outline" className="justify-start" asChild>
             <Link to="/corporate-network">Corporate Network</Link>
           </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/team">Team & Leadership</Link>
+          </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/media">Go to Media Gallery</Link>
+          </Button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
               <Bell className="h-4 w-4 text-purple-600" />
               Unread notifications: {typeof unreadCount === 'number' ? unreadCount : (unreadCount?.count ?? 0)}

@@ -20,6 +20,8 @@ import BlogStatusBadge from './components/BlogStatusBadge'
 import CreateBlogDialog from './components/CreateBlogDialog'
 import EditBlogDialog from './components/EditBlogDialog'
 import RejectBlogDialog from './components/RejectBlogDialog'
+import BlogCategoriesDialog from '@/features/blog-categories/BlogCategoriesDialog'
+import { FolderEdit } from 'lucide-react'
 
 type StatusFilter = 'ALL' | BlogStatus
 
@@ -36,6 +38,7 @@ export default function BlogsPage() {
   const [status, setStatus] = useState<StatusFilter>('ALL')
   const [categoryId, setCategoryId] = useState('ALL')
   const [featured, setFeatured] = useState<FeaturedFilter>('ALL')
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const debouncedSearch = useDebounce(search, 400)
 
   const { data: categories } = useBlogCategories()
@@ -190,7 +193,13 @@ export default function BlogsPage() {
   return (
     <div className="space-y-6 p-6">
       <PageHeader heading="Blogs">
-        {user?.role ? <CreateBlogDialog /> : null}
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setIsCategoriesOpen(true)}>
+            <FolderEdit className="mr-2 h-4 w-4" />
+            Manage Categories
+          </Button>
+          {user?.role ? <CreateBlogDialog /> : null}
+        </div>
       </PageHeader>
 
       <div className="flex flex-wrap items-end gap-4">
@@ -221,7 +230,7 @@ export default function BlogsPage() {
           <Select
             value={categoryId}
             onValueChange={(value) => {
-              setCategoryId(value)
+              setCategoryId(value || 'ALL')
               resetPage()
             }}
           >
@@ -290,6 +299,11 @@ export default function BlogsPage() {
         perPage={perPage}
         total={blogsQuery.data?.total ?? 0}
         onPageChange={setPage}
+      />
+
+      <BlogCategoriesDialog 
+        open={isCategoriesOpen} 
+        onOpenChange={setIsCategoriesOpen} 
       />
     </div>
   )

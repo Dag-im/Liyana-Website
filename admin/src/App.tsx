@@ -5,7 +5,6 @@ import AuditLogsPage from '@/features/audit-logs/AuditLogsPage'
 import LoginPage from '@/features/auth/LoginPage'
 import BlogDetailPage from '@/features/blogs/BlogDetailPage'
 import BlogsPage from '@/features/blogs/BlogsPage'
-import BlogCategoriesPage from '@/features/blog-categories/BlogCategoriesPage'
 import BookingsPage from '@/features/bookings/BookingsPage'
 import DashboardPage from '@/features/dashboard/DashboardPage'
 import DivisionCategoriesPage from '@/features/division-categories/DivisionCategoriesPage'
@@ -21,6 +20,10 @@ import UserDetailPage from '@/features/users/UserDetailPage'
 import UsersPage from '@/features/users/UsersPage'
 import CorporateNetworkPage from '@/features/corporate-network/CorporateNetworkPage'
 import NetworkRelationsPage from '@/features/corporate-network/NetworkRelationsPage'
+import MediaGalleryPage from '@/features/media/MediaGalleryPage'
+import MediaTagsPage from '@/features/media/MediaTagsPage'
+import MediaFolderDetailPage from '@/features/media/MediaFolderDetailPage'
+import TeamPage from '@/features/team/TeamPage'
 import CommunicationRoute from '@/components/auth/CommunicationRoute'
 import NotFoundPage from '@/pages/NotFoundPage'
 import AdminRoute from '@/router/AdminRoute'
@@ -54,6 +57,10 @@ export default function App() {
             <Route element={<EventsPage />} path="events" />
             <Route element={<NewsEventDetailPage />} path="news/:id" />
             <Route element={<NewsEventDetailPage />} path="events/:id" />
+            <Route element={<MediaGalleryPage />} path="media" />
+            <Route element={<MediaTagsPage />} path="media/tags" />
+            <Route element={<MediaFolderDetailPage />} path="media/:folderId" />
+            <Route element={<TeamPage />} path="team" />
           </Route>
 
           {/* Admin Only */}
@@ -61,7 +68,6 @@ export default function App() {
             <Route element={<UsersPage />} path="users" />
             <Route element={<UserDetailPage />} path="users/:id" />
             <Route element={<DivisionCategoriesPage />} path="division-categories" />
-            <Route element={<BlogCategoriesPage />} path="blog-categories" />
             <Route element={<ServiceCategoriesPage />} path="service-categories" />
             <Route element={<ServiceCategoryDetailPage />} path="service-categories/:id" />
             <Route element={<DivisionsPage />} path="divisions" />

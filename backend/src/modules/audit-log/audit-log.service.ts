@@ -54,6 +54,21 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.NETWORK_ENTITY_UPDATED]: 'network_entity',
   [AuditAction.NETWORK_ENTITY_MOVED]: 'network_entity',
   [AuditAction.NETWORK_ENTITY_DELETED]: 'network_entity',
+
+  // Media Gallery
+  [AuditAction.MEDIA_TAG_CREATED]: 'media_tag',
+  [AuditAction.MEDIA_TAG_UPDATED]: 'media_tag',
+  [AuditAction.MEDIA_TAG_DELETED]: 'media_tag',
+  [AuditAction.MEDIA_FOLDER_CREATED]: 'media_folder',
+  [AuditAction.MEDIA_FOLDER_UPDATED]: 'media_folder',
+  [AuditAction.MEDIA_FOLDER_DELETED]: 'media_folder',
+  [AuditAction.MEDIA_ITEM_CREATED]: 'media_item',
+  [AuditAction.MEDIA_ITEM_UPDATED]: 'media_item',
+  [AuditAction.MEDIA_ITEM_DELETED]: 'media_item',
+  // Team & Leadership
+  [AuditAction.TEAM_MEMBER_CREATED]: 'team_member',
+  [AuditAction.TEAM_MEMBER_UPDATED]: 'team_member',
+  [AuditAction.TEAM_MEMBER_DELETED]: 'team_member',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([
