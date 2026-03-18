@@ -6,17 +6,30 @@ import { useDivisions } from '@/features/divisions/useDivisions'
 import { useNewsEvents } from '@/features/news-events/useNewsEvents'
 import { useUsers } from '@/features/users/useUsers'
 import { useMediaFolders } from '@/features/media/useMedia'
-import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network, Image, UserCircle, MessageSquare, Inbox } from 'lucide-react'
+import {
+  Activity,
+  ArrowRight,
+  Award,
+  Building2,
+  CalendarCheck,
+  History,
+  Newspaper,
+  Users,
+  Network,
+  Image,
+  UserCircle,
+  MessageSquare,
+  Inbox,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useNetworkMeta } from '@/features/corporate-network/useNetworkEntities'
 import { useTeamMembers } from '@/features/team/useTeam'
+import { useAwards } from '@/features/awards/useAwards'
+import { useTimelineItems } from '@/features/timeline/useTimeline'
 
-// Relative imports for local dialogs/wizards and hooks
 import { useBookings } from '@/features/bookings/useBookings'
 import { useContactSubmissions } from '@/features/contact/useContact'
 import { useTestimonials } from '@/features/testimonials/useTestimonials'
-
-// Additional shared component import
 
 
 export function AdminDashboard() {
@@ -30,6 +43,8 @@ export function AdminDashboard() {
   const { data: teamData } = useTeamMembers({ perPage: 1, includeHidden: true })
   const { data: pendingTestimonials } = useTestimonials({ isApproved: false, perPage: 1 })
   const { data: unreviewedContact } = useContactSubmissions({ isReviewed: false, perPage: 1 })
+  const { data: awardsData } = useAwards({ perPage: 1 })
+  const { data: timelineData } = useTimelineItems({ perPage: 1 })
 
   const stats = [
     {
@@ -104,6 +119,22 @@ export function AdminDashboard() {
       bg: (unreviewedContact?.total ?? 0) > 0 ? 'bg-red-50' : 'bg-slate-50',
       link: '/contact',
     },
+    {
+      label: 'Awards',
+      value: awardsData?.total ?? 0,
+      icon: Award,
+      color: 'text-violet-700',
+      bg: 'bg-violet-50',
+      link: '/awards',
+    },
+    {
+      label: 'Timeline Entries',
+      value: timelineData?.total ?? 0,
+      icon: History,
+      color: 'text-indigo-700',
+      bg: 'bg-indigo-50',
+      link: '/timeline',
+    },
   ]
 
   return (
@@ -177,6 +208,9 @@ export function AdminDashboard() {
               { label: 'System Logs', path: '/audit-logs' },
               { label: 'Testimonials', path: '/testimonials' },
               { label: 'Contact Submissions', path: '/contact' },
+              { label: 'Awards', path: '/awards' },
+              { label: 'Timeline', path: '/timeline' },
+              { label: 'FAQs', path: '/faqs' },
             ].map((link) => (
               <Button key={link.label} variant="outline" className="justify-start" asChild>
                 <Link to={link.path}>{link.label}</Link>

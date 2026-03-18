@@ -9,10 +9,22 @@ export default function AppShell() {
   const authQuery = useAuth()
   const user = authQuery.data
 
-  const routes = APP_NAVIGATION.filter((route) => {
-    if (!route.roles) return true
-    return user?.role && route.roles.includes(user.role)
-  })
+  const routes = APP_NAVIGATION.reduce<typeof APP_NAVIGATION>((acc, route) => {
+    if (route.roles && (!user?.role || !route.roles.includes(user.role))) {
+      return acc
+    }
+
+    const children = route.children?.filter((child) => {
+      if (!child.roles) return true
+      return user?.role && child.roles.includes(user.role)
+    })
+
+    acc.push({
+      ...route,
+      children,
+    })
+    return acc
+  }, [])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -35,19 +47,43 @@ export default function AppShell() {
               const Icon = route.icon
 
               return (
-                <NavLink
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                      isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground',
-                    )
-                  }
-                  key={route.path}
-                  to={route.path}
-                >
-                  <Icon className="h-4 w-4" />
-                  {route.label}
-                </NavLink>
+                <div key={route.path} className="space-y-1">
+                  <NavLink
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
+                        isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground',
+                      )
+                    }
+                    to={route.path}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {route.label}
+                  </NavLink>
+
+                  {route.children?.length ? (
+                    <div className="ml-5 space-y-1 border-l pl-2">
+                      {route.children.map((child) => {
+                        const ChildIcon = child.icon
+                        return (
+                          <NavLink
+                            key={child.path}
+                            className={({ isActive }) =>
+                              cn(
+                                'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
+                                isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground',
+                              )
+                            }
+                            to={child.path}
+                          >
+                            <ChildIcon className="h-4 w-4" />
+                            {child.label}
+                          </NavLink>
+                        )
+                      })}
+                    </div>
+                  ) : null}
+                </div>
               )
             })}
           </nav>

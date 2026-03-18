@@ -30,6 +30,9 @@ import { MediaModule } from './modules/media/media.module';
 import { TeamModule } from './modules/team/team.module';
 import { TestimonialsModule } from './modules/testimonials/testimonials.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { AwardsModule } from './modules/awards/awards.module';
+import { TimelineModule } from './modules/timeline/timeline.module';
+import { FaqsModule } from './modules/faqs/faqs.module';
 
 @Module({
   imports: [
@@ -62,6 +65,9 @@ import { ContactModule } from './modules/contact/contact.module';
     TeamModule,
     TestimonialsModule,
     ContactModule,
+    AwardsModule,
+    TimelineModule,
+    FaqsModule,
   ],
   controllers: [AppController],
   providers: [

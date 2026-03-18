@@ -36,6 +36,9 @@ const media_module_1 = require("./modules/media/media.module");
 const team_module_1 = require("./modules/team/team.module");
 const testimonials_module_1 = require("./modules/testimonials/testimonials.module");
 const contact_module_1 = require("./modules/contact/contact.module");
+const awards_module_1 = require("./modules/awards/awards.module");
+const timeline_module_1 = require("./modules/timeline/timeline.module");
+const faqs_module_1 = require("./modules/faqs/faqs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -71,6 +74,9 @@ exports.AppModule = AppModule = __decorate([
             team_module_1.TeamModule,
             testimonials_module_1.TestimonialsModule,
             contact_module_1.ContactModule,
+            awards_module_1.AwardsModule,
+            timeline_module_1.TimelineModule,
+            faqs_module_1.FaqsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

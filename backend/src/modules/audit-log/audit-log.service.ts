@@ -82,6 +82,27 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.CONTACT_SUBMITTED]: 'contact_submission',
   [AuditAction.CONTACT_REVIEWED]: 'contact_submission',
   [AuditAction.CONTACT_DELETED]: 'contact_submission',
+
+  // Awards
+  [AuditAction.AWARD_CREATED]: 'award',
+  [AuditAction.AWARD_UPDATED]: 'award',
+  [AuditAction.AWARD_DELETED]: 'award',
+
+  // Timeline
+  [AuditAction.TIMELINE_ITEM_CREATED]: 'timeline_item',
+  [AuditAction.TIMELINE_ITEM_UPDATED]: 'timeline_item',
+  [AuditAction.TIMELINE_ITEM_DELETED]: 'timeline_item',
+
+  // FAQ Category
+  [AuditAction.FAQ_CATEGORY_CREATED]: 'faq_category',
+  [AuditAction.FAQ_CATEGORY_UPDATED]: 'faq_category',
+  [AuditAction.FAQ_CATEGORY_DELETED]: 'faq_category',
+
+  // FAQ
+  [AuditAction.FAQ_CREATED]: 'faq',
+  [AuditAction.FAQ_UPDATED]: 'faq',
+  [AuditAction.FAQ_REORDERED]: 'faq',
+  [AuditAction.FAQ_DELETED]: 'faq',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([
