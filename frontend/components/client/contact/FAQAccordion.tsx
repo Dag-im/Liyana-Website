@@ -35,7 +35,11 @@ const FAQ_DATA = {
   ],
 };
 
-export function FAQAccordion() {
+interface FAQAccordionProps {
+  faqs?: { question: string; answer: string }[];
+}
+
+export function FAQAccordion({ faqs = FAQ_DATA.items }: FAQAccordionProps) {
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-4xl mx-auto px-6">
@@ -67,12 +71,12 @@ export function FAQAccordion() {
           className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-10 shadow-sm"
         >
           <Accordion type="single" collapsible className="space-y-0">
-            {FAQ_DATA.items.map((faq, index) => (
+            {faqs.map((faq, index) => (
               <AccordionItem
-                key={faq.id}
-                value={faq.id}
+                key={`${faq.question}-${index}`}
+                value={`${faq.question}-${index}`}
                 className={`border-slate-200 border-b ${
-                  index === FAQ_DATA.items.length - 1 ? 'border-b-0' : ''
+                  index === faqs.length - 1 ? 'border-b-0' : ''
                 }`}
               >
                 <AccordionTrigger className="py-6 text-left text-base font-semibold text-slate-900 hover:text-cyan-600 transition-colors no-underline hover:no-underline">

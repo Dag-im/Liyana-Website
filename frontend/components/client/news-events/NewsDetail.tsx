@@ -1,20 +1,13 @@
 'use client';
 
 import gsap from 'gsap';
+import type { NewsEvent } from '@/types/news-events.types';
 import { ArrowLeft, Clock, Linkedin, Printer, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
-interface NewsDetailProps {
-  title: string;
-  date: string;
-  content: string[];
-  mainImage: string;
-  keyHighlights: string[];
-  image1?: string;
-  image2?: string;
-}
+type NewsDetailProps = NewsEvent;
 
 export function NewsDetail({
   title,
@@ -121,7 +114,7 @@ export function NewsDetail({
               Executive Summary
             </h3>
             <ul className="space-y-4">
-              {keyHighlights.map((point, i) => (
+              {(keyHighlights ?? []).map((point, i) => (
                 <li
                   key={i}
                   className="flex gap-3 text-sm text-slate-700 leading-relaxed"

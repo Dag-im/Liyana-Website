@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import type { MediaFolder } from '@/types/media.types';
 import { TagBadge } from './TagBadge';
-import { Folder } from './types';
 
-export const FolderCard = ({ folder }: { folder: Folder }) => {
+export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
   return (
     <Link
       href={`/media/${folder.id}`}

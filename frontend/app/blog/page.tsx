@@ -3,12 +3,37 @@
 import BlogCard from '@/components/client/blog/BlockCard';
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import { blogPosts, getInitials } from '@/data/blogs';
+import type { Blog } from '@/types/blog.types';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+
+const posts: Blog[] = blogPosts.map((post) => ({
+  id: post.id,
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt,
+  content: post.content,
+  image: post.image,
+  readTime: post.readTime,
+  featured: post.featured ?? false,
+  status: 'PUBLISHED',
+  authorId: post.author.name.toLowerCase().replace(/\s+/g, '-'),
+  authorName: post.author.name,
+  authorRole: post.author.role,
+  categoryId: post.category.toLowerCase().replace(/\s+/g, '-'),
+  category: {
+    id: post.category.toLowerCase().replace(/\s+/g, '-'),
+    name: post.category,
+    slug: post.category.toLowerCase().replace(/\s+/g, '-'),
+  },
+  publishedAt: post.date,
+  createdAt: post.date,
+  updatedAt: post.date,
+}));
 
 export default function BlogIndexPage() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -19,20 +44,22 @@ export default function BlogIndexPage() {
 
   const categories = [
     'All',
-    ...Array.from(new Set(blogPosts.map((p) => p.category))),
+    ...Array.from(new Set(posts.map((p) => p.category.name))),
   ];
 
   // Logic for Search, Category, Latest, and Featured filtering
   const filteredPosts = useMemo(() => {
     // 1. Sort by Latest Date
-    let posts = [...blogPosts].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    let filtered = [...posts].sort(
+      (a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() -
+        new Date(a.publishedAt ?? a.createdAt).getTime()
     );
 
     // 2. Apply Search Filter
     if (searchQuery.trim() !== '') {
       const lowerQuery = searchQuery.toLowerCase();
-      posts = posts.filter(
+      filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(lowerQuery) ||
           p.excerpt.toLowerCase().includes(lowerQuery)
@@ -41,10 +68,10 @@ export default function BlogIndexPage() {
 
     // 3. Apply Category Filter
     if (activeCategory !== 'All') {
-      posts = posts.filter((p) => p.category === activeCategory);
+      filtered = filtered.filter((p) => p.category.name === activeCategory);
     }
 
-    return posts;
+    return filtered;
   }, [searchQuery, activeCategory]);
 
   // Determine if we should show the Featured Hero section
@@ -172,9 +199,11 @@ export default function BlogIndexPage() {
               <div className="lg:w-2/5 p-10 md:p-14 flex flex-col justify-center">
                 <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-wider mb-6">
                   <span className="bg-slate-900 text-white px-3 py-1 rounded-sm">
-                    {featuredPost.category}
+                    {featuredPost.category.name}
                   </span>
-                  <span className="text-slate-500">{featuredPost.date}</span>
+                  <span className="text-slate-500">
+                    {featuredPost.publishedAt ?? featuredPost.createdAt}
+                  </span>
                 </div>
 
                 <Link href={`/blog/${featuredPost.slug}`}>
@@ -190,14 +219,14 @@ export default function BlogIndexPage() {
                 <div className="mt-auto pt-8 border-t border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-sm bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
-                      {getInitials(featuredPost.author.name)}
+                      {getInitials(featuredPost.authorName)}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900">
-                        {featuredPost.author.name}
+                        {featuredPost.authorName}
                       </p>
                       <p className="text-xs text-slate-500 uppercase tracking-wider mt-0.5">
-                        {featuredPost.author.role}
+                        {featuredPost.authorRole}
                       </p>
                     </div>
                   </div>

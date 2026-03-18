@@ -1,9 +1,9 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { SERVICES_DATA } from '@/data/services';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { ServiceCategory } from '@/types/services.types';
 import {
   CheckCircle2,
   Factory,
@@ -23,7 +23,13 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 // ---------- COMPONENT ----------
-export default function LiyanaSummary() {
+interface ServicePreviewProps {
+  categories?: ServiceCategory[];
+}
+
+export default function LiyanaSummary({
+  categories = [],
+}: ServicePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -79,7 +85,7 @@ export default function LiyanaSummary() {
       {/* GRID SECTION */}
       {/* Using lg:grid-cols-2 so cards have plenty of space to breathe. Adjust to lg:grid-cols-4 if you want them smaller/tighter. */}
       <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 max-w-7xl mx-auto">
-        {SERVICES_DATA.map((item) => (
+        {categories.map((item) => (
           <div
             key={item.id}
             className="corporate-card group relative flex flex-col bg-white border border-slate-200 p-8 shadow-sm hover:shadow-xl transition-all duration-300"
@@ -116,7 +122,7 @@ export default function LiyanaSummary() {
                 Operating Divisions
               </span>
               <div className="flex flex-wrap gap-2">
-                {item.divisions.map((div, i) => (
+                {(item.divisions ?? []).map((div, i) => (
                   <Link
                     key={i}
                     href={`/services/${div.slug}`}

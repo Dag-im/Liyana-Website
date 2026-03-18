@@ -2,6 +2,7 @@
 
 import { MediaItemCard } from '@/components/client/media/MediaComponents';
 import { mediaFolders } from '@/data/media';
+import type { MediaFolder } from '@/types/media.types';
 import gsap from 'gsap';
 import { ArrowLeft, Image as ImageIcon, Video } from 'lucide-react';
 import Image from 'next/image';
@@ -13,9 +14,37 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+const folders: MediaFolder[] = mediaFolders.map((folder, index) => ({
+  id: folder.id,
+  name: folder.name,
+  coverImage: folder.coverImage,
+  description: folder.description,
+  sortOrder: index,
+  tag: {
+    id: folder.tag.toLowerCase().replace(/\s+/g, '-'),
+    name: folder.tag,
+    slug: folder.tag.toLowerCase().replace(/\s+/g, '-'),
+  },
+  items: folder.media.map((item, itemIndex) => ({
+    id: item.id,
+    title: item.title,
+    type: item.type,
+    url: item.url,
+    thumbnail: item.thumbnail ?? null,
+    sortOrder: itemIndex,
+    folderId: folder.id,
+    createdAt: folder.lastUpdated,
+    updatedAt: folder.lastUpdated,
+  })),
+  mediaCount: folder.mediaCount,
+  lastUpdated: folder.lastUpdated,
+  createdAt: folder.lastUpdated,
+  updatedAt: folder.lastUpdated,
+}));
+
 export default function MediaFolderPage(props: Props) {
   const { id } = use(props.params);
-  const folder = mediaFolders.find((f) => f.id === id);
+  const folder = folders.find((f) => f.id === id);
   const containerRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -47,8 +76,8 @@ export default function MediaFolderPage(props: Props) {
     notFound();
   }
 
-  const imageCount = folder.media.filter((m) => m.type === 'image').length;
-  const videoCount = folder.media.filter((m) => m.type === 'video').length;
+  const imageCount = (folder.items ?? []).filter((m) => m.type === 'image').length;
+  const videoCount = (folder.items ?? []).filter((m) => m.type === 'video').length;
 
   return (
     <main
@@ -72,7 +101,7 @@ export default function MediaFolderPage(props: Props) {
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
           <div className="flex-1 w-full">
             <div className="gsap-header-el inline-block bg-slate-100 text-slate-800 px-3 py-1.5 rounded-sm text-xs font-bold uppercase tracking-widest mb-6 border border-slate-200">
-              {folder.tag}
+              {folder.tag.name}
             </div>
             <h1 className="gsap-header-el text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight mb-6">
               {folder.name}
@@ -119,9 +148,9 @@ export default function MediaFolderPage(props: Props) {
           <div className="h-px flex-1 bg-slate-200" />
         </div>
 
-        {folder.media && folder.media.length > 0 ? (
+        {folder.items && folder.items.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {folder.media.map((item) => (
+            {folder.items.map((item) => (
               <div key={item.id} className="gsap-media-item">
                 <MediaItemCard item={item} />
               </div>

@@ -123,7 +123,37 @@ function ContactForm({
 }
 
 // ---------------------- Main Contact Section ----------------------
-export default function ContactSection() {
+interface ContactSectionProps {
+  onSubmit?: (data: {
+    name: string;
+    email: string;
+    message: string;
+  }) => Promise<void>;
+  faqs?: { question: string; answer: string }[];
+}
+
+const DEFAULT_FAQS = [
+  {
+    question: 'What services does Liyana Healthcare provide?',
+    answer:
+      'We deliver subspecialized medical care, advanced diagnostics, and therapeutic solutions across multiple healthcare sectors, ensuring patient-centered excellence backed by international standards.',
+  },
+  {
+    question: 'Where are your facilities located?',
+    answer:
+      'Our headquarters is centrally located in Addis Ababa, Ethiopia. This hub is supported by a network of regional branches strategically placed to ensure comprehensive and convenient access to our services.',
+  },
+  {
+    question: 'Do you accept international patients?',
+    answer:
+      'Yes. We operate a dedicated international patient desk that offers full end-to-end support for medical travel, including consultation coordination, translation services, and post-treatment continuity of care.',
+  },
+];
+
+export default function ContactSection({
+  onSubmit,
+  faqs = DEFAULT_FAQS,
+}: ContactSectionProps) {
   return (
     <div className="pb-12 bg-white selection:bg-cyan-100 selection:text-cyan-900">
       <section className="max-w-7xl mx-auto px-6 py-16">
@@ -169,6 +199,15 @@ export default function ContactSection() {
               ]}
               buttonText="Submit Inquiry"
               onSubmit={async (data) => {
+                if (onSubmit) {
+                  await onSubmit({
+                    name: data.name ?? '',
+                    email: data.email ?? '',
+                    message: data.message ?? '',
+                  });
+                  return;
+                }
+
                 console.log('Form Submitted:', data);
                 await new Promise((r) => setTimeout(r, 1000));
               }}
@@ -243,7 +282,7 @@ export default function ContactSection() {
       </section>
 
       {/* Integrate FAQ at the bottom */}
-      <FAQAccordion />
+      <FAQAccordion faqs={faqs} />
     </div>
   );
 }

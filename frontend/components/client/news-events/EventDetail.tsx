@@ -1,19 +1,12 @@
 'use client';
 
 import gsap from 'gsap';
+import type { NewsEvent } from '@/types/news-events.types';
 import { Calendar, Clock, MapPin, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
-interface EventDetailProps {
-  title: string;
-  date: string;
-  location: string;
-  content: string[];
-  mainImage: string;
-  image1?: string;
-  image2?: string;
-}
+type EventDetailProps = NewsEvent;
 
 export function EventDetail({
   title,
@@ -143,7 +136,9 @@ export function EventDetail({
                       <p className="text-xs font-bold text-slate-400 uppercase">
                         Location
                       </p>
-                      <p className="font-semibold text-slate-900">{location}</p>
+                      <p className="font-semibold text-slate-900">
+                        {location || 'Location TBD'}
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -2,6 +2,7 @@
 
 import BlogCard from '@/components/client/blog/BlockCard';
 import { blogPosts, getInitials } from '@/data/blogs';
+import type { Blog } from '@/types/blog.types';
 import gsap from 'gsap';
 import {
   ArrowLeft,
@@ -21,9 +22,33 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+const posts: Blog[] = blogPosts.map((post) => ({
+  id: post.id,
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt,
+  content: post.content,
+  image: post.image,
+  readTime: post.readTime,
+  featured: post.featured ?? false,
+  status: 'PUBLISHED',
+  authorId: post.author.name.toLowerCase().replace(/\s+/g, '-'),
+  authorName: post.author.name,
+  authorRole: post.author.role,
+  categoryId: post.category.toLowerCase().replace(/\s+/g, '-'),
+  category: {
+    id: post.category.toLowerCase().replace(/\s+/g, '-'),
+    name: post.category,
+    slug: post.category.toLowerCase().replace(/\s+/g, '-'),
+  },
+  publishedAt: post.date,
+  createdAt: post.date,
+  updatedAt: post.date,
+}));
+
 export default function BlogPostPage({ params }: PageProps) {
   const { slug } = use(params);
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post = posts.find((p) => p.slug === slug);
   const articleRef = useRef<HTMLElement>(null);
 
   // Get 3 related posts (excluding current, sorted by latest)
@@ -47,9 +72,13 @@ export default function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedPosts = [...blogPosts]
+  const relatedPosts = [...posts]
     .filter((p) => p.id !== post.id)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() -
+        new Date(a.publishedAt ?? a.createdAt).getTime()
+    )
     .slice(0, 3);
 
   return (
@@ -70,7 +99,7 @@ export default function BlogPostPage({ params }: PageProps) {
         {/* Article Header */}
         <header className="max-w-4xl mx-auto px-6 mb-16 text-center">
           <div className="gsap-article-element inline-block bg-slate-100 text-slate-800 px-4 py-1.5 rounded-sm text-xs font-bold uppercase tracking-widest mb-8 border border-slate-200">
-            {post.category}
+            {post.category.name}
           </div>
 
           <h1 className="gsap-article-element text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-tight mb-10">
@@ -80,16 +109,17 @@ export default function BlogPostPage({ params }: PageProps) {
           <div className="gsap-article-element flex flex-wrap items-center justify-center gap-6 text-sm font-bold text-slate-500 uppercase tracking-wider">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-sm bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
-                {getInitials(post.author.name)}
+                {getInitials(post.authorName)}
               </div>
               <div className="text-left">
-                <span className="block text-slate-900">{post.author.name}</span>
-                <span className="text-xs">{post.author.role}</span>
+                <span className="block text-slate-900">{post.authorName}</span>
+                <span className="text-xs">{post.authorRole}</span>
               </div>
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-cyan-600" /> {post.date}
+              <Calendar size={16} className="text-cyan-600" />{' '}
+              {post.publishedAt ?? post.createdAt}
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">

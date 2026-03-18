@@ -1,6 +1,6 @@
 'use client';
 
-import { Testimonial } from '@/data/testimonials';
+import type { Testimonial } from '@/types/testimonial.types';
 import { Quote } from 'lucide-react';
 
 export function TestimonialCard({ name, role, company, message }: Testimonial) {

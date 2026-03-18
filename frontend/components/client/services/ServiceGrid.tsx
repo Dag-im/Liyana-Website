@@ -1,9 +1,9 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { Division, ServiceCategory } from '@/data/services';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { Division, ServiceCategory } from '@/types/services.types';
 import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -62,7 +62,7 @@ export default function LiyanaShowcase({
   }, [services]);
 
   const getMainImage = (division: Division): string => {
-    return division.images?.[0] || '/placeholder.jpg';
+    return division.images?.[0]?.path || '/placeholder.jpg';
   };
 
   return (
@@ -132,7 +132,7 @@ export default function LiyanaShowcase({
                           className="text-cyan-600 shrink-0 mt-0.5"
                           size={16}
                         />
-                        <span className="leading-snug">{attr}</span>
+                          <span className="leading-snug">{attr}</span>
                       </li>
                     ))}
                   </ul>
@@ -142,7 +142,7 @@ export default function LiyanaShowcase({
 
             {/* Division Cards Grid */}
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {cat.divisions.map((d: Division) => (
+              {(cat.divisions ?? []).map((d: Division) => (
                 <article
                   key={d.id}
                   className="gsap-fade group flex flex-col h-full bg-white border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
@@ -189,7 +189,7 @@ export default function LiyanaShowcase({
                               className="flex items-start gap-2 text-sm text-slate-700"
                             >
                               <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 shrink-0 mt-2" />
-                              <span className="leading-snug">{service}</span>
+                              <span className="leading-snug">{service.name}</span>
                             </li>
                           ))}
                           {d.coreServices.length > 4 && (

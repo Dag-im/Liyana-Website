@@ -2,7 +2,28 @@
 
 import { EventNewsPageGrid } from '@/components/client/news-events/EventNewsGrid';
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import type { NewsEvent } from '@/types/news-events.types';
 import { newsEventsData } from './data';
+
+const items: NewsEvent[] = newsEventsData.map((item) => ({
+  id: item.id,
+  type: item.type,
+  title: item.title,
+  date: item.date,
+  location: item.location ?? null,
+  summary: item.summary,
+  content: item.content,
+  keyHighlights: item.keyHighlights ?? null,
+  mainImage: item.mainImage,
+  image1: item.image1 ?? '',
+  image2: item.image2 ?? '',
+  status: 'PUBLISHED',
+  publishedAt: item.date,
+  createdById: 'mock-author',
+  createdByName: 'Liyana Healthcare',
+  createdAt: item.date,
+  updatedAt: item.date,
+}));
 
 export default function NewsEventsPage() {
   return (
@@ -36,7 +57,7 @@ export default function NewsEventsPage() {
       </header>
 
       {/* Grid Component */}
-      <EventNewsPageGrid items={newsEventsData} />
+      <EventNewsPageGrid items={items} />
     </div>
   );
 }

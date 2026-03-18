@@ -17,12 +17,13 @@ import {
   Search,
   Target,
 } from 'lucide-react';
+import type { NetworkEntity, NetworkRelation } from '@/types/network.types';
 import React, { useMemo, useState } from 'react';
 
 // --- Types ---
 type Relationship = 'Controlled' | 'Strategic Partner' | 'Venture' | 'Project';
 
-interface Entity {
+type SeedEntity = {
   id: string;
   name: string;
   relation: Relationship;
@@ -30,11 +31,68 @@ interface Entity {
   description: string;
   insight: string;
   icon: React.ElementType;
+  children?: SeedEntity[];
+};
+
+type Entity = Omit<NetworkEntity, 'icon' | 'children'> & {
+  icon: React.ElementType;
   children?: Entity[];
+};
+
+const RELATION_MAP: Record<Relationship, NetworkRelation> = {
+  Controlled: {
+    id: 'controlled',
+    name: 'controlled',
+    label: 'Controlled',
+    description: null,
+    sortOrder: 1,
+  },
+  'Strategic Partner': {
+    id: 'strategic-partner',
+    name: 'strategic-partner',
+    label: 'Strategic Partner',
+    description: null,
+    sortOrder: 2,
+  },
+  Venture: {
+    id: 'venture',
+    name: 'venture',
+    label: 'Venture',
+    description: null,
+    sortOrder: 3,
+  },
+  Project: {
+    id: 'project',
+    name: 'project',
+    label: 'Project',
+    description: null,
+    sortOrder: 4,
+  },
+};
+
+function enrichEntities(
+  nodes: SeedEntity[],
+  parentId: string | null = null
+): Entity[] {
+  return nodes.map((node, index) => ({
+    id: node.id,
+    name: node.name,
+    summary: node.summary,
+    description: node.description,
+    insight: node.insight,
+    icon: node.icon,
+    sortOrder: index,
+    parentId,
+    relationId: RELATION_MAP[node.relation].id,
+    relation: RELATION_MAP[node.relation],
+    createdAt: '',
+    updatedAt: '',
+    children: node.children ? enrichEntities(node.children, node.id) : undefined,
+  }));
 }
 
 // --- Data Structure ---
-const ECOSYSTEM_DATA: Entity[] = [
+const SEED_DATA: SeedEntity[] = [
   {
     id: 'lhs-owned',
     name: 'Direct Ownership Portfolio',
@@ -246,19 +304,25 @@ const ECOSYSTEM_DATA: Entity[] = [
   },
 ];
 
-const StatusLabel = ({ type }: { type: Relationship }) => (
+export const DATA: Entity[] = enrichEntities(SEED_DATA);
+
+const StatusLabel = ({ relation }: { relation: NetworkRelation }) => (
   <span
     className={`text-[9px] font-bold px-2 py-0.5 border rounded-none uppercase tracking-wider whitespace-nowrap ${
-      type === 'Controlled'
+      relation.label === 'Controlled'
         ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
         : 'bg-slate-50 border-slate-200 text-slate-600'
     }`}
   >
-    {type}
+    {relation.label}
   </span>
 );
 
-export default function LiyanaCorporateNetwork() {
+export default function LiyanaCorporateNetwork({
+  data = DATA,
+}: {
+  data?: Entity[];
+}) {
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(['lhs-owned', 'lhs-partners'])
@@ -266,7 +330,7 @@ export default function LiyanaCorporateNetwork() {
 
   // Filter logic: Flatten the tree for search results so "only" specific entities appear
   const displayData = useMemo(() => {
-    if (!search) return ECOSYSTEM_DATA;
+    if (!search) return data;
 
     const query = search.toLowerCase();
     const results: Entity[] = [];
@@ -281,13 +345,19 @@ export default function LiyanaCorporateNetwork() {
       });
     };
 
-    findMatches(ECOSYSTEM_DATA);
+    findMatches(data);
     return results;
-  }, [search]);
+  }, [data, search]);
 
   const toggle = (id: string) => {
     const next = new Set(expanded);
-    next.has(id) ? next.delete(id) : next.add(id);
+
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+
     setExpanded(next);
   };
 
@@ -332,7 +402,7 @@ export default function LiyanaCorporateNetwork() {
                   <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase truncate">
                     {e.name}
                   </h3>
-                  <StatusLabel type={e.relation} />
+                  <StatusLabel relation={e.relation} />
                 </div>
                 {!isExpanded && (
                   <p className="text-[11px] text-slate-500 font-medium truncate mt-1">

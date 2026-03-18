@@ -1,12 +1,17 @@
 'use client';
 
-import { BlogPost, getInitials } from '@/data/blogs';
+import { getInitials } from '@/data/blogs';
+import type { Blog } from '@/types/blog.types';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 interface BlogCardProps {
-  post: BlogPost;
+  post: Blog;
+}
+
+function formatBlogDate(post: Blog) {
+  return post.publishedAt ?? post.createdAt;
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
@@ -23,13 +28,13 @@ export default function BlogCard({ post }: BlogCardProps) {
           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider shadow-sm rounded-sm z-10">
-          {post.category}
+          {post.category.name}
         </div>
       </Link>
 
       <div className="p-8 flex flex-col flex-grow">
         <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
-          <span>{post.date}</span>
+          <span>{formatBlogDate(post)}</span>
           <span className="text-cyan-600">{post.readTime}</span>
         </div>
 
@@ -47,10 +52,10 @@ export default function BlogCard({ post }: BlogCardProps) {
           <div className="flex items-center gap-3">
             {/* Corporate Initials Avatar */}
             <div className="w-8 h-8 rounded-sm bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold border border-slate-200">
-              {getInitials(post.author.name)}
+              {getInitials(post.authorName)}
             </div>
             <span className="text-sm font-bold text-slate-900 line-clamp-1">
-              {post.author.name}
+              {post.authorName}
             </span>
           </div>
 

@@ -1,32 +1,49 @@
 'use client';
 
-import { SERVICES_DATA } from '@/data/services'; // Ensure path is correct
+import type { ServiceCategory } from '@/types/services.types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-export default function CorporateHero() {
+interface HeroBannerProps {
+  categories?: ServiceCategory[];
+}
+
+export default function CorporateHero({ categories = [] }: HeroBannerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const currentCategory = categories[activeIndex];
 
   // Auto-rotate logic
   useEffect(() => {
+    if (categories.length === 0) {
+      return;
+    }
+
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % SERVICES_DATA.length);
+      setActiveIndex((prev) => (prev + 1) % categories.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [categories.length]);
 
-  const currentCategory = SERVICES_DATA[activeIndex];
+  useEffect(() => {
+    if (activeIndex >= categories.length) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, categories.length]);
+
+  if (!currentCategory) {
+    return null;
+  }
 
   // --- SLIDING TRACK LOGIC ---
   const VISIBLE_ITEMS = 4;
-  const hasOverflow = SERVICES_DATA.length > VISIBLE_ITEMS;
+  const hasOverflow = categories.length > VISIBLE_ITEMS;
 
   // Calculate how far the track should slide.
   // We subtract 1 from activeIndex to keep the active item roughly in the second position when possible.
-  const maxSlideIndex = Math.max(0, SERVICES_DATA.length - VISIBLE_ITEMS);
+  const maxSlideIndex = Math.max(0, categories.length - VISIBLE_ITEMS);
   const slidingIndex = Math.min(Math.max(0, activeIndex - 1), maxSlideIndex);
 
   // Dynamic fade mask: Only fade top if scrolled down, only fade bottom if more items below
@@ -47,7 +64,7 @@ export default function CorporateHero() {
   }
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center bg-cyan-950 overflow-hidden -top-20">
+    <section className="relative w-full min-h-screen flex flex-col justify-center bg-cyan-950 overflow-hidden -top-32">
       {/* 1. FULL WIDTH BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
@@ -166,7 +183,7 @@ export default function CorporateHero() {
               className="flex flex-col invisible pointer-events-none"
               aria-hidden="true"
             >
-              {SERVICES_DATA.slice(0, VISIBLE_ITEMS).map((category, index) => (
+              {categories.slice(0, VISIBLE_ITEMS).map((category, index) => (
                 <div
                   key={`sizer-${category.id}`}
                   className="p-4 lg:p-6 mb-1 lg:mb-2 border-l-[3px] border-transparent"
@@ -190,7 +207,7 @@ export default function CorporateHero() {
             <motion.div
               className="absolute top-0 left-0 w-full flex flex-col"
               animate={{
-                y: `-${(slidingIndex / SERVICES_DATA.length) * 100}%`,
+                y: `-${(slidingIndex / categories.length) * 100}%`,
               }}
               transition={{
                 type: 'spring',
@@ -199,7 +216,7 @@ export default function CorporateHero() {
                 mass: 0.8,
               }}
             >
-              {SERVICES_DATA.map((category, index) => {
+              {categories.map((category, index) => {
                 const isActive = index === activeIndex;
                 return (
                   <button

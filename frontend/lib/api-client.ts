@@ -1,6 +1,10 @@
 import type { ApiEnvelope, ApiError } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001';
 
 const isEnvelope = (value: unknown): value is ApiEnvelope<unknown> => {
   if (!value || typeof value !== 'object') {
@@ -32,9 +36,29 @@ export class ApiClientError extends Error {
   }
 }
 
+export function getFileUrl(path: string | null | undefined): string | null {
+  if (!path) {
+    return null;
+  }
+
+  if (path.startsWith('http')) {
+    return path;
+  }
+
+  const base = API_BASE_URL.replace('/api/v1', '');
+  return `${base}${path}`;
+}
+
+type ApiRequestInit = RequestInit & {
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+};
+
 export async function apiRequest<T>(
   path: string,
-  init?: RequestInit,
+  init?: ApiRequestInit,
 ): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {

@@ -2,14 +2,15 @@
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
+import type { NewsEvent } from '@/types/news-events.types';
 import { useEffect, useRef, useState } from 'react';
-import { EventNewsCard, EventNewsCardProps } from './EventNewsCard';
+import { EventNewsCard } from './EventNewsCard';
 
 interface EventNewsTabsProps {
-  items: EventNewsCardProps[];
+  items?: NewsEvent[];
 }
 
-export function EventNewsTabs({ items }: EventNewsTabsProps) {
+export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
   const [activeTab, setActiveTab] = useState<'news' | 'event'>('news');
   const containerRef = useRef<HTMLDivElement>(null);
 

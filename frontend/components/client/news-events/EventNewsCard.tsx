@@ -1,24 +1,13 @@
 'use client';
 
 import gsap from 'gsap';
+import type { NewsEvent } from '@/types/news-events.types';
 import { ArrowRight, Calendar, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 
-export interface EventNewsCardProps {
-  id: string;
-  type: 'news' | 'event';
-  title: string;
-  date: string;
-  summary: string;
-  location?: string;
-  keyHighlights?: string[];
-  content: string[];
-  mainImage: string;
-  image1?: string;
-  image2?: string;
-}
+export type EventNewsCardProps = NewsEvent;
 
 export function EventNewsCard({
   id,
@@ -28,7 +17,7 @@ export function EventNewsCard({
   summary,
   location,
   mainImage,
-}: EventNewsCardProps) {
+}: NewsEvent) {
   const cardRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 

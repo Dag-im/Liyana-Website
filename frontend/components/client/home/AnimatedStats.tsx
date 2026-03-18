@@ -2,9 +2,8 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { Stat } from '@/types/cms.types';
 import { useLayoutEffect, useRef } from 'react';
-
-type Stat = { label: string; value: number; suffix?: string };
 
 interface AnimatedStatsProps {
   stats?: Stat[];
@@ -12,10 +11,22 @@ interface AnimatedStatsProps {
 }
 
 const defaultStats: Stat[] = [
-  { label: 'Years in Service', value: 12 },
-  { label: 'Patients Served', value: 2000000, suffix: '+' },
-  { label: 'Jobs Created', value: 1000, suffix: '+' },
-  { label: 'Facilities In Operation', value: 15, suffix: '+' },
+  { id: 'years', label: 'Years in Service', value: 12, suffix: null, sortOrder: 1 },
+  {
+    id: 'patients',
+    label: 'Patients Served',
+    value: 2000000,
+    suffix: '+',
+    sortOrder: 2,
+  },
+  { id: 'jobs', label: 'Jobs Created', value: 1000, suffix: '+', sortOrder: 3 },
+  {
+    id: 'facilities',
+    label: 'Facilities In Operation',
+    value: 15,
+    suffix: '+',
+    sortOrder: 4,
+  },
 ];
 
 export default function AnimatedStats({

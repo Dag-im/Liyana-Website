@@ -2,19 +2,42 @@
 
 import { useState } from 'react';
 
-export function TestimonialForm() {
+interface TestimonialFormProps {
+  onSubmit?: (data: {
+    name: string;
+    role: string;
+    company: string;
+    message: string;
+  }) => Promise<void>;
+}
+
+export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = {
+      name: String(formData.get('name') ?? ''),
+      role: String(formData.get('role') ?? ''),
+      company: String(formData.get('company') ?? ''),
+      message: String(formData.get('message') ?? ''),
+    };
 
-    // Simulate API Call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      if (onSubmit) {
+        await onSubmit(data);
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
       setSubmitted(true);
-    }, 1500);
+      form.reset();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -65,6 +88,7 @@ export function TestimonialForm() {
                 required
                 type="text"
                 id="name"
+                name="name"
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
                 placeholder="e.g. Jane Doe"
               />
@@ -81,6 +105,7 @@ export function TestimonialForm() {
                 required
                 type="text"
                 id="role"
+                name="role"
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
                 placeholder="e.g. Clinical Director"
               />
@@ -98,6 +123,7 @@ export function TestimonialForm() {
               required
               type="text"
               id="company"
+              name="company"
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
               placeholder="e.g. Liyana Healthcare"
             />
@@ -113,6 +139,7 @@ export function TestimonialForm() {
             <textarea
               required
               id="message"
+              name="message"
               rows={4}
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800 resize-none"
               placeholder="Share the details of your experience..."

@@ -5,10 +5,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
 import { useLayoutEffect, useRef } from 'react';
 
-const WHO_WE_ARE_TEXT =
-  'A collective of innovators, problem solvers, and dreamers. We create impact through technology, healthcare, and sustainable solutions — empowering businesses and communities worldwide.';
+interface WhoWeAreProps {
+  content?: string;
+  image?: string;
+}
 
-export default function WhoWeAreLuxury() {
+export default function WhoWeAreLuxury({
+  content = 'A collective of innovators, problem solvers, and dreamers. We create impact through technology, healthcare, and sustainable solutions — empowering businesses and communities worldwide.',
+  image = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80',
+}: WhoWeAreProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -54,14 +59,14 @@ export default function WhoWeAreLuxury() {
           </h2>
 
           <p className="gsap-who-we-are text-lg md:text-xl text-slate-600 max-w-xl leading-relaxed">
-            {WHO_WE_ARE_TEXT}
+            {content}
           </p>
         </div>
 
         {/* RIGHT: Image */}
         <div className="gsap-who-we-are flex-1 relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-slate-100 border border-slate-200">
           <Image
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80"
+            src={image}
             alt="Corporate Team"
             fill
             className="object-cover"

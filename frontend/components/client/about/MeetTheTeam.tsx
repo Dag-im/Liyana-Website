@@ -4,70 +4,27 @@ import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import type { TeamMember } from '@/types/team.types';
 import { useLayoutEffect, useRef, useState } from 'react';
 
-interface TeamMember {
-  id: string;
-  name: string;
-  position: string;
-  bio: string;
-  image?: string;
-  subsidiary: string;
+interface MeetTheTeamProps {
+  members?: TeamMember[];
 }
 
-const teamData: TeamMember[] = [
-  {
-    id: '1',
-    name: 'Dr. Sarah Johnson',
-    position: 'Chief Executive Officer',
-    bio: 'Visionary leader overseeing strategic direction and growth of the healthcare organization.',
-    image: 'https://images.unsplash.com/photo-1519085360753-af2c17f7c6f3',
-    subsidiary: 'Corporate',
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    position: 'Chief Medical Officer',
-    bio: 'Leads medical strategy and ensures high standards of patient care across all facilities.',
-    subsidiary: 'Corporate',
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    position: 'Branch Manager - East Coast',
-    bio: 'Manages operations and patient services for our East Coast healthcare facilities.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
-    subsidiary: 'East Coast Health Services',
-  },
-  {
-    id: '4',
-    name: 'Dr. David Kim',
-    position: 'Chief Operating Officer',
-    bio: 'Drives operational excellence and efficiency across all healthcare subsidiaries.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-    subsidiary: 'Corporate',
-  },
-  {
-    id: '5',
-    name: 'Lisa Thompson',
-    position: 'Branch Manager - West Coast',
-    bio: 'Oversees operations and community outreach for West Coast healthcare facilities.',
-    subsidiary: 'West Coast Medical Group',
-  },
-  {
-    id: '6',
-    name: 'James Wilson',
-    position: 'Chief Financial Officer',
-    bio: 'Manages financial strategy and ensures fiscal responsibility for the organization.',
-    image: 'https://images.unsplash.com/photo-1519085360753-af2c17f7c6f3',
-    subsidiary: 'Corporate',
-  },
-];
+type TeamMemberWithSubsidiary = TeamMember & {
+  subsidiary: string;
+};
 
-export default function MeetTheTeam() {
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
+  const [selectedMember, setSelectedMember] =
+    useState<TeamMemberWithSubsidiary | null>(null);
   const [activeSubsidiary, setActiveSubsidiary] = useState<string>('All');
   const gridRef = useRef<HTMLDivElement>(null);
+
+  const teamData: TeamMemberWithSubsidiary[] = members.map((member) => ({
+    ...member,
+    subsidiary: member.division?.name ?? 'Corporate',
+  }));
 
   const subsidiaries = [
     'All',

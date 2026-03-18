@@ -1,15 +1,16 @@
 'use client';
 
 import gsap from 'gsap';
+import type { NewsEvent } from '@/types/news-events.types';
 import { Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { EventNewsCard, EventNewsCardProps } from './EventNewsCard';
+import { EventNewsCard } from './EventNewsCard';
 
-interface EventNewsPageGridProps {
-  items: EventNewsCardProps[];
+interface EventNewsGridProps {
+  items?: NewsEvent[];
 }
 
-export function EventNewsPageGrid({ items }: EventNewsPageGridProps) {
+export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
   const [filter, setFilter] = useState<'all' | 'news' | 'event'>('all');
   const contentRef = useRef<HTMLDivElement>(null);
 

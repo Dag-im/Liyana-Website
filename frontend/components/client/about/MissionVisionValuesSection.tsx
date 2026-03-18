@@ -4,87 +4,118 @@ import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
+  Award,
+  BookOpen,
+  CheckCircle,
+  Clock,
   Eye,
+  Globe,
+  Heart,
   Leaf,
+  Lightbulb,
+  Rocket,
+  Shield,
+  ShieldCheck,
+  Smile,
+  Star,
+  ThumbsUp,
+  Target,
+  TrendingUp,
+  Users,
+  UserCheck,
+  Zap,
+} from 'lucide-react';
+import { useLayoutEffect, useRef } from 'react';
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Target,
+  Eye,
+  Star,
   Rocket,
   ShieldCheck,
-  Star,
-  Target,
-  UserCheck,
   Users,
-} from 'lucide-react';
-import { ReactElement, useLayoutEffect, useRef } from 'react';
-
-// ---------- TYPES ----------
-interface CoreValue {
-  title: string;
-  description: string;
-  icon: ReactElement;
-}
-
-interface MissionVision {
-  title: string;
-  description: string;
-  icon: ReactElement;
-}
-
-// ---------- CONTENT ----------
-const missionVision: { mission: MissionVision; vision: MissionVision } = {
-  mission: {
-    title: 'Our Mission',
-    description:
-      'To empower businesses and individuals through innovative solutions, exceptional service, and unwavering commitment to excellence, while creating sustainable value for all our stakeholders.',
-    icon: <Target size={32} className="text-cyan-700" />,
-  },
-  vision: {
-    title: 'Our Vision',
-    description:
-      'To be the leading force in our industry, recognized for innovation, integrity, and impact, while building a future where technology serves humanity and creates lasting positive change.',
-    icon: <Eye size={32} className="text-cyan-700" />,
-  },
+  Leaf,
+  UserCheck,
+  Heart,
+  Zap,
+  Globe,
+  Award,
+  BookOpen,
+  Lightbulb,
+  TrendingUp,
+  Shield,
+  CheckCircle,
+  Clock,
+  Smile,
+  ThumbsUp,
 };
 
-const coreValues: CoreValue[] = [
-  {
-    title: 'Excellence',
-    description:
-      'We strive for the highest standards in everything we do, delivering exceptional quality and results.',
-    icon: <Star size={24} className="text-cyan-700" />,
-  },
-  {
-    title: 'Innovation',
-    description:
-      'We embrace new ideas and technologies to create cutting-edge solutions for our clients.',
-    icon: <Rocket size={24} className="text-cyan-700" />,
-  },
-  {
-    title: 'Integrity',
-    description:
-      'We maintain the highest ethical standards and build trust through honest, transparent relationships.',
-    icon: <ShieldCheck size={24} className="text-cyan-700" />,
-  },
-  {
-    title: 'Collaboration',
-    description:
-      'We believe in the power of teamwork and partnerships to achieve extraordinary outcomes.',
-    icon: <Users size={24} className="text-cyan-700" />,
-  },
-  {
-    title: 'Sustainability',
-    description:
-      'We are committed to environmental responsibility and long-term value creation.',
-    icon: <Leaf size={24} className="text-cyan-700" />,
-  },
-  {
-    title: 'Customer Focus',
-    description:
-      'We put our clients first, understanding their needs and exceeding their expectations.',
-    icon: <UserCheck size={24} className="text-cyan-700" />,
-  },
-];
+function renderIcon(name: string, className?: string, size?: number) {
+  const Icon = ICON_MAP[name] ?? Star;
+  return <Icon className={className} size={size} />;
+}
+
+interface MissionVisionValuesSectionProps {
+  missionTitle?: string;
+  missionDescription?: string;
+  missionIcon?: string;
+  visionTitle?: string;
+  visionDescription?: string;
+  visionIcon?: string;
+  coreValues?: {
+    title: string;
+    description: string;
+    icon: string;
+  }[];
+}
 
 // ---------- COMPONENT ----------
-export default function MissionVisionValuesSection() {
+export default function MissionVisionValuesSection({
+  missionTitle = 'Our Mission',
+  missionDescription = 'To empower businesses and individuals through innovative solutions, exceptional service, and unwavering commitment to excellence, while creating sustainable value for all our stakeholders.',
+  missionIcon = 'Target',
+  visionTitle = 'Our Vision',
+  visionDescription = 'To be the leading force in our industry, recognized for innovation, integrity, and impact, while building a future where technology serves humanity and creates lasting positive change.',
+  visionIcon = 'Eye',
+  coreValues = [
+    {
+      title: 'Excellence',
+      description:
+        'We strive for the highest standards in everything we do, delivering exceptional quality and results.',
+      icon: 'Star',
+    },
+    {
+      title: 'Innovation',
+      description:
+        'We embrace new ideas and technologies to create cutting-edge solutions for our clients.',
+      icon: 'Rocket',
+    },
+    {
+      title: 'Integrity',
+      description:
+        'We maintain the highest ethical standards and build trust through honest, transparent relationships.',
+      icon: 'ShieldCheck',
+    },
+    {
+      title: 'Collaboration',
+      description:
+        'We believe in the power of teamwork and partnerships to achieve extraordinary outcomes.',
+      icon: 'Users',
+    },
+    {
+      title: 'Sustainability',
+      description:
+        'We are committed to environmental responsibility and long-term value creation.',
+      icon: 'Leaf',
+    },
+    {
+      title: 'Customer Focus',
+      description:
+        'We put our clients first, understanding their needs and exceeding their expectations.',
+      icon: 'UserCheck',
+    },
+  ],
+}: MissionVisionValuesSectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -149,13 +180,24 @@ export default function MissionVisionValuesSection() {
 
         {/* Mission & Vision Cards */}
         <div className="gsap-mv-container grid lg:grid-cols-2 gap-8 mb-32">
-          {[missionVision.mission, missionVision.vision].map((item, idx) => (
+          {[
+            {
+              title: missionTitle,
+              description: missionDescription,
+              icon: missionIcon,
+            },
+            {
+              title: visionTitle,
+              description: visionDescription,
+              icon: visionIcon,
+            },
+          ].map((item, idx) => (
             <div
               key={idx}
               className="gsap-mv-card bg-slate-50 border border-slate-200 p-10 md:p-12 flex flex-col md:flex-row gap-8 items-start"
             >
               <div className="shrink-0 p-4 bg-white border border-slate-200 shadow-sm rounded-sm">
-                {item.icon}
+                {renderIcon(item.icon, 'text-cyan-700', 32)}
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
@@ -185,7 +227,7 @@ export default function MissionVisionValuesSection() {
                 className="gsap-value-card bg-white border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow group"
               >
                 <div className="mb-6 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm group-hover:bg-cyan-50 group-hover:border-cyan-100 transition-colors">
-                  {value.icon}
+                  {renderIcon(value.icon, 'text-cyan-700', 24)}
                 </div>
                 <h4 className="text-xl font-bold text-slate-900 mb-3">
                   {value.title}

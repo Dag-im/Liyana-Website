@@ -3,9 +3,38 @@
 import { FolderCard } from '@/components/client/media/MediaComponents';
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import { mediaFolders } from '@/data/media';
+import type { MediaFolder } from '@/types/media.types';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLayoutEffect, useRef } from 'react';
+
+const folders: MediaFolder[] = mediaFolders.map((folder, index) => ({
+  id: folder.id,
+  name: folder.name,
+  coverImage: folder.coverImage,
+  description: folder.description,
+  sortOrder: index,
+  tag: {
+    id: folder.tag.toLowerCase().replace(/\s+/g, '-'),
+    name: folder.tag,
+    slug: folder.tag.toLowerCase().replace(/\s+/g, '-'),
+  },
+  items: folder.media.map((item, itemIndex) => ({
+    id: item.id,
+    title: item.title,
+    type: item.type,
+    url: item.url,
+    thumbnail: item.thumbnail ?? null,
+    sortOrder: itemIndex,
+    folderId: folder.id,
+    createdAt: folder.lastUpdated,
+    updatedAt: folder.lastUpdated,
+  })),
+  mediaCount: folder.mediaCount,
+  lastUpdated: folder.lastUpdated,
+  createdAt: folder.lastUpdated,
+  updatedAt: folder.lastUpdated,
+}));
 
 export default function MediaGalleryPage() {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -68,7 +97,7 @@ export default function MediaGalleryPage() {
       {/* Grid Layout */}
       <div className="max-w-7xl mx-auto px-6 mt-16">
         <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mediaFolders.map((folder) => (
+          {folders.map((folder) => (
             <div key={folder.id} className="gsap-folder-card h-full">
               <FolderCard folder={folder} />
             </div>

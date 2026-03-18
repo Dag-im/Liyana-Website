@@ -3,20 +3,12 @@
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { TimelineItem } from '@/types/timeline.types';
 import { Award, Calendar, Lightbulb, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useLayoutEffect, useRef } from 'react';
 
-export interface TimelineItem {
-  id: string;
-  year: string;
-  title: string;
-  description: string;
-  location?: string;
-  achievement?: string;
-  image?: string;
-  category?: 'milestone' | 'achievement' | 'expansion' | 'innovation';
-}
+export type { TimelineItem } from '@/types/timeline.types';
 
 interface TimelineProps {
   items: TimelineItem[];
@@ -56,7 +48,7 @@ const Timeline = ({
     return () => ctx.revert();
   }, [items]);
 
-  const getCategoryIcon = (category?: string) => {
+  const getCategoryIcon = (category?: string | null) => {
     switch (category) {
       case 'achievement':
         return <Award className="w-5 h-5 text-cyan-600" />;

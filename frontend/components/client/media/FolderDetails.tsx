@@ -1,12 +1,12 @@
 'use client';
 
+import type { MediaFolder } from '@/types/media.types';
 import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { TagBadge, MediaItemCard } from './MediaComponents';
-import { Folder } from '@/data/media';
 
-export const FolderDetails = ({ folder }: { folder: Folder }) => {
+export const FolderDetails = ({ folder }: { folder: MediaFolder }) => {
   return (
     <div>
       {/* Header */}
@@ -65,9 +65,9 @@ export const FolderDetails = ({ folder }: { folder: Folder }) => {
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{folder.mediaCount} Items Total</span>
         </div>
         
-        {folder.media && folder.media.length > 0 ? (
+        {folder.items && folder.items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {folder.media.map((item) => (
+            {folder.items.map((item) => (
               <MediaItemCard key={item.id} item={item} />
             ))}
           </div>

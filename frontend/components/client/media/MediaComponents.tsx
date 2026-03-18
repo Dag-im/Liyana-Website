@@ -1,19 +1,19 @@
 'use client';
 
-import { Folder, MediaItem } from '@/data/media';
 import { Play } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { MediaFolder, MediaItem, MediaTag } from '@/types/media.types';
 
 // --- Tag Badge ---
-export const TagBadge = ({ tag }: { tag: string }) => (
+export const TagBadge = ({ tag }: { tag: MediaTag | string }) => (
   <span className="inline-flex items-center px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm bg-slate-100 text-slate-600 border border-slate-200">
-    {tag}
+    {typeof tag === 'string' ? tag : tag.name}
   </span>
 );
 
 // --- Folder Card ---
-export const FolderCard = ({ folder }: { folder: Folder }) => {
+export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
   return (
     <Link
       href={`/media/${folder.id}`}

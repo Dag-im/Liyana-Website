@@ -1,25 +1,22 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import { Testimonial } from '@/data/testimonials';
 import gsap from 'gsap';
+import type { Testimonial } from '@/types/testimonial.types';
 import { useEffect, useRef } from 'react';
 import { TestimonialCard } from '../testimonials/TestimonialCard';
 
 interface TestimonialSliderProps {
-  testimonials: Testimonial[];
+  testimonials?: Testimonial[];
 }
 
-export function TestimonialSlider({ testimonials }: TestimonialSliderProps) {
+export function TestimonialSlider({
+  testimonials = [],
+}: TestimonialSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Filter: Approved AND Favorite
-  const favoriteTestimonials = testimonials.filter(
-    (t) => t.isApproved && t.isFavorite
-  );
-
   useEffect(() => {
-    if (!sliderRef.current || favoriteTestimonials.length === 0) return;
+    if (!sliderRef.current || testimonials.length === 0) return;
 
     // Calculate total width of one set of cards for seamless loop
     const slider = sliderRef.current;
@@ -41,16 +38,12 @@ export function TestimonialSlider({ testimonials }: TestimonialSliderProps) {
       slider.removeEventListener('mouseleave', () => animation.play());
       animation.kill();
     };
-  }, [favoriteTestimonials]);
+  }, [testimonials]);
 
-  if (favoriteTestimonials.length === 0) return null;
+  if (testimonials.length === 0) return null;
 
   // Duplicate for seamless infinite scrolling
-  const loopTestimonials = [
-    ...favoriteTestimonials,
-    ...favoriteTestimonials,
-    ...favoriteTestimonials,
-  ];
+  const loopTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   return (
     <section className="w-full py-20 bg-white border-t border-slate-200 overflow-hidden">

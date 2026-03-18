@@ -1,6 +1,12 @@
 'use client';
 
-import { Division, SERVICES_DATA } from '@/data/services';
+import {
+  SERVICES_DATA,
+  type Division as LocalDivision,
+  type DivisionType,
+  type Doctor as LocalDoctor,
+  type ServiceCategory as LocalServiceCategory,
+} from '@/data/services';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -20,6 +26,87 @@ import {
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo, useState } from 'react';
+import type { Division as SharedDivision } from '@/types/services.types';
+
+type Division = Omit<SharedDivision, 'contact'> & {
+  contact: NonNullable<SharedDivision['contact']>;
+  type: DivisionType;
+};
+
+function mapDoctor(doctor: LocalDoctor, divisionId: string) {
+  return {
+    id: doctor.id,
+    name: doctor.name,
+    specialty: doctor.specialty,
+    image: doctor.image,
+    availability: doctor.availability,
+    divisionId,
+  };
+}
+
+function mapDivision(
+  division: LocalDivision,
+  serviceCategory: LocalServiceCategory
+): Division {
+  return {
+    id: division.id,
+    slug: division.slug,
+    name: division.name,
+    shortName: division.shortName,
+    location: division.location ?? null,
+    overview: division.overview,
+    logo: division.logo ?? null,
+    description: division.description,
+    groupPhoto: division.groupPhoto ?? null,
+    isActive: true,
+    serviceCategoryId: serviceCategory.id,
+    divisionCategoryId: division.type,
+    divisionCategory: {
+      id: division.type,
+      name: division.type,
+      label: division.type,
+      description: null,
+    },
+    serviceCategory: {
+      id: serviceCategory.id,
+      title: serviceCategory.title,
+      tagline: serviceCategory.tagline,
+      heroImage: serviceCategory.heroImage,
+      attributes: serviceCategory.attributes,
+      createdAt: '',
+      updatedAt: '',
+    },
+    images: division.images.map((path, index) => ({
+      id: `${division.id}-image-${index}`,
+      path,
+      sortOrder: index,
+    })),
+    coreServices: division.coreServices.map((name, index) => ({
+      id: `${division.id}-service-${index}`,
+      name,
+      sortOrder: index,
+    })),
+    stats: (division.stats ?? []).map((stat, index) => ({
+      id: `${division.id}-stat-${index}`,
+      label: stat.label,
+      value: stat.value,
+      sortOrder: index,
+    })),
+    doctors: (division.doctors ?? []).map((doctor) =>
+      mapDoctor(doctor, division.id)
+    ),
+    contact: {
+      id: `${division.id}-contact`,
+      phone: division.contact.phone ?? null,
+      email: division.contact.email ?? null,
+      address: division.contact.address ?? null,
+      googleMap: division.contact.googleMap ?? null,
+    },
+    createdAt: '',
+    updatedAt: '',
+    type: division.type,
+  };
+}
 
 // ---------- DIVISION LOGO COMPONENT ----------
 // Renders the division logo if available, otherwise falls back to a
@@ -148,11 +235,11 @@ function BookingWizard({
     };
 
     const services: BookingSelection[] = division.coreServices
-      .filter((s) => s.toLowerCase().includes(query))
+      .filter((s) => s.name.toLowerCase().includes(query))
       .map((s) => ({
-        id: s,
+        id: s.id,
         type: 'service',
-        label: s,
+        label: s.name,
         subLabel: 'Department Service',
       }));
 
@@ -167,7 +254,7 @@ function BookingWizard({
         type: 'doctor',
         label: d.name,
         subLabel: d.specialty,
-        image: d.image,
+        image: d.image ?? undefined,
       }));
 
     return {
@@ -552,7 +639,7 @@ export default function DivisionDetailPage({
   for (const cat of SERVICES_DATA) {
     const d = cat.divisions.find((x) => x.slug === slug);
     if (d) {
-      division = d;
+      division = mapDivision(d, cat);
       break;
     }
   }
@@ -562,6 +649,7 @@ export default function DivisionDetailPage({
   // Logic
   const isHealthcare = division.type === 'healthcare';
   const isEdu = division.type === 'education';
+  const contact = division.contact;
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -599,7 +687,7 @@ export default function DivisionDetailPage({
               className="absolute inset-0"
             >
               <Image
-                src={division.images[currentHeroIndex]}
+                src={division.images[currentHeroIndex].path}
                 alt={`${division.name} Hero ${currentHeroIndex + 1}`}
                 fill
                 className="object-cover opacity-70"
@@ -842,7 +930,9 @@ export default function DivisionDetailPage({
           <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl shadow-slate-900/8 border border-slate-100">
             <Image
               src={
-                division.images[0] || division.images[1] || division.images[2]
+                division.images[0]?.path ||
+                division.images[1]?.path ||
+                division.images[2]?.path
               }
               alt="Interior"
               fill
@@ -875,11 +965,11 @@ export default function DivisionDetailPage({
                     <Check size={18} />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900 mb-2">
-                    {service}
+                    {service.name}
                   </h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
                     World-class facilities and dedicated professionals ensuring
-                    the best outcomes for {service.toLowerCase()}.
+                    the best outcomes for {service.name.toLowerCase()}.
                   </p>
                 </div>
               ))}
@@ -903,7 +993,7 @@ export default function DivisionDetailPage({
                 >
                   <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
                     <Image
-                      src={doc.image}
+                      src={doc.image || '/images/logo.png'}
                       alt={doc.name}
                       fill
                       className="object-cover"
@@ -972,10 +1062,10 @@ export default function DivisionDetailPage({
                       Address
                     </p>
                     <p className="text-base font-medium">
-                      {division.contact.address}
+                      {contact.address}
                     </p>
                     <a
-                      href={division.contact.googleMap}
+                      href={contact.googleMap ?? '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 mt-2 text-cyan-400 text-sm font-semibold hover:text-white transition-colors"
@@ -997,10 +1087,10 @@ export default function DivisionDetailPage({
                         Phone
                       </p>
                       <a
-                        href={`tel:${division.contact.phone}`}
+                        href={`tel:${contact.phone ?? ''}`}
                         className="text-sm font-medium hover:text-cyan-400 transition-colors"
                       >
-                        {division.contact.phone}
+                        {contact.phone}
                       </a>
                     </div>
                   </div>
@@ -1013,10 +1103,10 @@ export default function DivisionDetailPage({
                         Email
                       </p>
                       <a
-                        href={`mailto:${division.contact.email}`}
+                        href={`mailto:${contact.email ?? ''}`}
                         className="text-sm font-medium hover:text-cyan-400 transition-colors"
                       >
-                        {division.contact.email}
+                        {contact.email}
                       </a>
                     </div>
                   </div>
@@ -1043,7 +1133,7 @@ export default function DivisionDetailPage({
                 className="object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
               />
               <a
-                href={division.contact.googleMap}
+                href={contact.googleMap ?? '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 flex items-center justify-center"

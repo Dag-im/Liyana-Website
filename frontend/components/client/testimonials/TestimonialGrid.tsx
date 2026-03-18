@@ -1,22 +1,19 @@
 'use client';
 
-import { Testimonial } from '@/data/testimonials';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { Testimonial } from '@/types/testimonial.types';
 import { useEffect, useRef } from 'react';
 import { TestimonialCard } from './TestimonialCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface TestimonialGridProps {
-  testimonials: Testimonial[];
+  testimonials?: Testimonial[];
 }
 
-export function TestimonialGrid({ testimonials }: TestimonialGridProps) {
+export function TestimonialGrid({ testimonials = [] }: TestimonialGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-
-  // Filter: Only Approved
-  const approvedTestimonials = testimonials.filter((t) => t.isApproved);
 
   useEffect(() => {
     if (!gridRef.current) return;
@@ -39,7 +36,7 @@ export function TestimonialGrid({ testimonials }: TestimonialGridProps) {
     );
   }, []);
 
-  if (approvedTestimonials.length === 0) return null;
+  if (testimonials.length === 0) return null;
 
   return (
     <section className="w-full py-20 bg-slate-50 border-t border-slate-200">
@@ -57,7 +54,7 @@ export function TestimonialGrid({ testimonials }: TestimonialGridProps) {
           ref={gridRef}
           className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
-          {approvedTestimonials.map((t) => (
+          {testimonials.map((t) => (
             <div key={t.id} className="testimonial-card">
               <TestimonialCard {...t} />
             </div>

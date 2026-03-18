@@ -1,7 +1,7 @@
 // app/news-events/data.ts
-import { EventNewsCardProps } from '@/components/client/news-events/EventNewsCard';
+import type { NewsEvent } from '@/types/news-events.types';
 
-export const newsEventsData: EventNewsCardProps[] = [
+export const newsEventsData: NewsEvent[] = [
   {
     id: 'n1',
     type: 'news',
@@ -26,6 +26,13 @@ export const newsEventsData: EventNewsCardProps[] = [
     mainImage: 'https://picsum.photos/id/1018/800/400',
     image1: 'https://picsum.photos/id/1015/600/400',
     image2: 'https://picsum.photos/id/1025/600/400',
+    location: null,
+    status: 'PUBLISHED',
+    publishedAt: '2025-08-20',
+    createdById: 'mock-author',
+    createdByName: 'Liyana Healthcare',
+    createdAt: '2025-08-20',
+    updatedAt: '2025-08-20',
   },
   {
     id: 'e1',
@@ -57,5 +64,12 @@ export const newsEventsData: EventNewsCardProps[] = [
     mainImage: 'https://picsum.photos/id/1016/800/400',
     image1: 'https://picsum.photos/id/1039/600/400',
     image2: 'https://picsum.photos/id/1041/600/400',
+    keyHighlights: null,
+    status: 'PUBLISHED',
+    publishedAt: '2025-09-15',
+    createdById: 'mock-author',
+    createdByName: 'Liyana Healthcare',
+    createdAt: '2025-09-15',
+    updatedAt: '2025-09-15',
   },
 ];

@@ -1,7 +1,7 @@
 'use client';
 
-import { SERVICES_DATA } from '@/data/services';
 import { cn } from '@/lib/utils';
+import type { ServiceCategory } from '@/types/services.types';
 import { ChevronDown, Menu, Phone, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,7 +26,11 @@ interface NavItem {
   dropdown?: DropdownItem[];
 }
 
-const NavBar = () => {
+interface NavBarProps {
+  categories?: ServiceCategory[];
+}
+
+const NavBar = ({ categories = [] }: NavBarProps) => {
   // --- State ---
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -62,9 +66,9 @@ const NavBar = () => {
 
   // --- Data Construction ---
   const servicesDropdown: SectionDropdownItem[] =
-    SERVICES_DATA?.map((category) => ({
+    categories?.map((category) => ({
       section: category.title,
-      items: category.divisions.map((div) => ({
+      items: (category.divisions ?? []).map((div) => ({
         label: div.name,
         href: `/services/${div.slug}`,
       })),
