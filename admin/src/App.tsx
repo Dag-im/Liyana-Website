@@ -11,6 +11,7 @@ import BookingsPage from '@/features/bookings/BookingsPage';
 import ContactPage from '@/features/contact/ContactPage';
 import CorporateNetworkPage from '@/features/corporate-network/CorporateNetworkPage';
 import NetworkRelationsPage from '@/features/corporate-network/NetworkRelationsPage';
+import CmsPage from '@/features/cms/CmsPage';
 import DashboardPage from '@/features/dashboard/DashboardPage';
 import DivisionCategoriesPage from '@/features/division-categories/DivisionCategoriesPage';
 import DivisionDetailPage from '@/features/divisions/DivisionDetailPage';
@@ -77,8 +78,6 @@ export default function App() {
             <Route element={<ContactPage />} path="contact" />
             <Route element={<AwardsPage />} path="awards" />
             <Route element={<TimelinePage />} path="timeline" />
-            <Route element={<FaqsPage />} path="faqs" />
-            <Route element={<FaqCategoriesPage />} path="faqs/faq-categories" />
           </Route>
 
           {/* Admin Only */}
@@ -107,6 +106,9 @@ export default function App() {
               element={<NetworkRelationsPage />}
               path="corporate-network/relations"
             />
+            <Route element={<FaqsPage />} path="faqs" />
+            <Route element={<FaqCategoriesPage />} path="faq-categories" />
+            <Route element={<CmsPage />} path="cms" />
             <Route element={<AuditLogsPage />} path="audit-logs" />
           </Route>
         </Route>

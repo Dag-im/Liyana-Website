@@ -1,32 +1,56 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { useCreateBlogCategory } from '../useBlogs'
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useCreateBlogCategory } from '../useBlogCategories';
 
-export default function CreateBlogCategoryDialog({ onCreated }: { onCreated?: (categoryId: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const [name, setName] = useState('')
-  const createMutation = useCreateBlogCategory()
+export default function CreateBlogCategoryDialog({
+  onCreated,
+}: {
+  onCreated?: (categoryId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const createMutation = useCreateBlogCategory();
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger render={<Button variant="outline" size="sm">Create Category</Button>} />
+      <DialogTrigger
+        render={
+          <Button variant="outline" size="sm">
+            Create Category
+          </Button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Blog Category</DialogTitle>
-          <DialogDescription>Add a new category for blog posts.</DialogDescription>
+          <DialogDescription>
+            Add a new category for blog posts.
+          </DialogDescription>
         </DialogHeader>
-        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Category name" />
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Category name"
+        />
         <DialogFooter>
           <Button
             onClick={() =>
               createMutation.mutate(name.trim(), {
                 onSuccess: (category) => {
-                  setOpen(false)
-                  setName('')
-                  onCreated?.(category.id)
+                  setOpen(false);
+                  setName('');
+                  onCreated?.(category.id);
                 },
               })
             }
@@ -37,5 +61,5 @@ export default function CreateBlogCategoryDialog({ onCreated }: { onCreated?: (c
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

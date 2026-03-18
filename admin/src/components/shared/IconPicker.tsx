@@ -8,22 +8,33 @@ import {
 } from '@/components/ui/popover';
 import { NETWORK_ICON_OPTIONS, getNetworkIcon } from '@/lib/network-icons';
 import { cn } from '@/lib/utils';
-import { Search } from 'lucide-react';
+import { Search, type LucideIcon } from 'lucide-react';
 
 type IconPickerProps = {
   value: string;
   onChange: (iconName: string) => void;
+  options?: Array<{
+    value: string;
+    label: string;
+    Icon: LucideIcon;
+  }>;
+  getIcon?: (name: string) => LucideIcon;
 };
 
-export function IconPicker({ value, onChange }: IconPickerProps) {
+export function IconPicker({
+  value,
+  onChange,
+  options = NETWORK_ICON_OPTIONS,
+  getIcon = getNetworkIcon,
+}: IconPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
 
-  const filteredIcons = NETWORK_ICON_OPTIONS.filter((option) =>
+  const filteredIcons = options.filter((option) =>
     option.label.toLowerCase().includes(search.toLowerCase())
   );
 
-  const SelectedIcon = getNetworkIcon(value);
+  const SelectedIcon = getIcon(value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

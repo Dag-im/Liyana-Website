@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   CalendarDays,
   CircleHelp,
+  ClipboardCheck,
   FolderTree,
   Home,
   Image,
@@ -128,15 +129,21 @@ export const APP_NAVIGATION: AppRoute[] = [
     path: '/faqs',
     label: 'FAQs',
     icon: CircleHelp,
-    roles: ['ADMIN', 'COMMUNICATION'],
+    roles: ['ADMIN'],
     children: [
       {
-        path: '/faqs/faq-categories',
+        path: '/faq-categories',
         label: 'FAQ Categories',
         icon: FolderTree,
-        roles: ['ADMIN', 'COMMUNICATION'],
+        roles: ['ADMIN'],
       },
     ],
+  },
+  {
+    path: '/cms',
+    label: 'CMS',
+    icon: ClipboardCheck,
+    roles: ['ADMIN'],
   },
   {
     path: '/bookings',

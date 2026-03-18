@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import DataTable from '@/components/shared/DataTable';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -6,35 +8,38 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Edit, Plus, Trash2, FolderEdit } from 'lucide-react'
-import { 
-  useBlogCategories, 
-  useCreateBlogCategory, 
-  useDeleteBlogCategory, 
-  useUpdateBlogCategory 
-} from './useBlogCategories'
-import DataTable from '@/components/shared/DataTable'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import type { BlogCategory } from '@/types/blogs.types'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import type { BlogCategory } from '@/types/blogs.types';
+import { Edit, FolderEdit, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import {
+  useBlogCategories,
+  useCreateBlogCategory,
+  useDeleteBlogCategory,
+  useUpdateBlogCategory,
+} from './useBlogCategories';
 
 type BlogCategoriesDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
-export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategoriesDialogProps) {
-  const { data: categories, isLoading, isError, refetch } = useBlogCategories()
-  const createMutation = useCreateBlogCategory()
-  const updateMutation = useUpdateBlogCategory()
-  const deleteMutation = useDeleteBlogCategory()
+export default function BlogCategoriesDialog({
+  open,
+  onOpenChange,
+}: BlogCategoriesDialogProps) {
+  const { data: categories, isLoading, isError, refetch } = useBlogCategories();
+  const createMutation = useCreateBlogCategory();
+  const updateMutation = useUpdateBlogCategory();
+  const deleteMutation = useDeleteBlogCategory();
 
-  const [isCreating, setIsCreating] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null)
-  const [editName, setEditName] = useState('')
+  const [isCreating, setIsCreating] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(
+    null
+  );
+  const [editName, setEditName] = useState('');
 
   const columns = [
     { header: 'Name', accessorKey: 'name' },
@@ -47,8 +52,8 @@ export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategor
             size="sm"
             variant="ghost"
             onClick={() => {
-              setEditingCategory(row.original)
-              setEditName(row.original.name)
+              setEditingCategory(row.original);
+              setEditName(row.original.name);
             }}
           >
             <Edit className="h-4 w-4" />
@@ -67,28 +72,28 @@ export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategor
         </div>
       ),
     },
-  ]
+  ];
 
   const handleCreate = () => {
-    const name = newName.trim()
-    if (name.length < 2) return
+    const name = newName.trim();
+    if (name.length < 2) return;
     createMutation.mutate(name, {
       onSuccess: () => {
-        setIsCreating(false)
-        setNewName('')
+        setIsCreating(false);
+        setNewName('');
       },
-    })
-  }
+    });
+  };
 
   const handleUpdate = () => {
-    if (!editingCategory) return
-    const name = editName.trim()
-    if (name.length < 2) return
+    if (!editingCategory) return;
+    const name = editName.trim();
+    if (name.length < 2) return;
     updateMutation.mutate(
       { id: editingCategory.id, name },
       { onSuccess: () => setEditingCategory(null) }
-    )
-  }
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,10 +129,18 @@ export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategor
                 className="bg-white"
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               />
-              <Button size="sm" onClick={handleCreate} disabled={createMutation.isPending || newName.trim().length < 2}>
+              <Button
+                size="sm"
+                onClick={handleCreate}
+                disabled={createMutation.isPending || newName.trim().length < 2}
+              >
                 Add
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setIsCreating(false)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsCreating(false)}
+              >
                 Cancel
               </Button>
             </div>
@@ -143,10 +156,20 @@ export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategor
                 className="bg-white"
                 onKeyDown={(e) => e.key === 'Enter' && handleUpdate()}
               />
-              <Button size="sm" onClick={handleUpdate} disabled={updateMutation.isPending || editName.trim().length < 2}>
+              <Button
+                size="sm"
+                onClick={handleUpdate}
+                disabled={
+                  updateMutation.isPending || editName.trim().length < 2
+                }
+              >
                 Save
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setEditingCategory(null)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setEditingCategory(null)}
+              >
                 Cancel
               </Button>
             </div>
@@ -170,5 +193,5 @@ export default function BlogCategoriesDialog({ open, onOpenChange }: BlogCategor
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

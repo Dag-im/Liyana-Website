@@ -30,7 +30,7 @@ export default function AppShell() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
-          <Link className="text-lg font-semibold" to="/users">
+          <Link className="text-lg font-semibold" to="/">
             Liyana Admin
           </Link>
           <div className="flex items-center gap-4">
