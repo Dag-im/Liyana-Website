@@ -33,6 +33,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { FaqsModule } from './modules/faqs/faqs.module';
+import { CmsModule } from './modules/cms/cms.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { FaqsModule } from './modules/faqs/faqs.module';
     AwardsModule,
     TimelineModule,
     FaqsModule,
+    CmsModule,
   ],
   controllers: [AppController],
   providers: [

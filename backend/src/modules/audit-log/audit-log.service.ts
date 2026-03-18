@@ -103,6 +103,18 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.FAQ_UPDATED]: 'faq',
   [AuditAction.FAQ_REORDERED]: 'faq',
   [AuditAction.FAQ_DELETED]: 'faq',
+
+  // CMS
+  [AuditAction.CMS_MISSION_VISION_UPDATED]: 'cms',
+  [AuditAction.CMS_WHO_WE_ARE_UPDATED]: 'cms',
+  [AuditAction.CMS_CORE_VALUE_CREATED]: 'cms',
+  [AuditAction.CMS_CORE_VALUE_UPDATED]: 'cms',
+  [AuditAction.CMS_CORE_VALUE_DELETED]: 'cms',
+  [AuditAction.CMS_STAT_CREATED]: 'cms',
+  [AuditAction.CMS_STAT_UPDATED]: 'cms',
+  [AuditAction.CMS_STAT_DELETED]: 'cms',
+  [AuditAction.CMS_QUALITY_POLICY_UPDATED]: 'cms',
+  [AuditAction.CMS_QUALITY_POLICY_DELETED]: 'cms',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([

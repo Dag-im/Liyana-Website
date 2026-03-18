@@ -39,6 +39,7 @@ const contact_module_1 = require("./modules/contact/contact.module");
 const awards_module_1 = require("./modules/awards/awards.module");
 const timeline_module_1 = require("./modules/timeline/timeline.module");
 const faqs_module_1 = require("./modules/faqs/faqs.module");
+const cms_module_1 = require("./modules/cms/cms.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -77,6 +78,7 @@ exports.AppModule = AppModule = __decorate([
             awards_module_1.AwardsModule,
             timeline_module_1.TimelineModule,
             faqs_module_1.FaqsModule,
+            cms_module_1.CmsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
