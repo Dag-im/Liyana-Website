@@ -25,12 +25,19 @@ export class TeamService {
     private readonly auditLogService: AuditLogService,
   ) {}
 
-  async create(dto: CreateTeamMemberDto, performedBy: string): Promise<TeamMember> {
+  async create(
+    dto: CreateTeamMemberDto,
+    performedBy: string,
+  ): Promise<TeamMember> {
     if (dto.isCorporate && dto.divisionId) {
-      throw new BadRequestException('Corporate members cannot be assigned to a division');
+      throw new BadRequestException(
+        'Corporate members cannot be assigned to a division',
+      );
     }
     if (!dto.isCorporate && !dto.divisionId) {
-      throw new BadRequestException('Non-corporate members must be assigned to a division');
+      throw new BadRequestException(
+        'Non-corporate members must be assigned to a division',
+      );
     }
 
     if (dto.divisionId) {
@@ -40,7 +47,11 @@ export class TeamService {
     const member = this.teamMemberRepository.create(dto);
     const savedMember = await this.teamMemberRepository.save(member);
 
-    this.auditLogService.log(AuditAction.TEAM_MEMBER_CREATED, performedBy, savedMember.id);
+    this.auditLogService.log(
+      AuditAction.TEAM_MEMBER_CREATED,
+      performedBy,
+      savedMember.id,
+    );
 
     return this.findOne(savedMember.id, true);
   }
@@ -112,7 +123,9 @@ export class TeamService {
     if (!includeHidden) {
       const isVisible =
         member.isCorporate ||
-        (member.division && !member.division.deletedAt && member.division.isActive);
+        (member.division &&
+          !member.division.deletedAt &&
+          member.division.isActive);
 
       if (!isVisible) {
         throw new NotFoundException('Team member not found');
@@ -130,13 +143,18 @@ export class TeamService {
     const member = await this.findOne(id, true);
 
     const effectiveIsCorporate = dto.isCorporate ?? member.isCorporate;
-    const effectiveDivisionId = 'divisionId' in dto ? dto.divisionId : member.divisionId;
+    const effectiveDivisionId =
+      'divisionId' in dto ? dto.divisionId : member.divisionId;
 
     if (effectiveIsCorporate && effectiveDivisionId) {
-      throw new BadRequestException('Corporate members cannot be assigned to a division');
+      throw new BadRequestException(
+        'Corporate members cannot be assigned to a division',
+      );
     }
     if (!effectiveIsCorporate && !effectiveDivisionId) {
-      throw new BadRequestException('Non-corporate members must be assigned to a division');
+      throw new BadRequestException(
+        'Non-corporate members must be assigned to a division',
+      );
     }
 
     if (dto.divisionId) {

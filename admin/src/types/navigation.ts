@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Bell, BookOpen, Building2, CalendarCheck, CalendarDays, Home, LandPlot, LayoutGrid, Newspaper, ScrollText, Users, Image, UserCircle } from 'lucide-react'
+import { Bell, BookOpen, Building2, CalendarCheck, CalendarDays, Home, LandPlot, LayoutGrid, Newspaper, ScrollText, Users, Image, UserCircle, MessageSquare, Inbox } from 'lucide-react'
 import type { UserRole } from './user.types'
 
 export type AppRoute = {
@@ -21,6 +21,8 @@ export const APP_NAVIGATION: AppRoute[] = [
   { path: '/corporate-network', label: 'Corporate Network', icon: LandPlot, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/media', label: 'Media Gallery', icon: Image, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/team', label: 'Team & Leadership', icon: UserCircle, roles: ['ADMIN', 'COMMUNICATION'] },
+  { path: '/testimonials', label: 'Testimonials', icon: MessageSquare, roles: ['ADMIN', 'COMMUNICATION'] },
+  { path: '/contact', label: 'Contact Us', icon: Inbox, roles: ['ADMIN', 'COMMUNICATION'] },
   { path: '/bookings', label: 'Bookings', icon: CalendarCheck, roles: ['ADMIN', 'CUSTOMER_SERVICE'] },
   { path: '/notifications', label: 'Notifications', icon: Bell },
   { path: '/audit-logs', label: 'Audit Logs', icon: ScrollText, roles: ['ADMIN'] },

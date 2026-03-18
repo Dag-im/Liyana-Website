@@ -28,6 +28,8 @@ import { UploadsModule } from './uploads/uploads.module';
 import { CorporateNetworkModule } from './modules/corporate-network/corporate-network.module';
 import { MediaModule } from './modules/media/media.module';
 import { TeamModule } from './modules/team/team.module';
+import { TestimonialsModule } from './modules/testimonials/testimonials.module';
+import { ContactModule } from './modules/contact/contact.module';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { TeamModule } from './modules/team/team.module';
     CorporateNetworkModule,
     MediaModule,
     TeamModule,
+    TestimonialsModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [

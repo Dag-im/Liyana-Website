@@ -45,7 +45,11 @@ export class TeamMember {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Division, { nullable: true, eager: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Division, {
+    nullable: true,
+    eager: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'divisionId' })
   division: Division;
 }

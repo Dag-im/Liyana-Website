@@ -17,7 +17,7 @@ import {
   ApiConsumes,
   ApiCookieAuth,
   ApiOperation,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import multer from 'multer';
@@ -95,7 +95,8 @@ export class MediaItemsController {
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary: 'Create media item',
-    description: 'Type is auto-detected from URL (YouTube -> video, else image)'
+    description:
+      'Type is auto-detected from URL (YouTube -> video, else image)',
   })
   create(
     @Param('folderId') folderId: string,

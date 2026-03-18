@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { MediaFolder } from '../entities/media-folder.entity';
@@ -35,7 +32,8 @@ export class MediaFoldersService {
     const page = queryDto.page ?? 1;
     const perPage = queryDto.perPage ?? 20;
 
-    const query = this.folderRepo.createQueryBuilder('folder')
+    const query = this.folderRepo
+      .createQueryBuilder('folder')
       .leftJoinAndSelect('folder.tag', 'tag')
       .where('folder.deletedAt IS NULL');
 
@@ -47,13 +45,16 @@ export class MediaFoldersService {
       const search = `%${queryDto.search}%`;
       query.andWhere(
         new Brackets((qb) => {
-          qb.where('folder.name LIKE :search', { search })
-            .orWhere('folder.description LIKE :search', { search });
+          qb.where('folder.name LIKE :search', { search }).orWhere(
+            'folder.description LIKE :search',
+            { search },
+          );
         }),
       );
     }
 
-    query.orderBy('folder.sortOrder', 'ASC')
+    query
+      .orderBy('folder.sortOrder', 'ASC')
       .addOrderBy('folder.createdAt', 'DESC')
       .skip((page - 1) * perPage)
       .take(perPage);
@@ -61,7 +62,7 @@ export class MediaFoldersService {
     const [data, total] = await query.getManyAndCount();
 
     if (data.length > 0) {
-      const folderIds = data.map(f => f.id);
+      const folderIds = data.map((f) => f.id);
       const counts = await this.itemRepo
         .createQueryBuilder('item')
         .select('item.folderId', 'folderId')
@@ -72,12 +73,14 @@ export class MediaFoldersService {
         .groupBy('item.folderId')
         .getRawMany();
 
-      const statsMap = new Map(counts.map(c => [c.folderId, c]));
+      const statsMap = new Map(counts.map((c) => [c.folderId, c]));
 
-      data.forEach(folder => {
+      data.forEach((folder) => {
         const stats = statsMap.get(folder.id);
         folder.mediaCount = stats ? parseInt(stats.count) : 0;
-        folder.lastUpdated = stats ? new Date(stats.lastUpdated) : folder.updatedAt;
+        folder.lastUpdated = stats
+          ? new Date(stats.lastUpdated)
+          : folder.updatedAt;
       });
     }
 
@@ -96,18 +99,22 @@ export class MediaFoldersService {
 
     // Filter out deleted items and sort
     folder.items = (folder.items || [])
-      .filter(item => !item.deletedAt)
+      .filter((item) => !item.deletedAt)
       .sort((a, b) => a.sortOrder - b.sortOrder);
 
     folder.mediaCount = folder.items.length;
-    folder.lastUpdated = folder.items.length > 0
-      ? new Date(Math.max(...folder.items.map(i => i.updatedAt.getTime())))
-      : folder.updatedAt;
+    folder.lastUpdated =
+      folder.items.length > 0
+        ? new Date(Math.max(...folder.items.map((i) => i.updatedAt.getTime())))
+        : folder.updatedAt;
 
     return folder;
   }
 
-  async create(dto: CreateMediaFolderDto, performedBy: string): Promise<MediaFolder> {
+  async create(
+    dto: CreateMediaFolderDto,
+    performedBy: string,
+  ): Promise<MediaFolder> {
     await this.tagsService.findOne(dto.tagId);
 
     const folder = this.folderRepo.create(dto);
@@ -119,7 +126,11 @@ export class MediaFoldersService {
     return saved;
   }
 
-  async update(id: string, dto: UpdateMediaFolderDto, performedBy: string): Promise<MediaFolder> {
+  async update(
+    id: string,
+    dto: UpdateMediaFolderDto,
+    performedBy: string,
+  ): Promise<MediaFolder> {
     const folder = await this.findOne(id);
 
     if (dto.tagId) {
@@ -133,9 +144,14 @@ export class MediaFoldersService {
     Object.assign(folder, dto);
     const updated = await this.folderRepo.save(folder);
 
-    this.auditLog.log(AuditAction.MEDIA_FOLDER_UPDATED, performedBy, updated.id, {
-      changes: dto,
-    });
+    this.auditLog.log(
+      AuditAction.MEDIA_FOLDER_UPDATED,
+      performedBy,
+      updated.id,
+      {
+        changes: dto,
+      },
+    );
     return updated;
   }
 

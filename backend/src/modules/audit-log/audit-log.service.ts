@@ -69,6 +69,19 @@ const ACTION_ENTITY_TYPE: Record<AuditAction, string> = {
   [AuditAction.TEAM_MEMBER_CREATED]: 'team_member',
   [AuditAction.TEAM_MEMBER_UPDATED]: 'team_member',
   [AuditAction.TEAM_MEMBER_DELETED]: 'team_member',
+
+  // Testimonials
+  [AuditAction.TESTIMONIAL_SUBMITTED]: 'testimonial',
+  [AuditAction.TESTIMONIAL_APPROVED]: 'testimonial',
+  [AuditAction.TESTIMONIAL_UNAPPROVED]: 'testimonial',
+  [AuditAction.TESTIMONIAL_FAVORITED]: 'testimonial',
+  [AuditAction.TESTIMONIAL_UNFAVORITED]: 'testimonial',
+  [AuditAction.TESTIMONIAL_DELETED]: 'testimonial',
+
+  // Contact
+  [AuditAction.CONTACT_SUBMITTED]: 'contact_submission',
+  [AuditAction.CONTACT_REVIEWED]: 'contact_submission',
+  [AuditAction.CONTACT_DELETED]: 'contact_submission',
 };
 
 const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([

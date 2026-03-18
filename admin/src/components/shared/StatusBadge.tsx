@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import type { BookingStatus } from '@/types/booking.types';
 
 type StatusBadgeProps =
-  | { type: 'active'; isActive: boolean }
+  | { type: 'active'; isActive: boolean; activeText?: string; inactiveText?: string }
   | { type: 'booking'; status: BookingStatus }
   | { type: 'read'; isRead: boolean }
 
@@ -10,7 +10,7 @@ export function StatusBadge(props: StatusBadgeProps) {
   if (props.type === 'active') {
     return (
       <Badge variant={props.isActive ? 'default' : 'secondary'}>
-        {props.isActive ? 'Active' : 'Inactive'}
+        {props.isActive ? (props.activeText ?? 'Active') : (props.inactiveText ?? 'Inactive')}
       </Badge>
     )
   }

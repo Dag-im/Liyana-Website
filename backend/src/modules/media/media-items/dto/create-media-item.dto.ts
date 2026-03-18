@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUrl, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateMediaItemDto {
   @IsString()
@@ -9,7 +16,9 @@ export class CreateMediaItemDto {
 
   @IsString()
   @IsUrl()
-  @ApiProperty({ description: 'YouTube URL for videos, uploaded file path for images' })
+  @ApiProperty({
+    description: 'YouTube URL for videos, uploaded file path for images',
+  })
   url: string;
 
   @IsOptional()

@@ -11,6 +11,9 @@ import { formatDate, truncate } from '@/lib/utils'
 import type { NewsEvent } from '@/types/news-events.types'
 import { Bell, CalendarDays, FileText, Newspaper } from 'lucide-react'
 import NewsEventStatusBadge from '@/features/news-events/components/NewsEventStatusBadge'
+import { useTestimonials } from '@/features/testimonials/useTestimonials'
+import { useContactSubmissions } from '@/features/contact/useContact'
+import { MessageSquare, Inbox } from 'lucide-react'
 
 export function CommunicationDashboard() {
   const { data: publishedNews } = useNewsEvents({ status: 'PUBLISHED', type: 'news', perPage: 1 })
@@ -18,6 +21,8 @@ export function CommunicationDashboard() {
   const { data: draftEntries } = useNewsEvents({ status: 'DRAFT', perPage: 1 })
   const recentEntriesQuery = useNewsEvents({ perPage: 5, sortBy: 'createdAt', sortOrder: 'DESC' })
   const { data: unreadCount } = useUnreadCount()
+  const { data: pendingTestimonials } = useTestimonials({ isApproved: false, perPage: 1 })
+  const { data: unreviewedContact } = useContactSubmissions({ isReviewed: false, perPage: 1 })
 
   return (
     <div className="space-y-6 p-6">
@@ -49,6 +54,26 @@ export function CommunicationDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{draftEntries?.total ?? 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-amber-600">Pending Testimonials</CardTitle>
+            <MessageSquare className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingTestimonials?.total ?? 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className={`text-sm font-medium ${(unreviewedContact?.total ?? 0) > 0 ? 'text-red-600' : ''}`}>
+              Unreviewed Submissions
+            </CardTitle>
+            <Inbox className={`h-4 w-4 ${(unreviewedContact?.total ?? 0) > 0 ? 'text-red-600' : 'text-slate-500'}`} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{unreviewedContact?.total ?? 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -117,6 +142,12 @@ export function CommunicationDashboard() {
           </Button>
           <Button variant="outline" className="justify-start" asChild>
             <Link to="/team">Team & Leadership</Link>
+          </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/testimonials">Review Testimonials</Link>
+          </Button>
+          <Button variant="outline" className="justify-start" asChild>
+            <Link to="/contact">View Submissions</Link>
           </Button>
           <Button variant="outline" className="justify-start" asChild>
             <Link to="/media">Go to Media Gallery</Link>

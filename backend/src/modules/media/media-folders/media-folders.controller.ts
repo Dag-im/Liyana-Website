@@ -88,9 +88,10 @@ export class MediaFoldersController {
 
   @Get(':id')
   @Throttle({ default: { limit: 120, ttl: 60000 } })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get media folder by id (public)',
-    description: 'Includes items and computed fields: mediaCount and lastUpdated' 
+    description:
+      'Includes items and computed fields: mediaCount and lastUpdated',
   })
   findOne(@Param('id') id: string) {
     return this.foldersService.findOne(id);
@@ -123,9 +124,10 @@ export class MediaFoldersController {
   @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
   @ApiCookieAuth()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Delete media folder',
-    description: 'Soft deletes the folder and all items. Permanently deletes associated image files from disk.' 
+    description:
+      'Soft deletes the folder and all items. Permanently deletes associated image files from disk.',
   })
   remove(@Param('id') id: string, @Req() req: any) {
     return this.foldersService.remove(id, req.user.sub);

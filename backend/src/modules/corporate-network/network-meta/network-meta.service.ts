@@ -13,9 +13,9 @@ export class NetworkMetaService {
   async getMeta() {
     // We use Query Builder here because the NetworkEntity has an eager relation
     // with NetworkRelation. Using repository.findOne with 'order' or 'select'
-    // often triggers eager loading which can cause 500 errors in certain 
+    // often triggers eager loading which can cause 500 errors in certain
     // serialization interceptors if they hit circular references or partial data.
-    
+
     const totalEntities = await this.entityRepo.count();
 
     const latestResult = await this.entityRepo

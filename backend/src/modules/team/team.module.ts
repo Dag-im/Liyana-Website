@@ -13,7 +13,7 @@ import { TeamService } from './team.service';
     TypeOrmModule.forFeature([TeamMember]),
     CommonModule,
     ServicesModule,
-    UploadsModule
+    UploadsModule,
   ],
   providers: [TeamService],
   controllers: [TeamController],

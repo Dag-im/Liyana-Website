@@ -6,13 +6,15 @@ import { useDivisions } from '@/features/divisions/useDivisions'
 import { useNewsEvents } from '@/features/news-events/useNewsEvents'
 import { useUsers } from '@/features/users/useUsers'
 import { useMediaFolders } from '@/features/media/useMedia'
-import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network, Image, UserCircle } from 'lucide-react'
+import { Activity, ArrowRight, Building2, CalendarCheck, Newspaper, Users, Network, Image, UserCircle, MessageSquare, Inbox } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useNetworkMeta } from '@/features/corporate-network/useNetworkEntities'
 import { useTeamMembers } from '@/features/team/useTeam'
 
 // Relative imports for local dialogs/wizards and hooks
 import { useBookings } from '@/features/bookings/useBookings'
+import { useContactSubmissions } from '@/features/contact/useContact'
+import { useTestimonials } from '@/features/testimonials/useTestimonials'
 
 // Additional shared component import
 
@@ -26,6 +28,8 @@ export function AdminDashboard() {
   const { data: metaData } = useNetworkMeta()
   const { data: mediaData } = useMediaFolders({ perPage: 1 })
   const { data: teamData } = useTeamMembers({ perPage: 1, includeHidden: true })
+  const { data: pendingTestimonials } = useTestimonials({ isApproved: false, perPage: 1 })
+  const { data: unreviewedContact } = useContactSubmissions({ isReviewed: false, perPage: 1 })
 
   const stats = [
     {
@@ -84,13 +88,29 @@ export function AdminDashboard() {
       bg: 'bg-cyan-50',
       link: '/team',
     },
+    {
+      label: 'Pending Testimonials',
+      value: pendingTestimonials?.total ?? 0,
+      icon: MessageSquare,
+      color: 'text-amber-500',
+      bg: 'bg-amber-50',
+      link: '/testimonials',
+    },
+    {
+      label: 'Unreviewed Contact',
+      value: unreviewedContact?.total ?? 0,
+      icon: Inbox,
+      color: (unreviewedContact?.total ?? 0) > 0 ? 'text-red-600' : 'text-slate-600',
+      bg: (unreviewedContact?.total ?? 0) > 0 ? 'bg-red-50' : 'bg-slate-50',
+      link: '/contact',
+    },
   ]
 
   return (
     <div className="space-y-6 p-6">
       <PageHeader heading="Admin Dashboard" text="System overview and quick actions." />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -155,6 +175,8 @@ export function AdminDashboard() {
               { label: 'Team & Leadership', path: '/team' },
               { label: 'Review Bookings', path: '/bookings' },
               { label: 'System Logs', path: '/audit-logs' },
+              { label: 'Testimonials', path: '/testimonials' },
+              { label: 'Contact Submissions', path: '/contact' },
             ].map((link) => (
               <Button key={link.label} variant="outline" className="justify-start" asChild>
                 <Link to={link.path}>{link.label}</Link>

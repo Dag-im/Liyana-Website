@@ -49,7 +49,8 @@ export class TeamController {
   @Get()
   @ApiOperation({
     summary: 'Get all team members',
-    description: 'Hidden members are excluded unless includeHidden=true with auth',
+    description:
+      'Hidden members are excluded unless includeHidden=true with auth',
   })
   @Throttle({ default: { limit: 120, ttl: 60000 } })
   findAll(@Query() query: QueryTeamMemberDto) {

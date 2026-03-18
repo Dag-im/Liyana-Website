@@ -24,6 +24,8 @@ import MediaGalleryPage from '@/features/media/MediaGalleryPage'
 import MediaTagsPage from '@/features/media/MediaTagsPage'
 import MediaFolderDetailPage from '@/features/media/MediaFolderDetailPage'
 import TeamPage from '@/features/team/TeamPage'
+import TestimonialsPage from '@/features/testimonials/TestimonialsPage'
+import ContactPage from '@/features/contact/ContactPage'
 import CommunicationRoute from '@/components/auth/CommunicationRoute'
 import NotFoundPage from '@/pages/NotFoundPage'
 import AdminRoute from '@/router/AdminRoute'
@@ -61,6 +63,8 @@ export default function App() {
             <Route element={<MediaTagsPage />} path="media/tags" />
             <Route element={<MediaFolderDetailPage />} path="media/:folderId" />
             <Route element={<TeamPage />} path="team" />
+            <Route element={<TestimonialsPage />} path="testimonials" />
+            <Route element={<ContactPage />} path="contact" />
           </Route>
 
           {/* Admin Only */}

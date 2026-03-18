@@ -27,7 +27,10 @@ export class MediaItemsService {
     private readonly auditLog: AuditLogService,
   ) {}
 
-  async findAll(folderId: string, queryDto: QueryMediaItemDto): Promise<{
+  async findAll(
+    folderId: string,
+    queryDto: QueryMediaItemDto,
+  ): Promise<{
     data: MediaItem[];
     total: number;
     page: number;
@@ -38,7 +41,8 @@ export class MediaItemsService {
     const page = queryDto.page ?? 1;
     const perPage = queryDto.perPage ?? 20;
 
-    const query = this.itemRepo.createQueryBuilder('item')
+    const query = this.itemRepo
+      .createQueryBuilder('item')
       .where('item.folderId = :folderId', { folderId })
       .andWhere('item.deletedAt IS NULL');
 
@@ -47,10 +51,13 @@ export class MediaItemsService {
     }
 
     if (queryDto.search) {
-      query.andWhere('item.title LIKE :search', { search: `%${queryDto.search}%` });
+      query.andWhere('item.title LIKE :search', {
+        search: `%${queryDto.search}%`,
+      });
     }
 
-    query.orderBy('item.sortOrder', 'ASC')
+    query
+      .orderBy('item.sortOrder', 'ASC')
       .addOrderBy('item.createdAt', 'DESC')
       .skip((page - 1) * perPage)
       .take(perPage);
@@ -66,13 +73,19 @@ export class MediaItemsService {
     });
 
     if (!item) {
-      throw new NotFoundException(`Media item with ID ${id} not found in this folder`);
+      throw new NotFoundException(
+        `Media item with ID ${id} not found in this folder`,
+      );
     }
 
     return item;
   }
 
-  async create(folderId: string, dto: CreateMediaItemDto, performedBy: string): Promise<MediaItem> {
+  async create(
+    folderId: string,
+    dto: CreateMediaItemDto,
+    performedBy: string,
+  ): Promise<MediaItem> {
     await this.foldersService.findOne(folderId);
 
     const type = this.detectMediaType(dto.url);
@@ -123,7 +136,11 @@ export class MediaItemsService {
     return updated;
   }
 
-  async remove(folderId: string, id: string, performedBy: string): Promise<void> {
+  async remove(
+    folderId: string,
+    id: string,
+    performedBy: string,
+  ): Promise<void> {
     const item = await this.findOne(folderId, id);
 
     if (item.type === MediaItemType.IMAGE) {

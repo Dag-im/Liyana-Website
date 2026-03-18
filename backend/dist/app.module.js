@@ -34,6 +34,8 @@ const uploads_module_1 = require("./uploads/uploads.module");
 const corporate_network_module_1 = require("./modules/corporate-network/corporate-network.module");
 const media_module_1 = require("./modules/media/media.module");
 const team_module_1 = require("./modules/team/team.module");
+const testimonials_module_1 = require("./modules/testimonials/testimonials.module");
+const contact_module_1 = require("./modules/contact/contact.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -67,6 +69,8 @@ exports.AppModule = AppModule = __decorate([
             corporate_network_module_1.CorporateNetworkModule,
             media_module_1.MediaModule,
             team_module_1.TeamModule,
+            testimonials_module_1.TestimonialsModule,
+            contact_module_1.ContactModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

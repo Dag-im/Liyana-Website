@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { useBookings } from '@/features/bookings/useBookings';
 import type { User } from '@/types/user.types';
+import type { BookingStatus } from '@/types/booking.types';
 import {
   ArrowRight,
   Building,
@@ -123,14 +124,14 @@ export function CustomerServiceDashboard({ user }: { user: User }) {
               {
                 header: 'Status',
                 id: 'status',
-                cell: ({ row }: any) => (
+                cell: ({ row }: { row: { original: { status: BookingStatus } } }) => (
                   <BookingStatusBadge status={row.original.status} />
                 ),
               },
               {
                 header: 'Date',
                 id: 'createdAt',
-                cell: ({ row }: any) =>
+                cell: ({ row }: { row: { original: { createdAt: string } } }) =>
                   new Date(row.original.createdAt).toLocaleDateString(),
               },
             ]}
