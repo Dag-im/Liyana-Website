@@ -2,10 +2,10 @@ import { Badge } from '@/components/ui/badge'
 import type { NotificationUrgency } from '@/types/notification.types'
 
 const urgencyClasses: Record<NotificationUrgency, string> = {
-  LOW: 'bg-zinc-500 text-white hover:bg-zinc-500',
-  MEDIUM: 'bg-blue-600 text-white hover:bg-blue-600',
-  HIGH: 'bg-orange-600 text-white hover:bg-orange-600',
-  CRITICAL: 'bg-red-600 text-white hover:bg-red-600',
+  LOW: 'bg-slate-500 text-white hover:bg-slate-600',
+  MEDIUM: 'bg-primary text-primary-foreground hover:bg-primary/90',
+  HIGH: 'bg-orange-600 text-white hover:bg-orange-700',
+  CRITICAL: 'bg-destructive text-white hover:bg-destructive/90',
 }
 
 type UrgencyBadgeProps = {

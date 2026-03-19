@@ -45,8 +45,29 @@ export function getFileUrl(path: string | null | undefined): string | null {
     return path;
   }
 
-  const base = API_BASE_URL.replace('/api/v1', '');
-  return `${base}${path}`;
+  const apiBase = API_BASE_URL.replace(/\/$/, '');
+
+  if (path.startsWith('/api/v1/uploads/')) {
+    return `${apiBase.replace(/\/api\/v1$/, '')}${path}`;
+  }
+
+  if (path.startsWith('/uploads/')) {
+    return `${apiBase}${path}`;
+  }
+
+  if (path.startsWith('/')) {
+    return `${apiBase}/uploads${path}`;
+  }
+
+  if (path.startsWith('api/v1/uploads/')) {
+    return `${apiBase.replace(/\/api\/v1$/, '')}/${path}`;
+  }
+
+  if (path.startsWith('uploads/')) {
+    return `${apiBase}/${path}`;
+  }
+
+  return `${apiBase}/uploads/${path}`;
 }
 
 type ApiRequestInit = RequestInit & {

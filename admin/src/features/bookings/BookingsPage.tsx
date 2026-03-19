@@ -55,7 +55,7 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader
         heading="Bookings"
         text="Track and manage patient service requests."
@@ -127,6 +127,7 @@ export default function BookingsPage() {
 
       <DataTable
         data={bookingsData?.data || []}
+        emptyDescription="No bookings match the current filters."
         loading={isLoading}
         pagination={{
           page,

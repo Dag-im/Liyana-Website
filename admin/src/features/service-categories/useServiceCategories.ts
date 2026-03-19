@@ -49,3 +49,14 @@ export function useDeleteServiceCategory() {
     },
   })
 }
+
+export function useReorderServiceCategory() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, sortOrder }: { id: string; sortOrder: number }) =>
+      serviceCategoriesApi.updateServiceCategory(id, { sortOrder }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['service-categories'] })
+    },
+  })
+}

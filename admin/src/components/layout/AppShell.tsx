@@ -1,98 +1,246 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
+import { logout } from '@/api/auth.api'
 import NotificationBell from '@/components/layout/NotificationBell'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/lib/utils'
 import { APP_NAVIGATION } from '@/types/navigation'
 
 export default function AppShell() {
+  const location = useLocation()
+  const queryClient = useQueryClient()
   const authQuery = useAuth()
   const user = authQuery.data
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+      toast.success('Logged out')
+      window.location.assign('/login')
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to log out')
+    },
+  })
 
-  const routes = APP_NAVIGATION.reduce<typeof APP_NAVIGATION>((acc, route) => {
-    if (route.roles && (!user?.role || !route.roles.includes(user.role))) {
-      return acc
-    }
+  const routes = useMemo(
+    () =>
+      APP_NAVIGATION.reduce<typeof APP_NAVIGATION>((acc, route) => {
+        if (route.roles && (!user?.role || !route.roles.includes(user.role))) {
+          return acc
+        }
 
-    const children = route.children?.filter((child) => {
-      if (!child.roles) return true
-      return user?.role && child.roles.includes(user.role)
-    })
+        const children = route.children?.filter((child) => {
+          if (!child.roles) return true
+          return user?.role && child.roles.includes(user.role)
+        })
 
-    acc.push({
-      ...route,
-      children,
-    })
-    return acc
-  }, [])
+        acc.push({
+          ...route,
+          children,
+        })
+        return acc
+      }, []),
+    [user],
+  )
+
+  const groupedRoutes = useMemo(
+    () => ({
+      overview: routes.filter((route) => route.group === 'overview'),
+      operations: routes.filter((route) => route.group === 'operations'),
+      content: routes.filter((route) => route.group === 'content'),
+      system: routes.filter((route) => route.group === 'system'),
+    }),
+    [routes],
+  )
+
+  const currentRoute = routes.find(
+    (route) => location.pathname === route.path || route.children?.some((child) => child.path === location.pathname),
+  )
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
-          <Link className="text-lg font-semibold" to="/">
-            Liyana Admin
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
+    <div className="h-screen overflow-hidden bg-background text-foreground">
+      <div className="brand-gradient fixed left-0 right-0 top-0 z-50 h-1" />
+
+      <header className="z-40 h-16 shrink-0 border-b border-border/80 bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 md:px-6">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button
+              aria-label="Toggle navigation menu"
+              className="md:hidden"
+              onClick={() => setIsMobileNavOpen((prev) => !prev)}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+            <Button
+              aria-label="Collapse sidebar"
+              className="hidden md:inline-flex"
+              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+              size="icon-sm"
+              variant="ghost"
+            >
+              {isSidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </Button>
+            <Separator className="hidden h-5 md:block" orientation="vertical" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{currentRoute?.label ?? 'Liyana Admin'}</p>
+              <p className="hidden truncate text-xs text-muted-foreground sm:block">Operational control panel</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-muted-foreground lg:inline">{user?.email}</span>
             <NotificationBell />
+            <Button
+              aria-label="Log out"
+              disabled={logoutMutation.isPending}
+              onClick={() => logoutMutation.mutate()}
+              size="sm"
+              variant="outline"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 md:grid-cols-[240px_1fr]">
-        <aside className="border-r px-4 py-6">
-          <nav className="space-y-1">
-            {routes.map((route) => {
-              const Icon = route.icon
+      <div className="mx-auto grid h-[calc(100vh-4rem)] max-w-[1600px] min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[auto_1fr]">
+        <aside
+          className={cn(
+            'hidden h-full min-h-0 border-r border-border/80 bg-sidebar/70 p-3 backdrop-blur md:block',
+            isSidebarCollapsed ? 'w-[88px]' : 'w-[280px]',
+          )}
+        >
+          <div className="flex h-full min-h-0 flex-col rounded-xl border border-border/80 bg-card/90 p-2 shadow-sm">
+            {!isSidebarCollapsed ? (
+              <Link className="block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight" to="/">
+                Liyana Admin
+              </Link>
+            ) : null}
 
-              return (
-                <div key={route.path} className="space-y-1">
-                  <NavLink
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                        isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground',
-                      )
-                    }
-                    to={route.path}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {route.label}
-                  </NavLink>
-
-                  {route.children?.length ? (
-                    <div className="ml-5 space-y-1 border-l pl-2">
-                      {route.children.map((child) => {
-                        const ChildIcon = child.icon
-                        return (
-                          <NavLink
-                            key={child.path}
-                            className={({ isActive }) =>
-                              cn(
-                                'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                                isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground',
-                              )
-                            }
-                            to={child.path}
-                          >
-                            <ChildIcon className="h-4 w-4" />
-                            {child.label}
-                          </NavLink>
-                        )
-                      })}
-                    </div>
-                  ) : null}
-                </div>
-              )
-            })}
-          </nav>
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
+              <nav className={cn('space-y-4 py-2', isSidebarCollapsed && 'space-y-2')}>
+                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.overview} title="Overview" />
+                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.operations} title="Operations" />
+                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.content} title="Content" />
+                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.system} title="System" />
+              </nav>
+            </div>
+          </div>
         </aside>
 
-        <main className="px-6 py-8">
-          <Outlet />
+        {isMobileNavOpen ? (
+          <div className="fixed inset-0 z-40 md:hidden">
+            <button
+              aria-label="Close menu"
+              className="absolute inset-0 bg-black/30"
+              onClick={() => setIsMobileNavOpen(false)}
+              type="button"
+            />
+            <aside className="absolute left-0 top-0 flex h-full w-[84vw] max-w-sm min-h-0 flex-col border-r border-border bg-background p-4">
+              <Link className="mb-4 block shrink-0 text-base font-semibold tracking-tight" onClick={() => setIsMobileNavOpen(false)} to="/">
+                Liyana Admin
+              </Link>
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
+                <nav className="space-y-4">
+                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.overview} title="Overview" />
+                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.operations} title="Operations" />
+                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.content} title="Content" />
+                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.system} title="System" />
+                </nav>
+              </div>
+            </aside>
+          </div>
+        ) : null}
+
+        <main className="custom-scrollbar min-h-0 min-w-0 overflow-y-auto px-4 py-5 md:px-8 md:py-7">
+          <div className="mx-auto w-full max-w-[1160px] pb-10">
+            <Outlet />
+          </div>
         </main>
       </div>
+    </div>
+  )
+}
+
+type NavSectionProps = {
+  title: string
+  routes: typeof APP_NAVIGATION
+  collapsed?: boolean
+  onNavigate?: () => void
+}
+
+function NavSection({ title, routes, collapsed = false, onNavigate }: NavSectionProps) {
+  if (!routes.length) return null
+
+  return (
+    <div className="space-y-1">
+      {!collapsed ? (
+        <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">{title}</p>
+      ) : null}
+      {routes.map((route) => {
+        const Icon = route.icon
+
+        return (
+          <div key={route.path} className="space-y-1">
+            <NavLink
+              className={({ isActive }) =>
+                cn(
+                  'group flex items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm transition-colors',
+                  isActive
+                    ? 'border-primary/20 bg-primary/10 font-medium text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:border-border hover:bg-accent/60 hover:text-foreground',
+                  collapsed && 'justify-center px-2.5',
+                )
+              }
+              end={!route.children?.length}
+              onClick={onNavigate}
+              to={route.path}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed ? <span className="truncate">{route.label}</span> : null}
+            </NavLink>
+
+            {route.children?.length && !collapsed ? (
+              <div className="ml-5 space-y-1 border-l border-border/80 pl-2">
+                {route.children.map((child) => {
+                  const ChildIcon = child.icon
+                  return (
+                    <NavLink
+                      key={child.path}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-colors',
+                          isActive
+                            ? 'bg-accent font-medium text-foreground'
+                            : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+                        )
+                      }
+                      onClick={onNavigate}
+                      to={child.path}
+                    >
+                      <ChildIcon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{child.label}</span>
+                    </NavLink>
+                  )
+                })}
+              </div>
+            ) : null}
+          </div>
+        )
+      })}
     </div>
   )
 }

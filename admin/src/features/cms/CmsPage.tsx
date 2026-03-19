@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import PageHeader from '@/components/shared/PageHeader'
+import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import CmsOverviewTab from './CmsOverviewTab'
 import CoreValuesTab from './CoreValuesTab'
@@ -55,20 +56,22 @@ export default function CmsPage() {
         orientation={orientation}
         className="gap-6"
       >
-        <TabsList
-          className={
-            orientation === 'vertical'
-              ? 'w-full flex-row overflow-x-auto md:w-64 md:flex-col md:overflow-visible'
-              : 'w-full overflow-x-auto'
-          }
-          variant="line"
-        >
-          {tabLabelMap.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <Card className="h-fit p-2 md:sticky md:top-24">
+          <TabsList
+            className={
+              orientation === 'vertical'
+                ? 'w-full flex-row overflow-x-auto md:w-64 md:flex-col md:overflow-visible'
+                : 'w-full overflow-x-auto'
+            }
+            variant="line"
+          >
+            {tabLabelMap.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Card>
 
         <TabsContent value="overview">
           <CmsOverviewTab onEditSection={setActiveTab} />

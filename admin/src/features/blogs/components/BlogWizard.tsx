@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
+  CheckSquare,
   FileText,
   Image as ImageIcon,
   Plus,
+  Sparkles,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,6 +17,9 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import { FileUpload } from '@/components/shared/FileUpload';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 import RichTextViewer from '@/components/shared/RichTextViewer';
+import WizardProgress from '@/components/shared/WizardProgress';
+import type { WizardStep } from '@/components/shared/WizardProgress';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -72,9 +75,25 @@ type Props = {
 };
 
 const STEPS = [
-  { id: 1, title: 'Details', icon: ImageIcon },
-  { id: 2, title: 'Content', icon: FileText },
-];
+  {
+    id: 1,
+    title: 'Details',
+    description: 'Title, category, and image',
+    icon: ImageIcon,
+  },
+  {
+    id: 2,
+    title: 'Content',
+    description: 'Write and preview',
+    icon: FileText,
+  },
+  {
+    id: 3,
+    title: 'Review',
+    description: 'Final verification',
+    icon: CheckSquare,
+  },
+] as const;
 
 export default function BlogWizard({
   mode,
@@ -96,6 +115,8 @@ export default function BlogWizard({
     null
   );
   const [editCategoryName, setEditCategoryName] = useState('');
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
 
   const initialContent = useMemo(
     () => defaultValues?.content ?? '',
@@ -123,6 +144,22 @@ export default function BlogWizard({
     });
   }, [defaultValues, form, initialContent]);
 
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const subscription = form.watch((_value, { type }) => {
+      if (type !== 'change') return;
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setDraftSavedAt(new Date());
+      }, 450);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [form]);
+
   const contentHtml = form.watch('contentHtml');
   const filteredCategories = useMemo(() => {
     if (!categories?.length) return [];
@@ -135,13 +172,34 @@ export default function BlogWizard({
     );
   }, [categories, categorySearch]);
 
+  const stepFields: Record<number, (keyof FormValues)[]> = {
+    1: ['title', 'excerpt', 'categoryId', 'image'],
+    2: ['contentHtml'],
+  };
+
+  const validateUntil = async (targetStep: number) => {
+    if (targetStep <= 1) return true;
+
+    for (let current = 1; current < targetStep; current += 1) {
+      const fields = stepFields[current];
+      if (!fields?.length) continue;
+      const valid = await form.trigger(fields);
+      if (!valid) {
+        setStep(current);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const goNext = async () => {
-    const fields: (keyof FormValues)[] =
-      step === 1
-        ? ['title', 'excerpt', 'categoryId', 'image']
-        : ['contentHtml'];
-    const isValid = await form.trigger(fields);
-    if (isValid) setStep((prev) => Math.min(prev + 1, STEPS.length));
+    const fields = stepFields[step];
+    if (fields?.length) {
+      const valid = await form.trigger(fields);
+      if (!valid) return;
+    }
+    setStep((prev) => Math.min(prev + 1, STEPS.length));
   };
 
   const goBack = () => setStep((prev) => Math.max(prev - 1, 1));
@@ -154,6 +212,7 @@ export default function BlogWizard({
         type: 'manual',
         message: 'Content is required',
       });
+      setStep(2);
       return;
     }
 
@@ -166,56 +225,74 @@ export default function BlogWizard({
     });
   };
 
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (step !== 3) return;
+      if (!(event.metaKey || event.ctrlKey) || event.key !== 'Enter') return;
+      event.preventDefault();
+      void form.handleSubmit(handleSubmit)();
+    };
+
+    window.addEventListener('keydown', listener);
+    return () => window.removeEventListener('keydown', listener);
+  }, [form, step]);
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (step !== 3) return;
+      if (!(event.metaKey || event.ctrlKey) || event.key !== 'Enter') return;
+      event.preventDefault();
+      void form.handleSubmit(handleSubmit)();
+    };
+
+    window.addEventListener('keydown', listener);
+    return () => window.removeEventListener('keydown', listener);
+  }, [form, step]);
+
+  const values = form.getValues();
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-6 border-b">
-        <div className="flex items-center justify-between mt-2">
-          {STEPS.map((s) => (
-            <div
-              key={s.id}
-              className="flex flex-col items-center gap-2 relative z-10"
-            >
-              <div
-                className={cn(
-                  'h-8 w-8 rounded-full flex items-center justify-center text-xs border-2 transition-colors',
-                  step === s.id
-                    ? 'bg-primary border-primary text-primary-foreground'
-                    : step > s.id
-                      ? 'bg-primary/20 border-primary text-primary'
-                      : 'bg-background border-muted text-muted-foreground'
-                )}
-              >
-                {step > s.id ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <s.icon className="h-4 w-4" />
-                )}
-              </div>
-              <span
-                className={cn(
-                  'text-[10px] font-medium uppercase tracking-wider',
-                  step === s.id ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                {s.title}
-              </span>
-            </div>
-          ))}
-          <div className="absolute top-27 left-[25%] right-[25%] h-0.5 bg-muted z-0" />
-          <div
-            className="absolute top-27 left-[25%] h-0.5 bg-primary transition-all duration-300 z-0"
-            style={{ width: `${(step - 1) * 100}%` }}
-          />
+    <div className="flex h-full flex-col">
+      <div className="space-y-4 border-b p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-sm font-semibold">
+              Step {step} of {STEPS.length}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {STEPS.find((item) => item.id === step)?.description}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {draftSavedAt ? (
+              <Badge variant="secondary">
+                Draft saved {draftSavedAt.toLocaleTimeString()}
+              </Badge>
+            ) : null}
+            <Badge variant="outline">
+              {mode === 'create' ? 'New Blog' : 'Editing Blog'}
+            </Badge>
+          </div>
         </div>
+        <WizardProgress
+          step={step}
+          steps={STEPS as unknown as WizardStep[]}
+          onStepClick={(nextStep) => {
+            void (async () => {
+              const allowed = await validateUntil(nextStep);
+              if (allowed) setStep(nextStep);
+            })();
+          }}
+        />
       </div>
 
       <Form {...form}>
         <form
-          className="flex-1 overflow-y-auto p-6"
+          className="custom-scrollbar flex-1 overflow-y-auto p-6"
           onSubmit={form.handleSubmit(handleSubmit)}
         >
-          {step === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {step === 1 ? (
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="title"
@@ -225,6 +302,9 @@ export default function BlogWizard({
                     <FormControl>
                       <Input {...field} placeholder="Blog title" />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Keep this short and descriptive for listing pages.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -239,8 +319,12 @@ export default function BlogWizard({
                       <Textarea
                         {...field}
                         placeholder="Short summary for the blog"
+                        rows={4}
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      This appears before users open the full article.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -290,63 +374,90 @@ export default function BlogWizard({
                       </SelectContent>
                     </Select>
                     {isAdmin ? (
-                      <div className="rounded-md border p-2 space-y-2">
-                        {filteredCategories.length === 0 ? (
+                      <div className="rounded-lg border border-dashed p-3">
+                        <div className="mb-2 flex items-center justify-between gap-2">
                           <p className="text-xs text-muted-foreground">
-                            No categories found.
+                            Advanced category management
                           </p>
-                        ) : (
-                          filteredCategories.map((category) => (
-                            <div
-                              key={category.id}
-                              className="flex items-center justify-between gap-2"
-                            >
-                              <button
-                                type="button"
-                                className={cn(
-                                  'text-left text-sm hover:underline',
-                                  field.value === category.id
-                                    ? 'font-semibold text-primary'
-                                    : ''
-                                )}
-                                onClick={() => field.onChange(category.id)}
-                              >
-                                {category.name}
-                              </button>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-7"
-                                  onClick={() => {
-                                    setEditingCategory(category);
-                                    setEditCategoryName(category.name);
-                                  }}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setShowCategoryManager((prev) => !prev)
+                            }
+                          >
+                            {showCategoryManager ? 'Hide' : 'Manage'}
+                          </Button>
+                        </div>
+                        {showCategoryManager ? (
+                          <div className="space-y-2">
+                            {filteredCategories.length === 0 ? (
+                              <p className="text-xs text-muted-foreground">
+                                No categories found.
+                              </p>
+                            ) : (
+                              filteredCategories.map((category) => (
+                                <div
+                                  key={category.id}
+                                  className="flex items-center justify-between gap-2 rounded-md border p-2"
                                 >
-                                  Edit
-                                </Button>
-                                <ConfirmDialog
-                                  title="Delete Category"
-                                  description="This will permanently delete the blog category."
-                                  onConfirm={() =>
-                                    deleteCategoryMutation.mutate(category.id)
-                                  }
-                                  isLoading={deleteCategoryMutation.isPending}
-                                  trigger={
+                                  <button
+                                    type="button"
+                                    className={cn(
+                                      'text-left text-sm hover:underline',
+                                      field.value === category.id
+                                        ? 'font-semibold text-primary'
+                                        : ''
+                                    )}
+                                    onClick={() => field.onChange(category.id)}
+                                  >
+                                    {category.name}
+                                  </button>
+                                  <div className="flex items-center gap-2">
                                     <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      className="text-destructive"
-                                      title="Delete"
+                                      type="button"
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7"
+                                      onClick={() => {
+                                        setEditingCategory(category);
+                                        setEditCategoryName(category.name);
+                                      }}
                                     >
-                                      <Trash2 className="h-4 w-4" />
+                                      Edit
                                     </Button>
-                                  }
-                                />
-                              </div>
-                            </div>
-                          ))
+                                    <ConfirmDialog
+                                      title="Delete Category"
+                                      description="This will permanently delete the blog category."
+                                      onConfirm={() =>
+                                        deleteCategoryMutation.mutate(
+                                          category.id
+                                        )
+                                      }
+                                      isLoading={
+                                        deleteCategoryMutation.isPending
+                                      }
+                                      trigger={
+                                        <Button
+                                          size="icon"
+                                          variant="ghost"
+                                          className="text-destructive"
+                                          title="Delete"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">
+                            Hide low-frequency actions unless needed.
+                          </p>
                         )}
                       </div>
                     ) : null}
@@ -453,10 +564,10 @@ export default function BlogWizard({
                 </DialogContent>
               </Dialog>
             </div>
-          )}
+          ) : null}
 
-          {step === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {step === 2 ? (
+            <div className="space-y-4">
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="space-y-3">
                   <Label>Content Editor</Label>
@@ -474,7 +585,11 @@ export default function BlogWizard({
                     <p className="text-sm font-medium text-destructive">
                       {form.formState.errors.contentHtml.message}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Use headers and short paragraphs for easier scanning.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-3">
@@ -485,25 +600,60 @@ export default function BlogWizard({
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
+
+          {step === 3 ? (
+            <div className="space-y-5">
+              <div className="rounded-xl border bg-muted/20 p-4">
+                <h3 className="mb-2 text-sm font-semibold">Review before save</h3>
+                <p className="text-xs text-muted-foreground">
+                  Confirm the values below. You can navigate back to edit.
+                </p>
+              </div>
+              <ReviewBlock title="General">
+                <ReviewItem label="Title" value={values.title} />
+                <ReviewItem
+                  label="Category"
+                  value={
+                    categories?.find((category) => category.id === values.categoryId)
+                      ?.name ?? 'Unassigned'
+                  }
+                />
+                <ReviewItem
+                  label="Hero image"
+                  value={values.image ? 'Added' : 'Missing'}
+                />
+              </ReviewBlock>
+              <ReviewBlock title="Excerpt">
+                <p className="text-sm">{values.excerpt}</p>
+              </ReviewBlock>
+              <ReviewBlock title="Keyboard Shortcut">
+                <p className="text-xs text-muted-foreground">
+                  Press{' '}
+                  <kbd className="rounded border bg-background px-1.5 py-0.5 text-[11px]">
+                    Ctrl/Cmd + Enter
+                  </kbd>{' '}
+                  to submit from this step.
+                </p>
+              </ReviewBlock>
+            </div>
+          ) : null}
         </form>
       </Form>
 
-      <div className="border-t p-6 flex items-center justify-between">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={goBack}
-          disabled={step === 1}
-        >
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <div className="flex items-center gap-2">
+      <div className="border-t p-6">
+        <div className="flex items-center justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={goBack}
+            disabled={step === 1}
+          >
+            Back
+          </Button>
           {step < STEPS.length ? (
             <Button type="button" onClick={goNext}>
-              Next
-              <ChevronRight className="ml-2 h-4 w-4" />
+              Continue
             </Button>
           ) : (
             <Button
@@ -511,11 +661,30 @@ export default function BlogWizard({
               onClick={form.handleSubmit(handleSubmit)}
               disabled={isLoading}
             >
+              <Sparkles className="mr-2 h-4 w-4" />
               {mode === 'create' ? 'Create Blog' : 'Save Changes'}
             </Button>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ReviewBlock({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="space-y-2 rounded-xl border border-border/80 bg-background p-4">
+      <h4 className="text-sm font-semibold">{title}</h4>
+      {children}
+    </section>
+  );
+}
+
+function ReviewItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground">{value}</span>
     </div>
   );
 }

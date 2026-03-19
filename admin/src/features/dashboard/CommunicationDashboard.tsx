@@ -25,11 +25,11 @@ export function CommunicationDashboard() {
   const { data: unreviewedContact } = useContactSubmissions({ isReviewed: false, perPage: 1 })
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader heading="Communication Dashboard" text="Manage news and events content." />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <Card className="hover:-translate-y-0.5 transition-transform">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Published News</CardTitle>
             <Newspaper className="h-4 w-4 text-sky-600" />
@@ -38,7 +38,7 @@ export function CommunicationDashboard() {
             <div className="text-2xl font-bold">{publishedNews?.total ?? 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:-translate-y-0.5 transition-transform">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Published Events</CardTitle>
             <CalendarDays className="h-4 w-4 text-emerald-600" />
@@ -47,7 +47,7 @@ export function CommunicationDashboard() {
             <div className="text-2xl font-bold">{publishedEvents?.total ?? 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:-translate-y-0.5 transition-transform">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Draft Entries</CardTitle>
             <FileText className="h-4 w-4 text-amber-600" />
@@ -56,7 +56,7 @@ export function CommunicationDashboard() {
             <div className="text-2xl font-bold">{draftEntries?.total ?? 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:-translate-y-0.5 transition-transform">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-amber-600">Pending Testimonials</CardTitle>
             <MessageSquare className="h-4 w-4 text-amber-500" />
@@ -65,7 +65,7 @@ export function CommunicationDashboard() {
             <div className="text-2xl font-bold">{pendingTestimonials?.total ?? 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:-translate-y-0.5 transition-transform">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className={`text-sm font-medium ${(unreviewedContact?.total ?? 0) > 0 ? 'text-red-600' : ''}`}>
               Unreviewed Submissions
@@ -176,7 +176,7 @@ export function BloggerDashboard() {
 function PlaceholderDashboard({ title, count }: { title: string; count?: number | { count: number } }) {
   const displayCount = typeof count === 'number' ? count : (count?.count ?? 0)
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader heading={title} text="Specific features coming soon." />
       <div className="grid gap-4 md:grid-cols-3">
         <Card>

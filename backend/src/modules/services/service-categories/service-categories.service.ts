@@ -4,6 +4,7 @@ import { Brackets, Repository } from 'typeorm';
 import { AuditAction } from '../../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../../common/services/audit-log.service';
 import { UploadsService } from '../../../uploads/uploads.service';
+import { Division } from '../entities/division.entity';
 import { ServiceCategory } from '../entities/service-category.entity';
 import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
 import { QueryServiceCategoryDto } from './dto/query-service-category.dto';
@@ -14,6 +15,8 @@ export class ServiceCategoriesService {
   constructor(
     @InjectRepository(ServiceCategory)
     private readonly categoryRepository: Repository<ServiceCategory>,
+    @InjectRepository(Division)
+    private readonly divisionRepository: Repository<Division>,
     private readonly auditLogService: AuditLogService,
     private readonly uploadsService: UploadsService,
   ) {}
@@ -49,6 +52,7 @@ export class ServiceCategoriesService {
       );
     }
 
+    query.orderBy('category.sortOrder', 'ASC').addOrderBy('category.createdAt', 'DESC');
     query.skip((page - 1) * perPage).take(perPage);
 
     const [data, total] = await query.getManyAndCount();
@@ -86,7 +90,21 @@ export class ServiceCategoriesService {
     createDto: CreateServiceCategoryDto,
     performedBy: string,
   ): Promise<ServiceCategory> {
-    const category = this.categoryRepository.create(createDto);
+    let sortOrder = createDto.sortOrder;
+
+    if (sortOrder === undefined) {
+      const lastCategory = await this.categoryRepository
+        .createQueryBuilder('category')
+        .orderBy('category.sortOrder', 'DESC')
+        .addOrderBy('category.createdAt', 'DESC')
+        .getOne();
+      sortOrder = (lastCategory?.sortOrder ?? -1) + 1;
+    }
+
+    const category = this.categoryRepository.create({
+      ...createDto,
+      sortOrder,
+    });
     const saved = await this.categoryRepository.save(category);
 
     this.auditLogService.log(
@@ -141,5 +159,25 @@ export class ServiceCategoriesService {
     );
 
     return { message: 'Service category deleted successfully' };
+  }
+
+  async findDivisions(serviceCategoryId: string): Promise<Division[]> {
+    await this.findOne(serviceCategoryId);
+
+    return this.divisionRepository.find({
+      where: { serviceCategoryId, isActive: true },
+      relations: [
+        'divisionCategory',
+        'serviceCategory',
+        'images',
+        'coreServices',
+        'stats',
+        'doctors',
+        'contact',
+      ],
+      order: {
+        name: 'ASC',
+      },
+    });
   }
 }

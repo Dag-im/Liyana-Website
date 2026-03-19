@@ -25,25 +25,27 @@ export default function NotificationBell() {
         <Button className="relative" size="icon" variant="ghost">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 ? (
-            <Badge className="absolute -right-1 -top-1 h-5 min-w-5 rounded-full bg-red-600 px-1 text-[10px] text-white hover:bg-red-600">
+            <Badge className="absolute -right-1 -top-1 h-5 min-w-5 rounded-full bg-destructive px-1 text-[10px] text-white hover:bg-destructive">
               {unreadCount}
             </Badge>
           ) : null}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96">
+      <PopoverContent align="end" className="w-[22rem] rounded-xl border border-border/80 p-0 shadow-lg">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
             <p className="font-medium">Unread notifications</p>
             <span className="text-xs text-muted-foreground">{unreadCount} unread</span>
           </div>
 
           {(unreadNotificationsQuery.data?.data ?? []).length === 0 ? (
-            <EmptyState description="You're all caught up" title="No unread notifications" />
+            <div className="px-4 pb-4">
+              <EmptyState description="You're all caught up" title="No unread notifications" />
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div className="max-h-96 space-y-2 overflow-y-auto px-3 pb-1">
               {(unreadNotificationsQuery.data?.data ?? []).map((notification) => (
-                <div className="rounded-md border p-3" key={notification.id}>
+                <div className="rounded-lg border border-border/80 bg-card p-3" key={notification.id}>
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <p className="line-clamp-1 text-sm font-medium">{notification.title}</p>
                     <UrgencyBadge urgency={notification.urgency} />
@@ -75,7 +77,7 @@ export default function NotificationBell() {
             </div>
           )}
 
-          <div className="pt-1 text-right">
+          <div className="border-t border-border/70 px-4 py-3 text-right">
             <Link className="text-sm text-primary underline-offset-4 hover:underline" to="/notifications">
               View all notifications
             </Link>

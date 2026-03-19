@@ -12,7 +12,9 @@ export type ServiceCategory = {
   title: string
   tagline: string
   heroImage: string
+  icon: string
   attributes: string[]
+  sortOrder: number
   divisions: Division[]
   // When listing service categories, the backend returns a relation
   // count instead of full division relations for performance.

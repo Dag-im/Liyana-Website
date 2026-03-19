@@ -8,7 +8,7 @@ import { CustomerServiceDashboard } from '@/features/dashboard/CustomerServiceDa
 export default function DashboardPage() {
   const { data: user, isLoading, isError, refetch } = useAuth()
 
-  if (isLoading) return <div className="p-8 flex justify-center"><LoadingSpinner /></div>
+  if (isLoading) return <LoadingSpinner />
   if (isError || !user) return <ErrorState onRetry={() => refetch()} />
 
   switch (user.role) {

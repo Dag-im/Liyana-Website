@@ -23,7 +23,11 @@ const XLogo = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
-export default function Footer() {
+interface FooterProps {
+  description?: string;
+}
+
+export default function Footer({ description }: FooterProps) {
   return (
     <footer className="relative z-10 bg-gradient-to-b from-[#0a192f] to-[#05101e] text-gray-300">
       {/* Brand Gradient Top Border */}
@@ -44,8 +48,8 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm leading-relaxed text-gray-400 max-w-xs">
-              A collective of innovators, healthcare professionals, and visionaries—building
-              sustainable, technology-driven solutions that empower communities worldwide.
+              {description ??
+                'A collective of innovators, healthcare professionals, and visionaries—building sustainable, technology-driven solutions that empower communities worldwide.'}
             </p>
 
             <Link

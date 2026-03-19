@@ -1,4 +1,5 @@
 import { serviceCategoriesApi } from '@/api/service-categories.api'
+import { IconPicker } from '@/components/shared/IconPicker'
 import { FileUpload } from '@/components/shared/FileUpload'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,13 +20,16 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { handleMutationError } from '@/lib/error-utils'
+import { SERVICE_ICON_OPTIONS, getServiceIcon } from '@/lib/service-icons'
 import { useUpdateServiceCategory } from './useServiceCategories'
 
 const schema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters'),
   tagline: z.string().min(5, 'Tagline must be at least 5 characters'),
   heroImage: z.string().min(1, 'Hero image is required'),
+  icon: z.string().min(1, 'Icon is required'),
   attributes: z.array(z.string()).min(1, 'Add at least one attribute'),
+  sortOrder: z.number().int().min(0, 'Sort order must be 0 or greater'),
 })
 
 type FormData = z.infer<typeof schema>
@@ -48,7 +52,9 @@ export function EditServiceCategoryDialog({
       title: category.title,
       tagline: category.tagline,
       heroImage: category.heroImage,
+      icon: category.icon ?? 'Hospital',
       attributes: category.attributes,
+      sortOrder: category.sortOrder ?? 0,
     },
   })
 
@@ -57,7 +63,9 @@ export function EditServiceCategoryDialog({
       title: category.title,
       tagline: category.tagline,
       heroImage: category.heroImage,
+      icon: category.icon ?? 'Hospital',
       attributes: category.attributes,
+      sortOrder: category.sortOrder ?? 0,
     })
   }, [category, form])
 
@@ -116,6 +124,44 @@ export function EditServiceCategoryDialog({
                       <FormLabel>Tagline</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Short catchy phrase" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sortOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={field.value}
+                          onChange={(event) =>
+                            field.onChange(Number(event.target.value || 0))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="icon"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icon</FormLabel>
+                      <FormControl>
+                        <IconPicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={SERVICE_ICON_OPTIONS}
+                          getIcon={getServiceIcon}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

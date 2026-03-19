@@ -1,11 +1,11 @@
 'use client';
 
+import BackendImage from '@/components/shared/BackendImage';
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Division, ServiceCategory } from '@/types/services.types';
 import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useLayoutEffect, useRef } from 'react';
 
@@ -16,9 +16,9 @@ if (typeof window !== 'undefined') {
 
 // ---------- COMPONENT ----------
 export default function LiyanaShowcase({
-  services,
+  categories = [],
 }: {
-  services: ServiceCategory[];
+  categories?: ServiceCategory[];
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +59,7 @@ export default function LiyanaShowcase({
     }, containerRef);
 
     return () => ctx.revert(); // Cleanup GSAP on unmount
-  }, [services]);
+  }, [categories]);
 
   const getMainImage = (division: Division): string => {
     return division.images?.[0]?.path || '/placeholder.jpg';
@@ -92,7 +92,7 @@ export default function LiyanaShowcase({
 
       {/* CATEGORIES / DIVISIONS */}
       <div className="mx-auto max-w-7xl px-6 pb-28">
-        {services.map((cat, index) => (
+        {categories.map((cat, index) => (
           <section
             key={cat.id}
             className={`gsap-section relative py-16 ${
@@ -149,7 +149,7 @@ export default function LiyanaShowcase({
                 >
                   {/* Card Image */}
                   <div className="relative h-56 w-full overflow-hidden bg-slate-100 border-b border-slate-200 shrink-0">
-                    <Image
+                    <BackendImage
                       src={getMainImage(d)}
                       alt={d.name}
                       fill

@@ -98,6 +98,15 @@ export class ServiceCategoriesController {
     return this.serviceCategoriesService.findOne(id);
   }
 
+  @Get(':id/divisions')
+  @Throttle({ default: { limit: 120, ttl: 60000 } })
+  @ApiOperation({ summary: 'Get all active divisions for a service category' })
+  @ApiResponse({ status: 200, description: 'List of divisions for the category.' })
+  @ApiResponse({ status: 404, description: 'Service category not found.' })
+  findDivisions(@Param('id') id: string) {
+    return this.serviceCategoriesService.findDivisions(id);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

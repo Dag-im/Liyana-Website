@@ -1,59 +1,10 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import { getCmsIcon } from '@/lib/icons';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  Award,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  Eye,
-  Globe,
-  Heart,
-  Leaf,
-  Lightbulb,
-  Rocket,
-  Shield,
-  ShieldCheck,
-  Smile,
-  Star,
-  ThumbsUp,
-  Target,
-  TrendingUp,
-  Users,
-  UserCheck,
-  Zap,
-} from 'lucide-react';
 import { useLayoutEffect, useRef } from 'react';
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  Target,
-  Eye,
-  Star,
-  Rocket,
-  ShieldCheck,
-  Users,
-  Leaf,
-  UserCheck,
-  Heart,
-  Zap,
-  Globe,
-  Award,
-  BookOpen,
-  Lightbulb,
-  TrendingUp,
-  Shield,
-  CheckCircle,
-  Clock,
-  Smile,
-  ThumbsUp,
-};
-
-function renderIcon(name: string, className?: string, size?: number) {
-  const Icon = ICON_MAP[name] ?? Star;
-  return <Icon className={className} size={size} />;
-}
 
 interface MissionVisionValuesSectionProps {
   missionTitle?: string;
@@ -197,7 +148,10 @@ export default function MissionVisionValuesSection({
               className="gsap-mv-card bg-slate-50 border border-slate-200 p-10 md:p-12 flex flex-col md:flex-row gap-8 items-start"
             >
               <div className="shrink-0 p-4 bg-white border border-slate-200 shadow-sm rounded-sm">
-                {renderIcon(item.icon, 'text-cyan-700', 32)}
+                {(() => {
+                  const Icon = getCmsIcon(item.icon);
+                  return <Icon className="text-cyan-700" size={32} />;
+                })()}
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
@@ -227,7 +181,10 @@ export default function MissionVisionValuesSection({
                 className="gsap-value-card bg-white border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow group"
               >
                 <div className="mb-6 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm group-hover:bg-cyan-50 group-hover:border-cyan-100 transition-colors">
-                  {renderIcon(value.icon, 'text-cyan-700', 24)}
+                  {(() => {
+                    const Icon = getCmsIcon(value.icon);
+                    return <Icon className="text-cyan-700" size={24} />;
+                  })()}
                 </div>
                 <h4 className="text-xl font-bold text-slate-900 mb-3">
                   {value.title}

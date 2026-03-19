@@ -1,26 +1,13 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import { getServiceIcon } from '@/lib/icons';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { ServiceCategory } from '@/types/services.types';
-import {
-  CheckCircle2,
-  Factory,
-  GraduationCap,
-  Hospital,
-  Pill,
-} from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import React, { useEffect, useRef } from 'react';
-
-// ---------- ICON MAP ----------
-const iconMap: Record<string, React.ReactNode> = {
-  'advanced-services': <Hospital className="h-8 w-8 text-cyan-700" />,
-  'education-research': <GraduationCap className="h-8 w-8 text-cyan-700" />,
-  'drugs-supplies-import': <Pill className="h-8 w-8 text-cyan-700" />,
-  'product-manufacturing': <Factory className="h-8 w-8 text-cyan-700" />,
-};
+import { useEffect, useRef } from 'react';
 
 // ---------- COMPONENT ----------
 interface ServicePreviewProps {
@@ -85,20 +72,22 @@ export default function LiyanaSummary({
       {/* GRID SECTION */}
       {/* Using lg:grid-cols-2 so cards have plenty of space to breathe. Adjust to lg:grid-cols-4 if you want them smaller/tighter. */}
       <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 max-w-7xl mx-auto">
-        {categories.map((item) => (
-          <div
-            key={item.id}
-            className="corporate-card group relative flex flex-col bg-white border border-slate-200 p-8 shadow-sm hover:shadow-xl transition-all duration-300"
-          >
-            {/* Header: Icon & Title */}
-            <div className="mb-6">
-              <div className="mb-5 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm">
-                {iconMap[item.id]}
+        {categories.map((item) => {
+          const Icon = getServiceIcon(item.icon);
+          return (
+            <div
+              key={item.id}
+              className="corporate-card group relative flex flex-col bg-white border border-slate-200 p-8 shadow-sm hover:shadow-xl transition-all duration-300"
+            >
+              {/* Header: Icon & Title */}
+              <div className="mb-6">
+                <div className="mb-5 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm">
+                  <Icon className="h-8 w-8 text-cyan-700" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 leading-snug">
+                  {item.title}
+                </h3>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 leading-snug">
-                {item.title}
-              </h3>
-            </div>
 
             {/* Accent Divider */}
             <div className="h-[2px] w-12 bg-cyan-600 mb-6" />
@@ -134,10 +123,11 @@ export default function LiyanaSummary({
               </div>
             </div>
 
-            {/* Hover Accent Line */}
-            <div className="absolute bottom-0 left-0 h-1 w-0 bg-cyan-600 group-hover:w-full transition-all duration-500 ease-in-out" />
-          </div>
-        ))}
+              {/* Hover Accent Line */}
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-cyan-600 group-hover:w-full transition-all duration-500 ease-in-out" />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

@@ -39,6 +39,9 @@ type DataTableProps<T> = {
   renderExpanded?: (row: T) => ReactNode
   onRowClick?: (row: T) => void
   getRowId?: (row: T, index: number) => string
+  emptyTitle?: string
+  emptyDescription?: string
+  className?: string
 }
 
 export default function DataTable<T extends { id?: string }>({
@@ -53,6 +56,9 @@ export default function DataTable<T extends { id?: string }>({
   renderExpanded,
   onRowClick,
   getRowId,
+  emptyTitle,
+  emptyDescription,
+  className,
 }: DataTableProps<T>) {
   const activeLoading = isLoading || loading
 
@@ -86,17 +92,19 @@ export default function DataTable<T extends { id?: string }>({
   }
 
   if (data.length === 0) {
-    return <EmptyState />
+    return <EmptyState description={emptyDescription} title={emptyTitle} />
   }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
+        <Table className={className}>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/35 hover:bg-muted/35">
               {columns.map((column, i) => (
-                <TableHead key={column.id || column.accessorKey?.toString() || i}>{column.header}</TableHead>
+                <TableHead className="h-11 text-xs font-semibold uppercase tracking-[0.06em] text-muted-foreground" key={column.id || column.accessorKey?.toString() || i}>
+                  {column.header}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -107,20 +115,23 @@ export default function DataTable<T extends { id?: string }>({
 
               return (
                 <Fragment key={rowId}>
-                  <TableRow className={onRowClick ? 'cursor-pointer' : ''} onClick={() => onRowClick?.(row)}>
+                  <TableRow
+                    className={onRowClick ? 'cursor-pointer hover:bg-accent/40' : ''}
+                    onClick={() => onRowClick?.(row)}
+                  >
                     {columns.map((column, i) => (
-                      <TableCell key={column.id || column.accessorKey?.toString() || i}>
+                      <TableCell className="py-3" key={column.id || column.accessorKey?.toString() || i}>
                         {column.cell
                           ? column.cell({ row: { original: row } })
                           : column.render
                           ? column.render(row)
-                          : String((row as any)[column.accessorKey] ?? '')}
+                          : String((row as Record<string, unknown>)[String(column.accessorKey)] ?? '')}
                       </TableCell>
                     ))}
                   </TableRow>
                   {isExpanded && renderExpanded ? (
                     <TableRow>
-                      <TableCell className="bg-muted/30" colSpan={columns.length}>
+                      <TableCell className="bg-muted/30 py-4" colSpan={columns.length}>
                         {renderExpanded(row)}
                       </TableCell>
                     </TableRow>

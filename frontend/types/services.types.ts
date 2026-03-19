@@ -10,7 +10,9 @@ export type ServiceCategory = {
   title: string;
   tagline: string;
   heroImage: string;
+  icon: string;
   attributes: string[];
+  sortOrder: number;
   divisions?: Division[];
   createdAt: string;
   updatedAt: string;

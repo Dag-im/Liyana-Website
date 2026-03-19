@@ -143,7 +143,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
           </Link>
 
           {/* 2. DESKTOP NAVIGATION */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-10 h-full">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-10 h-full">
             {navItems.map((item) => {
               const isMegaMenu = item.label === 'Services';
               const isActive = activeDesktopDropdown === item.label;

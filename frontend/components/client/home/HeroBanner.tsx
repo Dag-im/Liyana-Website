@@ -1,5 +1,6 @@
 'use client';
 
+import { getFileUrl } from '@/lib/api-client';
 import type { ServiceCategory } from '@/types/services.types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -78,7 +79,7 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
           >
             {/* Using the dedicated heroImage from the category */}
             <Image
-              src={currentCategory.heroImage}
+              src={getFileUrl(currentCategory.heroImage) ?? '/images/logo.png'}
               alt={currentCategory.title}
               fill
               className="w-full h-full object-cover"

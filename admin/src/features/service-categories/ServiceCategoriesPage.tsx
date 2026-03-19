@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { CreateServiceCategoryDialog } from '@/features/service-categories/CreateServiceCategoryDialog';
 import { EditServiceCategoryDialog } from '@/features/service-categories/EditServiceCategoryDialog';
 import { usePagination } from '@/hooks/usePagination';
+import { getServiceIcon } from '@/lib/service-icons';
 import type { ServiceCategory } from '@/types/services.types';
-import { Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Edit, Eye, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   useDeleteServiceCategory,
+  useReorderServiceCategory,
   useServiceCategories,
 } from './useServiceCategories';
 
@@ -23,6 +25,7 @@ export default function ServiceCategoriesPage() {
     perPage,
   });
   const deleteMutation = useDeleteServiceCategory();
+  const reorderMutation = useReorderServiceCategory();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCategory, setEditingCategory] =
@@ -33,6 +36,28 @@ export default function ServiceCategoriesPage() {
       onSuccess: () => {
         // toast already handled in mutation usually, but we check if we need to manually
       },
+    });
+  };
+
+  const handleMove = async (category: ServiceCategory, direction: 'up' | 'down') => {
+    const categories = categoriesData?.data ?? [];
+    const currentIndex = categories.findIndex((item) => item.id === category.id);
+    if (currentIndex < 0) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= categories.length) return;
+
+    const target = categories[targetIndex];
+    const currentOrder = category.sortOrder ?? currentIndex;
+    const targetOrder = target.sortOrder ?? targetIndex;
+
+    await reorderMutation.mutateAsync({
+      id: category.id,
+      sortOrder: targetOrder,
+    });
+    await reorderMutation.mutateAsync({
+      id: target.id,
+      sortOrder: currentOrder,
     });
   };
 
@@ -63,6 +88,10 @@ export default function ServiceCategoriesPage() {
             accessorKey: 'title',
             cell: ({ row }: { row: { original: ServiceCategory } }) => (
               <div className="flex items-center gap-2">
+                {(() => {
+                  const Icon = getServiceIcon(row.original.icon);
+                  return <Icon className="h-4 w-4 text-cyan-700" />;
+                })()}
                 {row.original.heroImage && (
                   <FileImage
                     path={row.original.heroImage}
@@ -83,6 +112,33 @@ export default function ServiceCategoriesPage() {
                   row.original.divisions?.length ??
                   0}
               </Badge>
+            ),
+          },
+          {
+            header: 'Order',
+            id: 'sortOrder',
+            cell: ({ row }: { row: { original: ServiceCategory } }) => (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{row.original.sortOrder ?? 0}</Badge>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  title="Move Up"
+                  disabled={reorderMutation.isPending}
+                  onClick={() => void handleMove(row.original, 'up')}
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  title="Move Down"
+                  disabled={reorderMutation.isPending}
+                  onClick={() => void handleMove(row.original, 'down')}
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+              </div>
             ),
           },
           {

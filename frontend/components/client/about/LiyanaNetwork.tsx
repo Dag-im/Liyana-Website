@@ -1,24 +1,16 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import { getNetworkIcon } from '@/lib/icons';
 import {
-  Activity,
-  Building2,
   CheckCircle2,
   ChevronRight,
-  Cpu,
-  Factory,
-  Globe,
-  GraduationCap,
   Info,
-  Microscope,
-  Network,
-  Pill,
   Search,
   Target,
 } from 'lucide-react';
 import type { NetworkEntity, NetworkRelation } from '@/types/network.types';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 // --- Types ---
 type Relationship = 'Controlled' | 'Strategic Partner' | 'Venture' | 'Project';
@@ -30,14 +22,11 @@ type SeedEntity = {
   summary: string;
   description: string;
   insight: string;
-  icon: React.ElementType;
+  icon: string;
   children?: SeedEntity[];
 };
 
-type Entity = Omit<NetworkEntity, 'icon' | 'children'> & {
-  icon: React.ElementType;
-  children?: Entity[];
-};
+type Entity = Omit<NetworkEntity, 'children'> & { children?: Entity[] };
 
 const RELATION_MAP: Record<Relationship, NetworkRelation> = {
   Controlled: {
@@ -102,7 +91,7 @@ const SEED_DATA: SeedEntity[] = [
       'The core institutional assets where Liyana Healthcare maintains 100% operational and strategic control.',
     insight:
       'Ensures clinical excellence and brand consistency under the Yanet flagship.',
-    icon: Building2,
+    icon: 'Building2',
     children: [
       {
         id: 'generalHosp',
@@ -111,7 +100,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Secondary care facility.',
         description: 'Main clinical anchor for standard medical care.',
         insight: 'Provides the primary bed capacity for the network.',
-        icon: Building2,
+        icon: 'Building2',
       },
       {
         id: 'trauma',
@@ -120,7 +109,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Emergency hub.',
         description: 'High-end facility for Orthopedics and Neurosurgery.',
         insight: 'Addresses critical trauma gaps in Southern Ethiopia.',
-        icon: Activity,
+        icon: 'Activity',
       },
       {
         id: 'college',
@@ -129,7 +118,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Professional training.',
         description: 'Accredited institution for health science degrees.',
         insight: 'Creates a self-sustaining talent pipeline.',
-        icon: GraduationCap,
+        icon: 'GraduationCap',
       },
       {
         id: 'advancedDiag',
@@ -138,7 +127,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Medical imaging.',
         description: 'State-of-the-art facility for lab and imaging research.',
         insight: 'Keeps testing in-house for faster turnaround.',
-        icon: Microscope,
+        icon: 'Microscope',
       },
       {
         id: 'internalMed',
@@ -147,7 +136,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Chronic disease.',
         description: 'Expert diagnostics for complex internal diseases.',
         insight: 'Positions Liyana as a regional referral hub.',
-        icon: Activity,
+        icon: 'Activity',
       },
       {
         id: 'ophthalmology',
@@ -156,7 +145,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Specialized care.',
         description: 'Specialty facility for sensory and dental health.',
         insight: 'Captures outpatient specialty demand.',
-        icon: Activity,
+        icon: 'Activity',
       },
       {
         id: 'primaryHosp',
@@ -165,7 +154,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Community health.',
         description: 'Essential medical services for local communities.',
         insight: 'First point of contact in the healthcare funnel.',
-        icon: Building2,
+        icon: 'Building2',
       },
       {
         id: 'yali',
@@ -174,7 +163,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Industrial hygiene.',
         description: 'Manufacturing arm for sanitary products.',
         insight: 'Ensures cost-effective supply chain for hospitals.',
-        icon: Factory,
+        icon: 'Factory',
       },
       {
         id: 'boarding',
@@ -183,7 +172,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Academic infrastructure.',
         description: 'Infrastructure operation managed under the group.',
         insight: 'Diversifies group assets into education.',
-        icon: GraduationCap,
+        icon: 'GraduationCap',
       },
       {
         id: 'research',
@@ -192,7 +181,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Strategic advisory.',
         description: 'Entity for healthcare research and data analysis.',
         insight: 'Drives evidence-based expansion.',
-        icon: Globe,
+        icon: 'Globe',
       },
     ],
   },
@@ -205,7 +194,7 @@ const SEED_DATA: SeedEntity[] = [
       'Collaborative tracks leveraging shared capital and technology for large-scale impact.',
     insight:
       'Enables rapid entry into new markets via co-investment and digital tools.',
-    icon: Network,
+    icon: 'Network',
     children: [
       {
         id: 'digital',
@@ -215,7 +204,7 @@ const SEED_DATA: SeedEntity[] = [
         description:
           'Primary shareholder model for regional hospital projects.',
         insight: 'The key driver for Liyana’s "distributed hospital" strategy.',
-        icon: Cpu,
+        icon: 'Cpu',
         children: [
           {
             id: 'liyanaAddis',
@@ -224,7 +213,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Yanet Gondar operator.',
             description: 'Multispecialty operations in Northern Ethiopia.',
             insight: 'Northward expansion strategic hub.',
-            icon: Building2,
+            icon: 'Building2',
           },
           {
             id: 'dreamLiyana',
@@ -233,7 +222,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Ortho specialty.',
             description: 'Operates DREAM Orthopedic center.',
             insight: 'Niche specialization in orthopedics.',
-            icon: Activity,
+            icon: 'Activity',
           },
           {
             id: 'cheliyan',
@@ -242,7 +231,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Surgical hub.',
             description: 'General surgical and diagnostic center.',
             insight: 'Regional clinical presence.',
-            icon: Building2,
+            icon: 'Building2',
           },
           {
             id: 'p-omcc',
@@ -251,7 +240,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Planned cancer center.',
             description: 'Future oncology treatment facility.',
             insight: 'Expanding cancer care reach.',
-            icon: Activity,
+            icon: 'Activity',
           },
           {
             id: 'p-juba',
@@ -260,7 +249,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Renal care.',
             description: 'Upcoming kidney hospital and diagnostics.',
             insight: 'Cross-border healthcare delivery.',
-            icon: Activity,
+            icon: 'Activity',
           },
           {
             id: 'p-pharma',
@@ -269,7 +258,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Supply chain.',
             description: 'Upcoming pharmaceutical import division.',
             insight: 'Ensures availability of vital medications.',
-            icon: Pill,
+            icon: 'Pill',
           },
           {
             id: 'p-city',
@@ -278,7 +267,7 @@ const SEED_DATA: SeedEntity[] = [
             summary: 'Medical metropolis.',
             description: 'Long-term medical city project.',
             insight: 'The ultimate vision for East African healthcare.',
-            icon: Building2,
+            icon: 'Building2',
           },
         ],
       },
@@ -289,7 +278,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Medical & industrial gas.',
         description: 'Joint venture for oxygen and industrial gas production.',
         insight: 'Secures clinical independence for medical-grade oxygen.',
-        icon: Factory,
+        icon: 'Factory',
       },
       {
         id: 'onco',
@@ -298,7 +287,7 @@ const SEED_DATA: SeedEntity[] = [
         summary: 'Specialized oncology care.',
         description: 'Oncology partner entity focused on cancer diagnostics.',
         insight: 'Brings high-level oncology expertise into the network.',
-        icon: Activity,
+        icon: 'Activity',
       },
     ],
   },
@@ -365,7 +354,7 @@ export default function LiyanaCorporateNetwork({
     const isSearchMode = search.length > 0;
     const isExpanded = expanded.has(e.id) || isSearchMode;
     const isMatch = isSearchMode; // In search mode, everything rendered is a match
-    const Icon = e.icon;
+    const Icon = getNetworkIcon(e.icon);
 
     return (
       <div

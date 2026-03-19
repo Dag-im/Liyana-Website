@@ -26,6 +26,12 @@ export class ServiceCategory {
   @Column('simple-array')
   attributes: string[];
 
+  @Column({ default: 'Hospital' })
+  icon: string;
+
+  @Column({ type: 'int', default: 0 })
+  sortOrder: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

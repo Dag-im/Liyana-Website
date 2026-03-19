@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import PageHeader from '@/components/shared/PageHeader'
 import Pagination from '@/components/shared/Pagination'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -53,7 +54,7 @@ export default function MediaGalleryPage() {
   if (isError) return <ErrorState onRetry={refetch} />
 
   return (
-    <div className="container py-6">
+    <div className="space-y-6">
       <PageHeader
         heading="Media Gallery"
         text="Manage media folders and their content"
@@ -70,33 +71,35 @@ export default function MediaGalleryPage() {
         </div>
       </PageHeader>
 
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search folders..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <Card className="gap-0 p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search folders..."
+              className="pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Tag className="h-4 w-4 text-muted-foreground" />
+            <Select value={tagId} onValueChange={(val) => setTagId(val || 'all')}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Tags" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tags</SelectItem>
+                {tags.map((tag) => (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    {tag.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-muted-foreground" />
-          <Select value={tagId} onValueChange={(val) => setTagId(val || 'all')}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Tags" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tags</SelectItem>
-              {tags.map((tag) => (
-                <SelectItem key={tag.id} value={tag.id}>
-                  {tag.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      </Card>
 
       {isLoading ? (
         <div className="flex h-60 items-center justify-center">

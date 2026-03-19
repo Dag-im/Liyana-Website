@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 import DataTable from '@/components/shared/DataTable';
 import ErrorState from '@/components/shared/ErrorState';
 import PageHeader from '@/components/shared/PageHeader';
-import Pagination from '@/components/shared/Pagination';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -113,7 +113,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-5">
       <PageHeader title="Users">
         {isAdmin ? (
           <CreateUserDialog
@@ -123,51 +123,53 @@ export default function UsersPage() {
         ) : null}
       </PageHeader>
 
-      <div className="mb-4 flex flex-wrap gap-3">
-        <Input
-          className="max-w-sm"
-          onChange={(event) => {
-            setSearch(event.target.value);
-            resetPage();
-          }}
-          placeholder="Search users"
-          value={search}
-        />
-        <Select
-          onValueChange={(value) => {
-            const nextValue = (value ?? 'ALL') as RoleFilter;
-            setRole(nextValue);
-            resetPage();
-          }}
-          value={role}
-        >
-          <SelectTrigger className="w-50">
-            <SelectValue placeholder="Filter by role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Roles</SelectItem>
-            {ROLES.map((roleOption) => (
-              <SelectItem key={roleOption} value={roleOption}>
-                {formatEnumLabel(roleOption)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Card className="gap-0 p-4">
+        <div className="flex flex-wrap gap-3">
+          <Input
+            className="max-w-sm"
+            onChange={(event) => {
+              setSearch(event.target.value);
+              resetPage();
+            }}
+            placeholder="Search users"
+            value={search}
+          />
+          <Select
+            onValueChange={(value) => {
+              const nextValue = (value ?? 'ALL') as RoleFilter;
+              setRole(nextValue);
+              resetPage();
+            }}
+            value={role}
+          >
+            <SelectTrigger className="w-50">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Roles</SelectItem>
+              {ROLES.map((roleOption) => (
+                <SelectItem key={roleOption} value={roleOption}>
+                  {formatEnumLabel(roleOption)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
 
       <DataTable
         columns={columns}
         data={usersQuery.data?.data ?? []}
+        emptyDescription="Try adjusting your search or filter criteria."
         isError={usersQuery.isError}
         isLoading={usersQuery.isLoading}
         onRetry={() => usersQuery.refetch()}
-      />
-
-      <Pagination
-        onPageChange={setPage}
-        page={page}
-        perPage={perPage}
-        total={usersQuery.data?.total ?? 0}
+        pagination={{
+          page,
+          perPage,
+          total: usersQuery.data?.total ?? 0,
+          onPageChange: setPage,
+        }}
       />
     </div>
   );

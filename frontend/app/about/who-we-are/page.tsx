@@ -1,10 +1,38 @@
-import LiyanaOrgGraph, {
-  DATA as mockGraphData,
-} from '@/components/client/about/LiyanaNetwork';
+import LiyanaNetwork, { DATA as mockGraphData } from '@/components/client/about/LiyanaNetwork';
 import Timeline, { TimelineItem } from '@/components/client/about/Timeline';
-import WhoWeAreLuxury from '@/components/client/about/WhoWeAre';
+import WhoWeAre from '@/components/client/about/WhoWeAre';
+import { JsonLd } from '@/components/shared/JsonLd';
+import { getWhoWeAre } from '@/lib/api/cms.api';
+import { breadcrumbSchema, organizationSchema } from '@/lib/seo/structured-data';
+import type { Metadata } from 'next';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
+
+const CMS_FETCH_TIMEOUT_MS = 3000;
+
+async function withTimeout<T>(promise: Promise<T>, ms = CMS_FETCH_TIMEOUT_MS): Promise<T> {
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error('CMS fetch timeout')), ms);
+    }),
+  ]);
+}
+
+export const metadata: Metadata = {
+  title: 'Who We Are',
+  description:
+    'Learn about Liyana Healthcare - our story, our people, and our journey building a vertically integrated healthcare ecosystem across Ethiopia and East Africa.',
+  openGraph: {
+    title: 'Who We Are | Liyana Healthcare',
+    description:
+      'Our story, our people, and our journey building healthcare excellence across East Africa.',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/who-we-are`,
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/who-we-are`,
+  },
+};
 
 const items: TimelineItem[] = [
   {
@@ -93,21 +121,35 @@ const items: TimelineItem[] = [
   },
 ];
 
-const page = () => {
+export default async function WhoWeArePage() {
+  let whoWeAre = {
+    content:
+      'A collective of innovators, problem solvers, and dreamers. We create impact through technology, healthcare, and sustainable solutions - empowering businesses and communities worldwide.',
+    updatedAt: new Date().toISOString(),
+  };
+
+  try {
+    whoWeAre = await withTimeout(getWhoWeAre());
+  } catch {}
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', url: process.env.NEXT_PUBLIC_SITE_URL ?? '' },
+    {
+      name: 'Who We Are',
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/who-we-are`,
+    },
+  ]);
+
   return (
     <>
-      <WhoWeAreLuxury
-        content="A collective of innovators, problem solvers, and dreamers. We create impact through technology, healthcare, and sustainable solutions — empowering businesses and communities worldwide."
-        image="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80"
-      />
+      <JsonLd data={[organizationSchema(), breadcrumb]} />
+      <WhoWeAre content={whoWeAre.content} />
       <Timeline
         items={items}
         title="Our Journey"
         subtitle="Key milestones, achievements & expansions that shaped who we are today."
       />
-      <LiyanaOrgGraph data={mockGraphData} />
+      <LiyanaNetwork data={mockGraphData} />
     </>
   );
-};
-
-export default page;
+}

@@ -29,9 +29,9 @@ export function StatusBadge(props: StatusBadgeProps) {
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   switch (status) {
     case 'PENDING':
-      return <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0">Pending</Badge>
+      return <Badge className="border-0 bg-amber-500 text-white hover:bg-amber-600">Pending</Badge>
     case 'CONFIRMED':
-      return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white border-0">Confirmed</Badge>
+      return <Badge className="border-0 bg-emerald-600 text-white hover:bg-emerald-700">Confirmed</Badge>
     case 'CANCELLED':
       return <Badge variant="secondary">Cancelled</Badge>
     default:

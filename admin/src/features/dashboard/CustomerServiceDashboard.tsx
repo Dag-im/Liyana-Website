@@ -58,7 +58,7 @@ export function CustomerServiceDashboard({ user }: { user: User }) {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader
           heading={`Welcome, ${user.name}`}

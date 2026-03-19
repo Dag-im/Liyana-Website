@@ -61,8 +61,8 @@ export function AdminDashboard() {
       label: 'Total Users',
       value: usersData?.total ?? 0,
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-primary',
+      bg: 'bg-primary/10',
       link: '/users',
     },
     {
@@ -70,15 +70,15 @@ export function AdminDashboard() {
       value: divisionsData?.total ?? 0,
       icon: Building2,
       color: 'text-emerald-600',
-      bg: 'bg-emerald-50',
+      bg: 'bg-emerald-500/10',
       link: '/divisions',
     },
     {
       label: 'Network Entities',
       value: metaData?.totalEntities ?? 0,
       icon: Network,
-      color: 'text-cyan-600',
-      bg: 'bg-cyan-50',
+      color: 'text-cyan-700',
+      bg: 'bg-cyan-500/10',
       link: '/corporate-network',
     },
     {
@@ -86,7 +86,7 @@ export function AdminDashboard() {
       value: bookingsData?.total ?? 0,
       icon: CalendarCheck,
       color: 'text-amber-600',
-      bg: 'bg-amber-50',
+      bg: 'bg-amber-500/10',
       link: '/bookings',
     },
     {
@@ -94,15 +94,15 @@ export function AdminDashboard() {
       value: publishedNewsEvents?.total ?? 0,
       icon: Newspaper,
       color: 'text-sky-600',
-      bg: 'bg-sky-50',
+      bg: 'bg-sky-500/10',
       link: '/news',
     },
     {
       label: 'Media Folders',
       value: mediaData?.total ?? 0,
       icon: Image,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: 'text-violet-700',
+      bg: 'bg-violet-500/10',
       link: '/media',
     },
     {
@@ -110,7 +110,7 @@ export function AdminDashboard() {
       value: teamData?.total ?? 0,
       icon: UserCircle,
       color: 'text-cyan-700',
-      bg: 'bg-cyan-50',
+      bg: 'bg-cyan-500/10',
       link: '/team',
     },
     {
@@ -118,7 +118,7 @@ export function AdminDashboard() {
       value: pendingTestimonials?.total ?? 0,
       icon: MessageSquare,
       color: 'text-amber-500',
-      bg: 'bg-amber-50',
+      bg: 'bg-amber-500/10',
       link: '/testimonials',
     },
     {
@@ -126,7 +126,7 @@ export function AdminDashboard() {
       value: unreviewedContact?.total ?? 0,
       icon: Inbox,
       color: (unreviewedContact?.total ?? 0) > 0 ? 'text-red-600' : 'text-slate-600',
-      bg: (unreviewedContact?.total ?? 0) > 0 ? 'bg-red-50' : 'bg-slate-50',
+      bg: (unreviewedContact?.total ?? 0) > 0 ? 'bg-red-500/10' : 'bg-slate-500/10',
       link: '/contact',
     },
     {
@@ -134,7 +134,7 @@ export function AdminDashboard() {
       value: awardsData?.total ?? 0,
       icon: Award,
       color: 'text-violet-700',
-      bg: 'bg-violet-50',
+      bg: 'bg-violet-500/10',
       link: '/awards',
     },
     {
@@ -142,27 +142,27 @@ export function AdminDashboard() {
       value: timelineData?.total ?? 0,
       icon: History,
       color: 'text-indigo-700',
-      bg: 'bg-indigo-50',
+      bg: 'bg-indigo-500/10',
       link: '/timeline',
     },
   ]
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader heading="Admin Dashboard" text="System overview and quick actions." />
 
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {stats.map((stat) => (
-          <Card key={stat.label}>
+          <Card className="hover:-translate-y-0.5 transition-transform" key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-              <div className={`p-2 rounded-md ${stat.bg}`}>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
+              <div className={`rounded-md p-2 ${stat.bg}`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{String(stat.value)}</div>
-              <Button variant="link" className="px-0 h-auto text-xs text-muted-foreground mt-2" asChild>
+              <Button variant="link" className="mt-2 h-auto px-0 text-xs text-muted-foreground" asChild>
                 <Link to={stat.link}>
                   View details <ArrowRight className="ml-1 h-3 w-3" />
                 </Link>
@@ -181,7 +181,7 @@ export function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {auditLogs?.data.map((log) => (
-                <div key={log.id} className="flex items-start gap-3 text-sm">
+                <div key={log.id} className="flex items-start gap-3 rounded-md border border-transparent p-2 text-sm hover:border-border/70 hover:bg-muted/20">
                   <div className="mt-1 p-1 rounded-full bg-muted">
                     <Activity className="h-3 w-3 text-muted-foreground" />
                   </div>

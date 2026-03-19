@@ -1,7 +1,8 @@
 import Footer from '@/components/shared/footer';
 import { JsonLd } from '@/components/shared/JsonLd';
 import NavBar from '@/components/shared/navBar';
-import { SERVICES_DATA } from '@/data/services';
+import { getWhoWeAre } from '@/lib/api/cms.api';
+import { getServiceCategories } from '@/lib/api/services.api';
 import { DEFAULT_METADATA } from '@/lib/seo/metadata';
 import {
   medicalOrganizationSchema,
@@ -24,12 +25,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = DEFAULT_METADATA;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = SERVICES_DATA as unknown as ServiceCategory[];
+  let categories: ServiceCategory[] = [];
+  let footerDescription: string | undefined;
+
+  await Promise.allSettled([
+    getServiceCategories().then((data) => {
+      categories = data;
+    }),
+    getWhoWeAre().then((data) => {
+      footerDescription = data.content;
+    }),
+  ]);
 
   return (
     <html lang="en">
@@ -39,7 +50,7 @@ export default function RootLayout({
         <JsonLd data={[organizationSchema(), medicalOrganizationSchema()]} />
         <NavBar categories={categories} />
         {children}
-        <Footer />
+        <Footer description={footerDescription} />
       </body>
     </html>
   );

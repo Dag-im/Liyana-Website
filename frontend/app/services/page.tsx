@@ -1,97 +1,43 @@
-import LiyanaShowcase from '@/components/client/services/ServiceGrid';
-import {
-  SERVICES_DATA,
-  type Division as LocalDivision,
-  type Doctor as LocalDoctor,
-  type ServiceCategory as LocalServiceCategory,
-} from '@/data/services';
-import type { Division, ServiceCategory } from '@/types/services.types';
+import ServiceGrid from '@/components/client/services/ServiceGrid';
+import { JsonLd } from '@/components/shared/JsonLd';
+import { getServiceCategories } from '@/lib/api/services.api';
+import { breadcrumbSchema, organizationSchema } from '@/lib/seo/structured-data';
+import type { ServiceCategory } from '@/types/services.types';
+import type { Metadata } from 'next';
 
 export const revalidate = 3600;
 
-function mapDoctor(doctor: LocalDoctor, divisionId: string) {
-  return {
-    id: doctor.id,
-    name: doctor.name,
-    specialty: doctor.specialty,
-    image: doctor.image,
-    availability: doctor.availability,
-    divisionId,
-  };
-}
-
-function mapDivision(division: LocalDivision, serviceCategoryId: string): Division {
-  return {
-    id: division.id,
-    slug: division.slug,
-    name: division.name,
-    shortName: division.shortName,
-    location: division.location ?? null,
-    overview: division.overview,
-    logo: division.logo ?? null,
-    description: division.description,
-    groupPhoto: division.groupPhoto ?? null,
-    isActive: true,
-    serviceCategoryId,
-    divisionCategoryId: division.type,
-    divisionCategory: {
-      id: division.type,
-      name: division.type,
-      label: division.type,
-      description: null,
-    },
-    images: division.images.map((path, index) => ({
-      id: `${division.id}-image-${index}`,
-      path,
-      sortOrder: index,
-    })),
-    coreServices: division.coreServices.map((name, index) => ({
-      id: `${division.id}-service-${index}`,
-      name,
-      sortOrder: index,
-    })),
-    stats: (division.stats ?? []).map((stat, index) => ({
-      id: `${division.id}-stat-${index}`,
-      label: stat.label,
-      value: stat.value,
-      sortOrder: index,
-    })),
-    doctors: (division.doctors ?? []).map((doctor) =>
-      mapDoctor(doctor, division.id)
-    ),
-    contact: {
-      id: `${division.id}-contact`,
-      phone: division.contact.phone ?? null,
-      email: division.contact.email ?? null,
-      address: division.contact.address ?? null,
-      googleMap: division.contact.googleMap ?? null,
-    },
-    createdAt: '',
-    updatedAt: '',
-  };
-}
-
-function mapCategory(category: LocalServiceCategory): ServiceCategory {
-  return {
-    id: category.id,
-    title: category.title,
-    tagline: category.tagline,
-    heroImage: category.heroImage,
-    attributes: category.attributes,
-    divisions: category.divisions.map((division) =>
-      mapDivision(division, category.id)
-    ),
-    createdAt: '',
-    updatedAt: '',
-  };
-}
-
-const page = () => {
-  return (
-    <div>
-      <LiyanaShowcase services={SERVICES_DATA.map(mapCategory)} />
-    </div>
-  );
+export const metadata: Metadata = {
+  title: 'Our Services',
+  description:
+    "Explore Liyana Healthcare's full range of medical services and specialized divisions - from advanced diagnostics and surgical care to education and research across Ethiopia and East Africa.",
+  openGraph: {
+    title: 'Our Services | Liyana Healthcare',
+    description:
+      'Subspecialized medical services and healthcare divisions across Ethiopia and East Africa.',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/services`,
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/services`,
+  },
 };
 
-export default page;
+export default async function ServicesPage() {
+  let categories: ServiceCategory[] = [];
+
+  try {
+    categories = await getServiceCategories();
+  } catch {}
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', url: process.env.NEXT_PUBLIC_SITE_URL ?? '' },
+    { name: 'Services', url: `${process.env.NEXT_PUBLIC_SITE_URL}/services` },
+  ]);
+
+  return (
+    <>
+      <JsonLd data={[organizationSchema(), breadcrumb]} />
+      <ServiceGrid categories={categories} />
+    </>
+  );
+}

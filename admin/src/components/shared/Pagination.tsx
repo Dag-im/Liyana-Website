@@ -13,15 +13,18 @@ export default function Pagination({ page, perPage, total, onPageChange }: Pagin
   const maxPage = Math.max(1, Math.ceil(total / perPage))
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/80 bg-muted/20 px-3 py-2.5">
       <p className="text-sm text-muted-foreground">
         Showing {start}-{end} of {total} results
       </p>
       <div className="flex items-center gap-2">
-        <Button disabled={page <= 1} onClick={() => onPageChange(page - 1)} variant="outline">
+        <Button disabled={page <= 1} onClick={() => onPageChange(page - 1)} size="sm" variant="outline">
           Previous
         </Button>
-        <Button disabled={page >= maxPage} onClick={() => onPageChange(page + 1)} variant="outline">
+        <span className="min-w-14 text-center text-xs font-medium text-muted-foreground">
+          {page} / {maxPage}
+        </span>
+        <Button disabled={page >= maxPage} onClick={() => onPageChange(page + 1)} size="sm" variant="outline">
           Next
         </Button>
       </div>
