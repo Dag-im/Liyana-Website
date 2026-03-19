@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { Award } from '@/types/awards.types';
 
 export type AwardListPayload = {
@@ -23,6 +24,6 @@ export async function getAwards(params?: {
   }
 
   return apiRequest<AwardListPayload>(`/awards?${query.toString()}`, {
-    next: { revalidate: 3600, tags: ['awards'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['awards'] },
   });
 }

@@ -1,50 +1,18 @@
-'use client';
+import NewsEventDetailPageClient from '@/app/news-events/[id]/NewsEventDetailPageClient';
+import { getNewsEvents } from '@/lib/api/news-events.api';
 
-import { EventDetail } from '@/components/client/news-events/EventDetail';
-import { NewsDetail } from '@/components/client/news-events/NewsDetail';
-import type { NewsEvent } from '@/types/news-events.types';
-import { notFound, useParams } from 'next/navigation';
-import { newsEventsData } from '../data';
+export const revalidate = 600;
+export const dynamicParams = true;
 
-const items: NewsEvent[] = newsEventsData.map((item) => ({
-  id: item.id,
-  type: item.type,
-  title: item.title,
-  date: item.date,
-  location: item.location ?? null,
-  summary: item.summary,
-  content: item.content,
-  keyHighlights: item.keyHighlights ?? null,
-  mainImage: item.mainImage,
-  image1: item.image1 ?? '',
-  image2: item.image2 ?? '',
-  status: 'PUBLISHED',
-  publishedAt: item.date,
-  createdById: 'mock-author',
-  createdByName: 'Liyana Healthcare',
-  createdAt: item.date,
-  updatedAt: item.date,
-}));
+export async function generateStaticParams() {
+  try {
+    const result = await getNewsEvents({ perPage: 200 });
+    return result.data.map((item) => ({ id: item.id }));
+  } catch {
+    return [];
+  }
+}
 
 export default function NewsEventDetailPage() {
-  // Ensure strict typing on the params
-  const params = useParams();
-  const id = params?.id as string;
-
-  const item = items.find((entry) => entry.id === id);
-
-  if (!item) {
-    notFound();
-  }
-
-  // Render logic based on type
-  if (item.type === 'news') {
-    return <NewsDetail {...item} />;
-  }
-
-  if (item.type === 'event') {
-    return <EventDetail {...item} />;
-  }
-
-  return null;
+  return <NewsEventDetailPageClient />;
 }

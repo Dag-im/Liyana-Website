@@ -1,6 +1,8 @@
 import MeetTheTeam from '@/components/client/about/MeetTheTeam';
 import type { TeamMember } from '@/types/team.types';
 
+export const revalidate = 3600;
+
 const members: TeamMember[] = [
   {
     id: '1',

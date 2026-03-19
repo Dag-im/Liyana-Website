@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { NewsEvent, NewsEventType } from '@/types/news-events.types';
 
 export type NewsEventsListPayload = {
@@ -27,12 +28,12 @@ export async function getNewsEvents(params?: {
   }
 
   return apiRequest<NewsEventsListPayload>(`/news-events?${query.toString()}`, {
-    next: { revalidate: 600, tags: ['news-events'] },
+    next: { revalidate: REVALIDATE.CONTENT, tags: ['news-events'] },
   });
 }
 
 export async function getNewsEvent(id: string): Promise<NewsEvent> {
   return apiRequest<NewsEvent>(`/news-events/${id}`, {
-    next: { revalidate: 600, tags: ['news-events', `news-event-${id}`] },
+    next: { revalidate: REVALIDATE.CONTENT, tags: ['news-events', `news-event-${id}`] },
   });
 }

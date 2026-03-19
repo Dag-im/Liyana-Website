@@ -3,6 +3,8 @@ import { TestimonialGrid } from '@/components/client/testimonials/TestimonialGri
 import { mockTestimonials } from '@/data/testimonials';
 import type { Testimonial } from '@/types/testimonial.types';
 
+export const revalidate = 600;
+
 const approvedTestimonials: Testimonial[] = mockTestimonials
   .filter((testimonial) => testimonial.isApproved)
   .map((testimonial) => ({

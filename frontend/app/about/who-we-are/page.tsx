@@ -4,6 +4,8 @@ import LiyanaOrgGraph, {
 import Timeline, { TimelineItem } from '@/components/client/about/Timeline';
 import WhoWeAreLuxury from '@/components/client/about/WhoWeAre';
 
+export const revalidate = 3600;
+
 const items: TimelineItem[] = [
   {
     id: '1',

@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { Division, ServiceCategory } from '@/types/services.types';
 
 type ServiceCategoryListPayload = {
@@ -14,7 +15,7 @@ type DivisionListPayload = {
 export async function getServiceCategories(): Promise<ServiceCategory[]> {
   const result = await apiRequest<ServiceCategoryListPayload>(
     '/service-categories?perPage=100',
-    { next: { revalidate: 3600, tags: ['service-categories'] } },
+    { next: { revalidate: REVALIDATE.SERVICES, tags: ['service-categories'] } },
   );
 
   return result.data;
@@ -23,7 +24,7 @@ export async function getServiceCategories(): Promise<ServiceCategory[]> {
 export async function getServiceCategory(id: string): Promise<ServiceCategory> {
   return apiRequest<ServiceCategory>(`/service-categories/${id}`, {
     next: {
-      revalidate: 3600,
+      revalidate: REVALIDATE.SERVICES,
       tags: ['service-categories', `service-category-${id}`],
     },
   });
@@ -53,7 +54,7 @@ export async function getDivisions(params?: {
 
   const result = await apiRequest<DivisionListPayload>(
     `/divisions?${query.toString()}`,
-    { next: { revalidate: 3600, tags: ['divisions'] } },
+    { next: { revalidate: REVALIDATE.SERVICES, tags: ['divisions'] } },
   );
 
   return result.data;
@@ -61,13 +62,16 @@ export async function getDivisions(params?: {
 
 export async function getDivision(id: string): Promise<Division> {
   return apiRequest<Division>(`/divisions/${id}`, {
-    next: { revalidate: 3600, tags: ['divisions', `division-${id}`] },
+    next: {
+      revalidate: REVALIDATE.SERVICES,
+      tags: ['divisions', `division-${id}`],
+    },
   });
 }
 
 export async function getDivisionBySlug(slug: string): Promise<Division | null> {
   const result = await apiRequest<DivisionListPayload>('/divisions?perPage=100', {
-    next: { revalidate: 3600, tags: ['divisions'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['divisions'] },
   });
 
   return result.data.find((division) => division.slug === slug) ?? null;

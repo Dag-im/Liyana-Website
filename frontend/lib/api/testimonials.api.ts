@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { Testimonial } from '@/types/testimonial.types';
 
 export type TestimonialListPayload = {
@@ -20,7 +21,7 @@ export async function getTestimonials(params?: {
   query.set('perPage', String(params?.perPage ?? 50));
 
   return apiRequest<TestimonialListPayload>(`/testimonials?${query.toString()}`, {
-    next: { revalidate: 3600, tags: ['testimonials'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['testimonials'] },
   });
 }
 

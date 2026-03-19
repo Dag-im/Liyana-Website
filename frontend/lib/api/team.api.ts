@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { TeamMember } from '@/types/team.types';
 
 export type TeamListPayload = {
@@ -23,6 +24,6 @@ export async function getTeamMembers(params?: {
   }
 
   return apiRequest<TeamListPayload>(`/team?${query.toString()}`, {
-    next: { revalidate: 3600, tags: ['team'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['team'] },
   });
 }

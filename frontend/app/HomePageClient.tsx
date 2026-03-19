@@ -1,13 +1,25 @@
-import LiyanaShowcase from '@/components/client/services/ServiceGrid';
+'use client';
+
+import AnimatedStats from '@/components/client/home/AnimatedStats';
+import HeroBanner from '@/components/client/home/HeroBanner';
+import NewsEventsPreview from '@/components/client/home/NewsEventsPreview';
+import LiyanaSummary from '@/components/client/home/ServicePreview';
+import { TestimonialSlider } from '@/components/client/home/TestimonialsSlider';
+import ApiStatusBadge from '@/components/shared/ApiStatusBadge';
+import { newsEventsData } from '@/app/news-events/data';
 import {
   SERVICES_DATA,
   type Division as LocalDivision,
   type Doctor as LocalDoctor,
   type ServiceCategory as LocalServiceCategory,
 } from '@/data/services';
-import type { Division, ServiceCategory } from '@/types/services.types';
-
-export const revalidate = 3600;
+import { mockTestimonials } from '@/data/testimonials';
+import type {
+  Division,
+  NewsEvent,
+  ServiceCategory,
+  Testimonial,
+} from '@/types';
 
 function mapDoctor(doctor: LocalDoctor, divisionId: string) {
   return {
@@ -86,12 +98,51 @@ function mapCategory(category: LocalServiceCategory): ServiceCategory {
   };
 }
 
-const page = () => {
+function mapNewsEvent(item: (typeof newsEventsData)[number]): NewsEvent {
+  return {
+    id: item.id,
+    type: item.type,
+    title: item.title,
+    date: item.date,
+    location: item.location ?? null,
+    summary: item.summary,
+    content: item.content,
+    keyHighlights: item.keyHighlights ?? null,
+    mainImage: item.mainImage,
+    image1: item.image1 ?? '',
+    image2: item.image2 ?? '',
+    status: 'PUBLISHED',
+    publishedAt: item.date,
+    createdById: 'mock-author',
+    createdByName: 'Liyana Healthcare',
+    createdAt: item.date,
+    updatedAt: item.date,
+  };
+}
+
+function mapTestimonial(item: (typeof mockTestimonials)[number]): Testimonial {
+  return {
+    ...item,
+    createdAt: '',
+    updatedAt: '',
+  };
+}
+
+export default function Home() {
+  const categories = SERVICES_DATA.map(mapCategory);
+  const items = newsEventsData.map(mapNewsEvent);
+  const testimonials = mockTestimonials
+    .filter((testimonial) => testimonial.isApproved && testimonial.isFavorite)
+    .map(mapTestimonial);
+
   return (
     <div>
-      <LiyanaShowcase services={SERVICES_DATA.map(mapCategory)} />
+      <ApiStatusBadge />
+      <HeroBanner categories={categories} />
+      <LiyanaSummary categories={categories} />
+      <AnimatedStats />
+      <NewsEventsPreview items={items} />
+      <TestimonialSlider testimonials={testimonials} />
     </div>
   );
-};
-
-export default page;
+}

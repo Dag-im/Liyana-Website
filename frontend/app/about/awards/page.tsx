@@ -1,6 +1,8 @@
 import AwardsSection from '@/components/client/about/AwardsSection';
 import type { Award } from '@/types/awards.types';
 
+export const revalidate = 3600;
+
 const awards: Award[] = [
   {
     id: '1',

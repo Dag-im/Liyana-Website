@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { MediaFolder, MediaItem, MediaItemType } from '@/types/media.types';
 
 export type MediaFolderListPayload = {
@@ -25,14 +26,14 @@ export async function getMediaFolders(params?: {
   }
 
   return apiRequest<MediaFolderListPayload>(`/media-folders?${query.toString()}`, {
-    next: { revalidate: 3600, tags: ['media-folders'] },
+    next: { revalidate: REVALIDATE.MEDIA, tags: ['media-folders'] },
   });
 }
 
 export async function getMediaFolder(id: string): Promise<MediaFolder> {
   return apiRequest<MediaFolder>(`/media-folders/${id}`, {
     next: {
-      revalidate: 3600,
+      revalidate: REVALIDATE.MEDIA,
       tags: ['media-folders', `media-folder-${id}`],
     },
   });
@@ -60,6 +61,11 @@ export async function getMediaItems(
 
   return apiRequest<MediaItemListPayload>(
     `/media-folders/${folderId}/items?${query.toString()}`,
-    { next: { revalidate: 3600, tags: ['media-folders', `media-folder-${folderId}`] } },
+    {
+      next: {
+        revalidate: REVALIDATE.MEDIA,
+        tags: ['media-folders', `media-folder-${folderId}`],
+      },
+    },
   );
 }

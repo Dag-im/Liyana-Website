@@ -163,7 +163,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                     <Link
                       href={item.href}
                       className={cn(
-                        'flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
+                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
                         isActive
                           ? 'text-cyan-600'
                           : 'text-slate-700 hover:text-cyan-600'
@@ -186,7 +186,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                   ) : (
                     <button
                       className={cn(
-                        'flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
+                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
                         isActive
                           ? 'text-cyan-600'
                           : 'text-slate-700 hover:text-cyan-600'

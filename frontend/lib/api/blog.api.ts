@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { Blog, BlogCategory } from '@/types/blog.types';
 
 export type BlogListPayload = {
@@ -32,13 +33,13 @@ export async function getBlogs(params?: {
   }
 
   return apiRequest<BlogListPayload>(`/blogs?${query.toString()}`, {
-    next: { revalidate: 600, tags: ['blogs'] },
+    next: { revalidate: REVALIDATE.CONTENT, tags: ['blogs'] },
   });
 }
 
 export async function getBlog(id: string): Promise<Blog> {
   return apiRequest<Blog>(`/blogs/${id}`, {
-    next: { revalidate: 600, tags: ['blogs', `blog-${id}`] },
+    next: { revalidate: REVALIDATE.CONTENT, tags: ['blogs', `blog-${id}`] },
   });
 }
 
@@ -49,7 +50,7 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
   return apiRequest<BlogCategory[]>('/blog-categories', {
-    next: { revalidate: 3600, tags: ['blog-categories'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['blog-categories'] },
   });
 }
 

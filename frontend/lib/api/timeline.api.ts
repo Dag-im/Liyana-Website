@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client';
+import { REVALIDATE } from '@/lib/revalidation';
 import type { TimelineItem } from '@/types/timeline.types';
 
 export type TimelineListPayload = {
@@ -18,6 +19,6 @@ export async function getTimelineItems(params?: {
   }
 
   return apiRequest<TimelineListPayload>(`/timeline?${query.toString()}`, {
-    next: { revalidate: 3600, tags: ['timeline'] },
+    next: { revalidate: REVALIDATE.SERVICES, tags: ['timeline'] },
   });
 }

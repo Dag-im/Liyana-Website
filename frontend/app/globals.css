@@ -128,3 +128,25 @@
 nav {
   z-index: 9999 !important; /* higher than leaflet */
 }
+
+/* Brand loader animations */
+@keyframes corporate-load {
+  0% {
+    transform: translateX(-100%) scaleX(0.2);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translateX(0%) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.2);
+    opacity: 0.1;
+  }
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}

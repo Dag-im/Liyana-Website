@@ -1,5 +1,7 @@
 import MissionVisionValuesSection from '@/components/client/about/MissionVisionValuesSection';
 
+export const revalidate = 86400;
+
 const page = () => {
   return (
     <MissionVisionValuesSection

@@ -1,5 +1,7 @@
 import QualityPolicyShowcase from '@/components/client/about/qualityPolicy';
 
+export const revalidate = 86400;
+
 const page = () => {
   return (
     <QualityPolicyShowcase
