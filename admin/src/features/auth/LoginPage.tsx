@@ -1,32 +1,39 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
-import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
-import { login } from '@/api/auth.api'
-import LoadingSpinner from '@/components/shared/LoadingSpinner'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { useAuth } from '@/features/auth/useAuth'
-import { ShieldCheck } from 'lucide-react'
+import { login } from '@/api/auth.api';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/features/auth/useAuth';
+import { ShieldCheck } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.email('Enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-})
+});
 
-type LoginSchema = z.infer<typeof loginSchema>
+type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const authQuery = useAuth()
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const authQuery = useAuth();
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -34,27 +41,27 @@ export default function LoginPage() {
       email: '',
       password: '',
     },
-  })
+  });
 
   const loginMutation = useMutation({
     mutationFn: (values: LoginSchema) => login(values.email, values.password),
     onSuccess: (user) => {
-      queryClient.setQueryData(['auth', 'me'], user)
-      navigate('/users', { replace: true })
+      queryClient.setQueryData(['auth', 'me'], user);
+      navigate('/', { replace: true });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Login failed')
+      toast.error(error instanceof Error ? error.message : 'Login failed');
     },
-  })
+  });
 
   useEffect(() => {
     if (authQuery.data) {
-      navigate('/users', { replace: true })
+      navigate('/', { replace: true });
     }
-  }, [authQuery.data, navigate])
+  }, [authQuery.data, navigate]);
 
   if (authQuery.isLoading) {
-    return <LoadingSpinner fullPage />
+    return <LoadingSpinner fullPage />;
   }
 
   return (
@@ -67,9 +74,12 @@ export default function LoginPage() {
             <div className="mb-6 inline-flex h-11 w-11 items-center justify-center rounded-xl brand-gradient text-white shadow-sm">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Liyana Admin Console</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Liyana Admin Console
+            </h1>
             <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-              Secure operational workspace for content, bookings, and system administration.
+              Secure operational workspace for content, bookings, and system
+              administration.
             </p>
           </div>
 
@@ -79,7 +89,12 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent className="px-0 pb-0">
               <Form {...form}>
-                <form className="space-y-4" onSubmit={form.handleSubmit((values) => loginMutation.mutate(values))}>
+                <form
+                  className="space-y-4"
+                  onSubmit={form.handleSubmit((values) =>
+                    loginMutation.mutate(values)
+                  )}
+                >
                   <FormField
                     control={form.control}
                     name="email"
@@ -87,7 +102,12 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input autoComplete="email" placeholder="you@example.com" {...field} type="email" />
+                          <Input
+                            autoComplete="email"
+                            placeholder="you@example.com"
+                            {...field}
+                            type="email"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -111,8 +131,15 @@ export default function LoginPage() {
                       </FormItem>
                     )}
                   />
-                  <Button className="w-full" disabled={loginMutation.isPending} size="lg" type="submit">
-                    {loginMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  <Button
+                    className="w-full"
+                    disabled={loginMutation.isPending}
+                    size="lg"
+                    type="submit"
+                  >
+                    {loginMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : null}
                     Sign in
                   </Button>
                 </form>
@@ -122,5 +149,5 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
