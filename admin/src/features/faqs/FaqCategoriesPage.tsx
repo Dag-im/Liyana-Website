@@ -5,36 +5,18 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import DataTable from '@/components/shared/DataTable'
 import PageHeader from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Link } from 'react-router-dom'
 import type { FaqCategory } from '@/types/faq.types'
 import {
-  useCreateFaqCategory,
   useDeleteFaqCategory,
   useFaqCategories,
-  useUpdateFaqCategory,
 } from './useFaqs'
 
 export default function FaqCategoriesPage() {
   const categoriesQuery = useFaqCategories()
-  const createMutation = useCreateFaqCategory()
-  const updateMutation = useUpdateFaqCategory()
   const deleteMutation = useDeleteFaqCategory()
 
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editingCategory, setEditingCategory] = useState<FaqCategory | null>(null)
   const [deleteCategory, setDeleteCategory] = useState<FaqCategory | null>(null)
-
-  const [name, setName] = useState('')
-  const [sortOrder, setSortOrder] = useState('0')
 
   const columns = [
     {
@@ -55,15 +37,16 @@ export default function FaqCategoriesPage() {
       cell: ({ row }: { row: { original: FaqCategory } }) => (
         <div className="flex items-center gap-1">
           <Button
+            asChild
             size="icon"
             variant="ghost"
-            onClick={() => {
-              setEditingCategory(row.original)
-              setName(row.original.name)
-              setSortOrder(String(row.original.sortOrder))
-            }}
           >
-            <Edit className="h-4 w-4" />
+            <Link
+              state={{ from: '/faq-categories' }}
+              to={`/faq-categories/${row.original.id}/edit`}
+            >
+              <Edit className="h-4 w-4" />
+            </Link>
           </Button>
           <Button
             size="icon"
@@ -78,22 +61,14 @@ export default function FaqCategoriesPage() {
     },
   ]
 
-  const resetCreateForm = () => {
-    setName('')
-    setSortOrder('0')
-  }
-
   return (
     <div className="space-y-6">
       <PageHeader heading="FAQ Categories" text="Manage FAQ categories.">
-        <Button
-          onClick={() => {
-            resetCreateForm()
-            setCreateOpen(true)
-          }}
-        >
+        <Button asChild>
+          <Link state={{ from: '/faq-categories' }} to="/faq-categories/new">
           <Plus className="mr-2 h-4 w-4" />
           Add Category
+          </Link>
         </Button>
       </PageHeader>
 
@@ -104,128 +79,6 @@ export default function FaqCategoriesPage() {
         isError={categoriesQuery.isError}
         onRetry={() => categoriesQuery.refetch()}
       />
-
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create FAQ Category</DialogTitle>
-            <DialogDescription>Add a new FAQ category.</DialogDescription>
-          </DialogHeader>
-
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault()
-              createMutation.mutate(
-                {
-                  name,
-                  sortOrder: Number(sortOrder) || 0,
-                },
-                {
-                  onSuccess: () => {
-                    setCreateOpen(false)
-                    resetCreateForm()
-                  },
-                }
-              )
-            }}
-          >
-            <div className="space-y-2">
-              <Label htmlFor="category-name">Name</Label>
-              <Input id="category-name" value={name} onChange={(event) => setName(event.target.value)} required />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category-sort">Sort Order</Label>
-              <Input
-                id="category-sort"
-                type="number"
-                min={0}
-                value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value)}
-              />
-            </div>
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Creating...' : 'Create Category'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {editingCategory ? (
-        <Dialog
-          open={Boolean(editingCategory)}
-          onOpenChange={(open) => {
-            if (!open) {
-              setEditingCategory(null)
-            }
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit FAQ Category</DialogTitle>
-              <DialogDescription>Update this category.</DialogDescription>
-            </DialogHeader>
-
-            <form
-              className="space-y-4"
-              onSubmit={(event) => {
-                event.preventDefault()
-                if (!editingCategory) return
-
-                updateMutation.mutate(
-                  {
-                    id: editingCategory.id,
-                    dto: {
-                      name,
-                      sortOrder: Number(sortOrder) || 0,
-                    },
-                  },
-                  {
-                    onSuccess: () => setEditingCategory(null),
-                  }
-                )
-              }}
-            >
-              <div className="space-y-2">
-                <Label htmlFor="edit-category-name">Name</Label>
-                <Input
-                  id="edit-category-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-category-sort">Sort Order</Label>
-                <Input
-                  id="edit-category-sort"
-                  type="number"
-                  min={0}
-                  value={sortOrder}
-                  onChange={(event) => setSortOrder(event.target.value)}
-                />
-              </div>
-
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingCategory(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      ) : null}
 
       <ConfirmDialog
         open={Boolean(deleteCategory)}

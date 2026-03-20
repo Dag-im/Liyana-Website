@@ -9,7 +9,9 @@ import { Brackets, Repository } from 'typeorm';
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
+import { QueryTestimonialPublicDto } from './dto/query-testimonial-public.dto';
 import { QueryTestimonialDto } from './dto/query-testimonial.dto';
+import { TestimonialCursorResponseDto } from './dto/testimonial-cursor-response.dto';
 import { Testimonial } from './entity/testimonial.entity';
 
 @Injectable()
@@ -93,6 +95,37 @@ export class TestimonialsService {
       page,
       perPage,
     };
+  }
+
+  async findPublic(
+    query: QueryTestimonialPublicDto,
+  ): Promise<TestimonialCursorResponseDto> {
+    const limit = query.limit ?? 8;
+
+    const qb = this.testimonialRepository
+      .createQueryBuilder('testimonial')
+      .where('testimonial.deletedAt IS NULL')
+      .andWhere('testimonial.isApproved = :isApproved', { isApproved: true })
+      .orderBy('testimonial.createdAt', 'DESC')
+      .take(limit + 1);
+
+    if (query.cursor) {
+      qb.andWhere('testimonial.createdAt < :cursor', {
+        cursor: new Date(query.cursor),
+      });
+    }
+
+    const items = await qb.getMany();
+
+    const hasMore = items.length > limit;
+    const data = hasMore ? items.slice(0, limit) : items;
+
+    const nextCursor =
+      hasMore && data.length > 0
+        ? data[data.length - 1].createdAt.toISOString()
+        : null;
+
+    return { data, nextCursor, hasMore };
   }
 
   async approve(id: string, performedBy: string): Promise<Testimonial> {

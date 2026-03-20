@@ -4,13 +4,10 @@ import { FileImage } from '@/components/shared/FileImage';
 import PageHeader from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CreateServiceCategoryDialog } from '@/features/service-categories/CreateServiceCategoryDialog';
-import { EditServiceCategoryDialog } from '@/features/service-categories/EditServiceCategoryDialog';
 import { usePagination } from '@/hooks/usePagination';
 import { getServiceIcon } from '@/lib/service-icons';
 import type { ServiceCategory } from '@/types/services.types';
 import { ArrowDown, ArrowUp, Edit, Eye, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   useDeleteServiceCategory,
@@ -26,10 +23,6 @@ export default function ServiceCategoriesPage() {
   });
   const deleteMutation = useDeleteServiceCategory();
   const reorderMutation = useReorderServiceCategory();
-
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingCategory, setEditingCategory] =
-    useState<ServiceCategory | null>(null);
 
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id, {
@@ -67,9 +60,11 @@ export default function ServiceCategoriesPage() {
         heading="Service Categories"
         text="Manage diagnostic, clinical and administrative services offered."
       >
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button asChild>
+          <Link state={{ from: '/service-categories' }} to="/service-categories/new">
           <Plus className="mr-2 h-4 w-4" />
           Create Category
+          </Link>
         </Button>
       </PageHeader>
 
@@ -157,12 +152,17 @@ export default function ServiceCategoriesPage() {
                   </Link>
                 </Button>
                 <Button
+                  asChild
                   size="icon"
                   variant="ghost"
-                  onClick={() => setEditingCategory(row.original)}
                   title="Edit"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Link
+                    state={{ from: '/service-categories' }}
+                    to={`/service-categories/${row.original.id}/edit`}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <ConfirmDialog
                   title="Delete Category"
@@ -185,19 +185,6 @@ export default function ServiceCategoriesPage() {
           },
         ]}
       />
-
-      <CreateServiceCategoryDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
-
-      {editingCategory && (
-        <EditServiceCategoryDialog
-          category={editingCategory}
-          open={!!editingCategory}
-          onOpenChange={(open: boolean) => !open && setEditingCategory(null)}
-        />
-      )}
     </div>
   );
 }

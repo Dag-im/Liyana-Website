@@ -11,14 +11,10 @@ import { Link, useParams } from 'react-router-dom'
 import { useDivision } from './useDivisions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DoctorManagement } from './DoctorManagement'
-import { EditDivisionWizard } from './EditDivisionWizard'
-import { useState } from 'react'
-
 
 export default function DivisionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data: division, isLoading, isError, refetch } = useDivision(id!)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   if (isLoading) return <div className="p-8 flex justify-center"><LoadingSpinner /></div>
   if (isError || !division) return <ErrorState onRetry={() => refetch()} />
@@ -46,9 +42,11 @@ export default function DivisionDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => setIsEditDialogOpen(true)}>
-            <Settings className="mr-2 h-4 w-4" />
-            Edit Division
+          <Button size="sm" asChild>
+            <Link to={`/divisions/${division.id}/edit`} state={{ from: `/divisions/${division.id}` }}>
+              <Settings className="mr-2 h-4 w-4" />
+              Edit Division
+            </Link>
           </Button>
           <Button asChild size="sm">
             <Link to={`/bookings?divisionId=${division.id}`}>View Bookings</Link>
@@ -195,11 +193,6 @@ export default function DivisionDetailPage() {
         </TabsContent>
       </Tabs>
 
-      <EditDivisionWizard
-        divisionId={division.id}
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-      />
     </div>
   )
 }

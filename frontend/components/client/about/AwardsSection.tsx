@@ -1,35 +1,19 @@
 'use client';
 
+import BackendImage from '@/components/shared/BackendImage';
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import gsap from 'gsap';
 import { Award as AwardIcon, X } from 'lucide-react';
-import Image from 'next/image';
 import type { Award } from '@/types/awards.types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface AwardsSectionProps {
   awards?: Award[];
 }
 
 export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
-  const ITEMS_PER_PAGE = 3;
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const gridRef = useRef<HTMLDivElement>(null);
-
-  const categories = useMemo(
-    () => ['All', ...Array.from(new Set(awards.map((a) => a.category)))],
-    [awards]
-  );
-
-  const filteredAwards = useMemo(() => {
-    return selectedCategory === 'All'
-      ? awards
-      : awards.filter((award) => award.category === selectedCategory);
-  }, [awards, selectedCategory]);
-
-  const displayedAwards = filteredAwards.slice(0, visibleCount);
 
   // Animate awards on filter or load more
   useEffect(() => {
@@ -48,13 +32,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
       );
     }, gridRef);
     return () => ctx.revert();
-  }, [selectedCategory, visibleCount]);
-
-  const handleLoadMore = () => {
-    setVisibleCount((prev) =>
-      Math.min(prev + ITEMS_PER_PAGE, filteredAwards.length)
-    );
-  };
+  }, [awards]);
 
   return (
     <section className="pt-10 pb-24 px-6 bg-white selection:bg-cyan-100 selection:text-cyan-900">
@@ -76,46 +54,16 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
           </p>
         </div>
 
-        {/* Filter Dropdown */}
-        <div className="flex justify-between items-end mb-10 border-b border-slate-200 pb-4">
-          <h3 className="text-xl font-bold text-slate-900 hidden md:block">
-            Recent Accolades
-          </h3>
-          <div className="w-full md:w-auto flex items-center gap-4">
-            <label
-              className="text-sm font-bold text-slate-500 uppercase tracking-wider"
-              htmlFor="category-filter"
-            >
-              Filter:
-            </label>
-            <select
-              id="category-filter"
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setVisibleCount(ITEMS_PER_PAGE);
-              }}
-              className="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors w-full md:w-48"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
         {/* Awards Grid */}
         <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayedAwards.map((award) => (
+          {awards.map((award) => (
             <div
               key={award.id}
               className="award-card group flex flex-col bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
               {/* Image Top Half */}
               <div className="relative w-full h-56 bg-slate-100 border-b border-slate-200 overflow-hidden">
-                <Image
+                <BackendImage
                   src={award.image}
                   alt={award.imageAlt}
                   fill
@@ -154,18 +102,6 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
           ))}
         </div>
 
-        {/* Load More */}
-        {visibleCount < filteredAwards.length && (
-          <div className="mt-16 flex justify-center">
-            <button
-              onClick={handleLoadMore}
-              className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold uppercase tracking-wider rounded-sm transition-colors duration-300"
-            >
-              Load More
-            </button>
-          </div>
-        )}
-
         {/* Certificate Modal */}
         {selectedAward && (
           <div
@@ -199,7 +135,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
               {/* Modal Image */}
               <div className="p-6 bg-slate-50 flex-grow overflow-auto flex items-center justify-center">
                 <div className="relative w-full max-w-2xl h-[50vh] min-h-[300px]">
-                  <Image
+                  <BackendImage
                     src={selectedAward.image}
                     alt={selectedAward.imageAlt}
                     fill

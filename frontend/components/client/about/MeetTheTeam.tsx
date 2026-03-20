@@ -1,10 +1,17 @@
 'use client';
 
+import BackendImage from '@/components/shared/BackendImage';
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { TeamMember } from '@/types/team.types';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
-import Image from 'next/image';
-import type { TeamMember } from '@/types/team.types';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 interface MeetTheTeamProps {
@@ -18,23 +25,36 @@ type TeamMemberWithSubsidiary = TeamMember & {
 export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
   const [selectedMember, setSelectedMember] =
     useState<TeamMemberWithSubsidiary | null>(null);
-  const [activeSubsidiary, setActiveSubsidiary] = useState<string>('All');
+  const [activeSubsidiary, setActiveSubsidiary] = useState<string>('Corporate');
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const teamData: TeamMemberWithSubsidiary[] = members.map((member) => ({
-    ...member,
-    subsidiary: member.division?.name ?? 'Corporate',
-  }));
+  const subsidiaries = Array.from(
+    new Set(
+      members.map((member) =>
+        member.isCorporate
+          ? 'Corporate'
+          : (member.division?.name ?? 'Corporate')
+      )
+    )
+  ).sort((a, b) => {
+    if (a === 'Corporate') return -1;
+    if (b === 'Corporate') return 1;
+    return a.localeCompare(b);
+  });
 
-  const subsidiaries = [
-    'All',
-    ...Array.from(new Set(teamData.map((member) => member.subsidiary))),
-  ];
-
-  const filteredTeam =
-    activeSubsidiary === 'All'
-      ? teamData
-      : teamData.filter((member) => member.subsidiary === activeSubsidiary);
+  const filteredTeam: TeamMemberWithSubsidiary[] = members
+    .filter((member) => {
+      const subsidiary = member.isCorporate
+        ? 'Corporate'
+        : (member.division?.name ?? 'Corporate');
+      return subsidiary === activeSubsidiary;
+    })
+    .map((member) => ({
+      ...member,
+      subsidiary: member.isCorporate
+        ? 'Corporate'
+        : (member.division?.name ?? 'Corporate'),
+    }));
 
   // Animate grid items when filter changes
   useLayoutEffect(() => {
@@ -75,20 +95,22 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
         </div>
 
         {/* Corporate Tabs Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-16 border-b border-slate-200">
-          {subsidiaries.map((subsidiary) => (
-            <button
-              key={subsidiary}
-              onClick={() => setActiveSubsidiary(subsidiary)}
-              className={`px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors duration-300 border-b-2 -mb-[1px] ${
-                activeSubsidiary === subsidiary
-                  ? 'border-cyan-600 text-cyan-700'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              {subsidiary}
-            </button>
-          ))}
+        <div className="flex justify-center mb-16 border-b border-slate-200 pb-6">
+          <Select
+            value={activeSubsidiary}
+            onValueChange={(value) => setActiveSubsidiary(value)}
+          >
+            <SelectTrigger className="w-64 border-slate-200 focus:ring-cyan-600">
+              <SelectValue placeholder="Filter by subsidiary" />
+            </SelectTrigger>
+            <SelectContent>
+              {subsidiaries.map((subsidiary) => (
+                <SelectItem key={subsidiary} value={subsidiary}>
+                  {subsidiary}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Team Grid */}
@@ -102,7 +124,7 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
               {/* Image Container */}
               <div className="relative h-72 w-full overflow-hidden bg-slate-100 border-b border-slate-200">
                 {member.image ? (
-                  <Image
+                  <BackendImage
                     src={member.image}
                     alt={member.name}
                     fill
@@ -114,7 +136,9 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
                       {member.name
                         .split(' ')
                         .map((n) => n[0])
-                        .join('')}
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)}
                     </span>
                   </div>
                 )}
@@ -154,7 +178,7 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
             {/* Modal Image */}
             <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-slate-100 border-r border-slate-100">
               {selectedMember.image ? (
-                <Image
+                <BackendImage
                   src={selectedMember.image}
                   alt={selectedMember.name}
                   fill

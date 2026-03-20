@@ -1,19 +1,30 @@
 'use client';
 
+import { getTestimonialsPublic } from '@/lib/api/testimonials.api';
+import type { Testimonial } from '@/types/testimonial.types';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { Testimonial } from '@/types/testimonial.types';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { TestimonialCard } from './TestimonialCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface TestimonialGridProps {
-  testimonials?: Testimonial[];
+  initialTestimonials: Testimonial[];
+  initialNextCursor: string | null;
+  initialHasMore: boolean;
 }
 
-export function TestimonialGrid({ testimonials = [] }: TestimonialGridProps) {
+export function TestimonialGrid({
+  initialTestimonials,
+  initialNextCursor,
+  initialHasMore,
+}: TestimonialGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const [testimonials, setTestimonials] = useState(initialTestimonials);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (!gridRef.current) return;
@@ -34,7 +45,23 @@ export function TestimonialGrid({ testimonials = [] }: TestimonialGridProps) {
         },
       }
     );
-  }, []);
+  }, [testimonials]);
+
+  const handleLoadMore = () => {
+    if (!nextCursor) return;
+
+    startTransition(async () => {
+      try {
+        const res = await getTestimonialsPublic({
+          cursor: nextCursor,
+          limit: 8,
+        });
+        setTestimonials((prev) => [...prev, ...res.data]);
+        setNextCursor(res.nextCursor);
+        setHasMore(res.hasMore);
+      } catch {}
+    });
+  };
 
   if (testimonials.length === 0) return null;
 
@@ -60,6 +87,18 @@ export function TestimonialGrid({ testimonials = [] }: TestimonialGridProps) {
             </div>
           ))}
         </div>
+
+        {hasMore && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={handleLoadMore}
+              disabled={isPending}
+              className="px-8 py-3 border border-cyan-600 text-cyan-600 font-bold uppercase tracking-wider text-sm hover:bg-cyan-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? 'Loading...' : 'Load More'}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

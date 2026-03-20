@@ -1,6 +1,6 @@
 import { ArrowLeft, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 import Pagination from '@/components/shared/Pagination'
 import EmptyState from '@/components/shared/EmptyState'
@@ -15,8 +15,6 @@ import { FileImage } from '@/components/shared/FileImage'
 import { useMediaFolder, useMediaItems, useDeleteMediaItem } from './useMedia'
 import { MediaItemCard } from './MediaItemCard'
 import { MediaLightbox } from './MediaLightbox'
-import AddMediaItemDialog from './AddMediaItemDialog'
-import EditMediaItemDialog from './EditMediaItemDialog'
 import type { MediaItem, MediaItemType } from '@/types/media.types'
 import { useDebounce } from '@/hooks/useDebounce'
 
@@ -25,6 +23,7 @@ export default function MediaFolderDetailPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [type, setType] = useState<MediaItemType | 'ALL'>('ALL')
+  const navigate = useNavigate()
   const debouncedSearch = useDebounce(search, 500)
 
   const { data: folder, isLoading: folderLoading, isError: folderError } = useMediaFolder(folderId)
@@ -40,8 +39,6 @@ export default function MediaFolderDetailPage() {
     type: type === 'ALL' ? undefined : type,
   })
 
-  const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const [editItem, setEditItem] = useState<MediaItem | null>(null)
   const [deleteItem, setDeleteItem] = useState<MediaItem | null>(null)
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null)
 
@@ -101,10 +98,12 @@ export default function MediaFolderDetailPage() {
                 <span>{folder.mediaCount} Media Items</span>
                 <span>•</span>
                 <Button 
-                  onClick={() => setAddDialogOpen(true)}
+                  asChild
                   size="sm"
                 >
-                  <Plus className="mr-2 h-4 w-4" /> Add Media
+                  <Link state={{ from: `/media/${folderId}` }} to={`/media/${folderId}/items/new`}>
+                    <Plus className="mr-2 h-4 w-4" /> Add Media
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -149,7 +148,11 @@ export default function MediaFolderDetailPage() {
                 key={item.id}
                 item={item}
                 onClick={() => setSelectedItemIndex(index)}
-                onEdit={() => setEditItem(item)}
+                onEdit={() =>
+                  navigate(`/media/${folderId}/items/${item.id}/edit`, {
+                    state: { from: `/media/${folderId}` },
+                  })
+                }
                 onDelete={() => setDeleteItem(item)}
               />
             ))}
@@ -162,21 +165,6 @@ export default function MediaFolderDetailPage() {
             onPageChange={setPage}
           />
         </div>
-      )}
-
-      <AddMediaItemDialog
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-        folderId={folderId}
-      />
-
-      {editItem && (
-        <EditMediaItemDialog
-          item={editItem}
-          open={!!editItem}
-          onClose={() => setEditItem(null)}
-          folderId={folderId}
-        />
       )}
 
       {selectedItemIndex !== null && items && (

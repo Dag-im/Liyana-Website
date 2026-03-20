@@ -1,9 +1,9 @@
 'use client';
 
 import gsap from 'gsap';
+import BackendImage from '@/components/shared/BackendImage';
 import type { NewsEvent } from '@/types/news-events.types';
 import { ArrowRight, Calendar, MapPin } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 
@@ -45,7 +45,7 @@ export function EventNewsCard({
     >
       {/* Image Container */}
       <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-        <Image
+        <BackendImage
           src={mainImage}
           alt={title}
           fill

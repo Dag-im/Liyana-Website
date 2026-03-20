@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useUpdateUser } from '@/features/users/useUsers'
+import type { UpdateUserDto } from '@/api/users.api'
 import { ROLES } from '@/lib/constants'
 import { formatEnumLabel } from '@/lib/utils'
 import type { User } from '@/types/user.types'
@@ -76,12 +77,18 @@ export default function EditUserDialog({ user }: EditUserDialogProps) {
 
   const watchRole = form.watch('role')
 
+  const toPayload = (values: UpdateUserSchema): UpdateUserDto => ({
+    ...values,
+    divisionId:
+      values.role === 'CUSTOMER_SERVICE' ? values.divisionId?.trim() || null : null,
+  })
+
   const onSubmit = (values: UpdateUserSchema) => {
     if (!form.formState.isDirty) {
       return
     }
 
-    updateUserMutation.mutate(values, {
+    updateUserMutation.mutate(toPayload(values), {
       onSuccess: () => {
         toast.success('User updated')
         queryClient.invalidateQueries({ queryKey: ['users'] })

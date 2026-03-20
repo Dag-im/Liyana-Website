@@ -1,9 +1,8 @@
 'use client';
 
-import { getInitials } from '@/data/blogs';
+import BackendImage from '@/components/shared/BackendImage';
 import type { Blog } from '@/types/blog.types';
 import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface BlogCardProps {
@@ -11,7 +10,26 @@ interface BlogCardProps {
 }
 
 function formatBlogDate(post: Blog) {
-  return post.publishedAt ?? post.createdAt;
+  const raw = post.publishedAt ?? post.createdAt;
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return raw;
+  }
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(parsed);
+}
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter((part) => part.length > 0 && part.toUpperCase() !== 'DR.')
+    .map((part) => part[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
@@ -21,7 +39,7 @@ export default function BlogCard({ post }: BlogCardProps) {
         href={`/blog/${post.slug}`}
         className="block relative w-full h-56 bg-slate-100 overflow-hidden shrink-0"
       >
-        <Image
+        <BackendImage
           src={post.image}
           alt={post.title}
           fill

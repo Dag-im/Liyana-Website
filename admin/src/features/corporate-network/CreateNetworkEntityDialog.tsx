@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,7 @@ type CreateNetworkEntityDialogProps = {
   onClose: () => void;
   parentId?: string | null;
   parentName?: string;
+  inline?: boolean;
 };
 
 export function CreateNetworkEntityDialog({
@@ -52,6 +54,7 @@ export function CreateNetworkEntityDialog({
   onClose,
   parentId = null,
   parentName,
+  inline = false,
 }: CreateNetworkEntityDialogProps) {
   const { data: relations } = useNetworkRelations();
   const createMutation = useCreateNetworkEntity();
@@ -90,12 +93,17 @@ export function CreateNetworkEntityDialog({
     onClose();
   };
 
-  return (
-    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Add Network Entity</DialogTitle>
-        </DialogHeader>
+  const content = (
+    <>
+        {inline ? (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold">Add Network Entity</h2>
+          </div>
+        ) : (
+          <DialogHeader>
+            <DialogTitle>Add Network Entity</DialogTitle>
+          </DialogHeader>
+        )}
 
         <div className="flex items-center gap-2 p-3 rounded-md bg-muted/50 text-sm text-muted-foreground border border-dashed">
           <Info className="h-4 w-4" />
@@ -248,6 +256,21 @@ export function CreateNetworkEntityDialog({
             </DialogFooter>
           </form>
         </Form>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardContent className="pt-6">{content}</CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        {content}
       </DialogContent>
     </Dialog>
   );

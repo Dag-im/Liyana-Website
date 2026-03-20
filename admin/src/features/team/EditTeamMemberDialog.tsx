@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -30,12 +31,14 @@ type EditTeamMemberDialogProps = {
   member: TeamMember
   open: boolean
   onOpenChange: (open: boolean) => void
+  inline?: boolean
 }
 
 export default function EditTeamMemberDialog({
   member,
   open,
   onOpenChange,
+  inline = false,
 }: EditTeamMemberDialogProps) {
   const [name, setName] = useState(member.name)
   const [position, setPosition] = useState(member.position)
@@ -93,15 +96,23 @@ export default function EditTeamMemberDialog({
     )
   }
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Edit Team Member</DialogTitle>
-          <DialogDescription>
-            Update credentials and affiliation for {member.name}.
-          </DialogDescription>
-        </DialogHeader>
+  const content = (
+    <>
+        {inline ? (
+          <div className="mb-4 space-y-1">
+            <h2 className="text-lg font-semibold">Edit Team Member</h2>
+            <p className="text-sm text-muted-foreground">
+              Update credentials and affiliation for {member.name}.
+            </p>
+          </div>
+        ) : (
+          <DialogHeader>
+            <DialogTitle>Edit Team Member</DialogTitle>
+            <DialogDescription>
+              Update credentials and affiliation for {member.name}.
+            </DialogDescription>
+          </DialogHeader>
+        )}
 
         {isHidden && (
           <div className="flex items-start gap-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
@@ -231,7 +242,20 @@ export default function EditTeamMemberDialog({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
+    </>
+  )
+
+  if (inline) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardContent className="pt-6">{content}</CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )
 }

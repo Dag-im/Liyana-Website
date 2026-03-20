@@ -1,8 +1,12 @@
 import HomePageClient from '@/app/HomePageClient';
 import { getStats } from '@/lib/api/cms.api';
+import { getLatestEvents, getLatestNews } from '@/lib/api/news-events.api';
 import { getServiceCategories } from '@/lib/api/services.api';
+import { getTestimonials } from '@/lib/api/testimonials.api';
 import type { Stat } from '@/types/cms.types';
+import type { NewsEvent } from '@/types/news-events.types';
 import type { ServiceCategory } from '@/types/services.types';
+import type { Testimonial } from '@/types/testimonial.types';
 import type { Metadata } from 'next';
 
 export const revalidate = 600;
@@ -24,6 +28,9 @@ export const metadata: Metadata = {
 export default async function Home() {
   let stats: Stat[] = [];
   let categories: ServiceCategory[] = [];
+  let latestNews: NewsEvent[] = [];
+  let latestEvents: NewsEvent[] = [];
+  let sliderTestimonials: Testimonial[] = [];
 
   await Promise.allSettled([
     getStats().then((data) => {
@@ -32,7 +39,25 @@ export default async function Home() {
     getServiceCategories().then((data) => {
       categories = data;
     }),
+    getLatestNews(3).then((data) => {
+      latestNews = data;
+    }),
+    getLatestEvents(3).then((data) => {
+      latestEvents = data;
+    }),
+    getTestimonials({ isFavorite: true, perPage: 20 }).then((res) => {
+      sliderTestimonials = res.data;
+    }),
   ]);
 
-  return <HomePageClient stats={stats} categories={categories} />;
+  const newsEventsItems = [...latestNews, ...latestEvents];
+
+  return (
+    <HomePageClient
+      stats={stats}
+      categories={categories}
+      newsEventsItems={newsEventsItems}
+      testimonials={sliderTestimonials}
+    />
+  );
 }

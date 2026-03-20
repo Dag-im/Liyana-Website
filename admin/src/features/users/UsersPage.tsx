@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { Edit, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -7,6 +8,7 @@ import DataTable from '@/components/shared/DataTable';
 import ErrorState from '@/components/shared/ErrorState';
 import PageHeader from '@/components/shared/PageHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,9 +20,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/features/auth/useAuth';
 import ChangePasswordDialog from '@/features/users/ChangePasswordDialog';
-import CreateUserDialog from '@/features/users/CreateUserDialog';
 import DeactivateUserDialog from '@/features/users/DeactivateUserDialog';
-import EditUserDialog from '@/features/users/EditUserDialog';
 import { useUsers } from '@/features/users/useUsers';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
@@ -36,7 +36,6 @@ export default function UsersPage() {
   const { page, perPage, resetPage, setPage } = usePagination();
   const [search, setSearch] = useState('');
   const [role, setRole] = useState<RoleFilter>('ALL');
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 400);
 
   const usersQuery = useUsers({
@@ -89,7 +88,14 @@ export default function UsersPage() {
         render: (row: any) =>
           isAdmin ? (
             <div className="flex items-center gap-1">
-              <EditUserDialog user={row} />
+              <Link
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                state={{ from: '/users' }}
+                title="Edit user"
+                to={`/users/${row.id}/edit`}
+              >
+                <Edit className="h-4 w-4" />
+              </Link>
               <ChangePasswordDialog user={row} />
               <DeactivateUserDialog user={row} />
             </div>
@@ -116,10 +122,12 @@ export default function UsersPage() {
     <div className="space-y-5">
       <PageHeader title="Users">
         {isAdmin ? (
-          <CreateUserDialog
-            onOpenChange={setCreateDialogOpen}
-            open={createDialogOpen}
-          />
+          <Button asChild>
+            <Link to="/users/new">
+              <Plus className="h-4 w-4" />
+              Create User
+            </Link>
+          </Button>
         ) : null}
       </PageHeader>
 

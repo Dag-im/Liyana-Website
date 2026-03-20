@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useDivisions } from '@/features/divisions/useDivisions'
 import { useCreateUser } from '@/features/users/useUsers'
+import type { CreateUserDto } from '@/api/users.api'
 import { ROLES } from '@/lib/constants'
 import { formatEnumLabel } from '@/lib/utils'
 
@@ -67,8 +68,14 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
 
   const watchRole = form.watch('role')
 
+  const toPayload = (values: CreateUserSchema): CreateUserDto => ({
+    ...values,
+    divisionId:
+      values.role === 'CUSTOMER_SERVICE' ? values.divisionId?.trim() || null : null,
+  })
+
   const onSubmit = (values: CreateUserSchema) => {
-    createUserMutation.mutate(values, {
+    createUserMutation.mutate(toPayload(values), {
       onSuccess: () => {
         toast.success('User created')
         queryClient.invalidateQueries({ queryKey: ['users'] })

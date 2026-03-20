@@ -5,13 +5,7 @@ import { FileImage } from '@/components/shared/FileImage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  ArrowLeft,
-  Building2,
-  CheckCircle2,
-  ChevronRight,
-  MapPin,
-} from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle2, ChevronRight, Edit, MapPin } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useServiceCategory } from './useServiceCategories';
 
@@ -41,6 +35,15 @@ export default function ServiceCategoryDetailPage() {
           </Link>
         </Button>
         <PageHeader heading={category.title} text={category.tagline} />
+        <Button asChild className="ml-auto" size="sm" variant="outline">
+          <Link
+            state={{ from: `/service-categories/${category.id}` }}
+            to={`/service-categories/${category.id}/edit`}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Edit
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

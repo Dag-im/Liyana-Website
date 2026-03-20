@@ -1,5 +1,6 @@
 import { LayoutGrid, List, Plus, Search, Tag, X } from 'lucide-react'
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTeamMembers, useDeleteTeamMember } from './useTeam'
 import { useDivisions } from '../divisions/useDivisions'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -22,8 +23,6 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TeamGridView } from './TeamGridView'
 import { TeamListView } from './TeamListView'
-import CreateTeamMemberDialog from './CreateTeamMemberDialog'
-import EditTeamMemberDialog from './EditTeamMemberDialog'
 import TeamMemberDetailDialog from './TeamMemberDetailDialog'
 import type { TeamMember } from '@/types/team.types'
 
@@ -33,6 +32,7 @@ export default function TeamPage() {
   const [divisionId, setDivisionId] = useState<string>('all')
   const [isCorporate, setIsCorporate] = useState(false)
   const [includeHidden, setIncludeHidden] = useState(true)
+  const navigate = useNavigate()
   const debouncedSearch = useDebounce(search, 400)
 
   const { data: divisionsData } = useDivisions({ perPage: 100 })
@@ -52,8 +52,6 @@ export default function TeamPage() {
     includeHidden,
   })
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [editingMember, setEditingMember] = useState<TeamMember | null>(null)
   const [deletingMember, setDeletingMember] = useState<TeamMember | null>(null)
   const [viewingMember, setViewingMember] = useState<TeamMember | null>(null)
 
@@ -71,8 +69,10 @@ export default function TeamPage() {
   return (
     <div className="container py-6 space-y-8">
       <PageHeader heading="Team & Leadership" text="Manage staff members and organizational roles.">
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button asChild>
+          <Link state={{ from: '/team' }} to="/team/new">
           <Plus className="mr-2 h-4 w-4" /> Add Member
+          </Link>
         </Button>
       </PageHeader>
 
@@ -160,7 +160,7 @@ export default function TeamPage() {
       ) : view === 'grid' ? (
         <TeamGridView
           members={membersData.data}
-          onEdit={setEditingMember}
+          onEdit={(member) => navigate(`/team/${member.id}/edit`, { state: { from: '/team' } })}
           onDelete={setDeletingMember}
           onView={setViewingMember}
         />
@@ -168,23 +168,9 @@ export default function TeamPage() {
         <TeamListView
           members={membersData.data}
           isLoading={isLoading}
-          onEdit={setEditingMember}
+          onEdit={(member) => navigate(`/team/${member.id}/edit`, { state: { from: '/team' } })}
           onDelete={setDeletingMember}
           onView={setViewingMember}
-        />
-      )}
-
-      {/* Dialogs */}
-      <CreateTeamMemberDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
-
-      {editingMember && (
-        <EditTeamMemberDialog
-          member={editingMember}
-          open={!!editingMember}
-          onOpenChange={(open) => !open && setEditingMember(null)}
         />
       )}
 
@@ -195,7 +181,7 @@ export default function TeamPage() {
           onClose={() => setViewingMember(null)}
           onEdit={(m) => {
             setViewingMember(null)
-            setEditingMember(m)
+            navigate(`/team/${m.id}/edit`, { state: { from: '/team' } })
           }}
           onDelete={(m) => {
             setViewingMember(null)

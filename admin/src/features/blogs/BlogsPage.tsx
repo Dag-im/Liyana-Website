@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import DataTable from '@/components/shared/DataTable';
@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/features/auth/useAuth';
-import BlogCategoriesDialog from '@/features/blogs/BlogCategoriesDialog';
 import { useBlogCategories } from '@/features/blogs/useBlogCategories';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
@@ -23,8 +22,6 @@ import { formatDate, truncate } from '@/lib/utils';
 import type { Blog, BlogStatus } from '@/types/blogs.types';
 import { Edit, Eye, FolderEdit, Star, Trash2, UploadCloud } from 'lucide-react';
 import BlogStatusBadge from './components/BlogStatusBadge';
-import CreateBlogDialog from './components/CreateBlogDialog';
-import EditBlogDialog from './components/EditBlogDialog';
 import RejectBlogDialog from './components/RejectBlogDialog';
 import {
   useBlogs,
@@ -40,6 +37,7 @@ type StatusFilter = 'ALL' | BlogStatus;
 type FeaturedFilter = 'ALL' | 'FEATURED' | 'NOT_FEATURED';
 
 export default function BlogsPage() {
+  const location = useLocation();
   const authQuery = useAuth();
   const user = authQuery.data;
   const isAdminOrComm =
@@ -51,7 +49,6 @@ export default function BlogsPage() {
   const [status, setStatus] = useState<StatusFilter>('ALL');
   const [categoryId, setCategoryId] = useState('ALL');
   const [featured, setFeatured] = useState<FeaturedFilter>('ALL');
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 400);
 
   const { data: categories } = useBlogCategories();
@@ -138,15 +135,12 @@ export default function BlogsPage() {
                 </Link>
               </Button>
               {canEditBlog(blog) ? (
-                <EditBlogDialog
-                  blogId={blog.id}
-                  trigger={
-                    <Button size="sm" variant="outline" className="h-8 gap-2">
-                      <Edit className="h-3.5 w-3.5" />
-                      Edit
-                    </Button>
-                  }
-                />
+                <Button size="sm" variant="outline" className="h-8 gap-2" asChild>
+                  <Link to={`/blogs/${blog.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
+                    <Edit className="h-3.5 w-3.5" />
+                    Edit
+                  </Link>
+                </Button>
               ) : null}
               {isBlogger &&
               blog.authorId === user?.id &&
@@ -244,11 +238,22 @@ export default function BlogsPage() {
     <div className="space-y-6 p-6">
       <PageHeader heading="Blogs">
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setIsCategoriesOpen(true)}>
+          <Button variant="outline" asChild>
+            <Link
+              to="/blogs/categories"
+              state={{ from: `${location.pathname}${location.search}` }}
+            >
             <FolderEdit className="mr-2 h-4 w-4" />
             Manage Categories
+            </Link>
           </Button>
-          {user?.role ? <CreateBlogDialog /> : null}
+          {user?.role ? (
+            <Button asChild>
+              <Link to="/blogs/new" state={{ from: `${location.pathname}${location.search}` }}>
+                Create Blog
+              </Link>
+            </Button>
+          ) : null}
         </div>
       </PageHeader>
 
@@ -350,11 +355,6 @@ export default function BlogsPage() {
         perPage={perPage}
         total={blogsQuery.data?.total ?? 0}
         onPageChange={setPage}
-      />
-
-      <BlogCategoriesDialog
-        open={isCategoriesOpen}
-        onOpenChange={setIsCategoriesOpen}
       />
     </div>
   );

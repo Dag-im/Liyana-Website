@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import DataTable from '@/components/shared/DataTable'
@@ -26,8 +26,6 @@ import {
   usePublishNewsEvent,
   useUnpublishNewsEvent,
 } from './useNewsEvents'
-import CreateNewsEventDialog from './components/CreateNewsEventDialog'
-import EditNewsEventDialog from './components/EditNewsEventDialog'
 import NewsEventStatusBadge from './components/NewsEventStatusBadge'
 
 type StatusFilter = 'ALL' | NewsEventStatus
@@ -39,6 +37,7 @@ type Props = {
 }
 
 export default function NewsEventsPage({ type, basePath, title }: Props) {
+  const location = useLocation()
   const authQuery = useAuth()
   const userRole = authQuery.data?.role
   const isEditor = userRole === 'ADMIN' || userRole === 'COMMUNICATION'
@@ -78,15 +77,12 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
           </Link>
         </Button>
         {canEdit ? (
-          <EditNewsEventDialog
-            newsEventId={entry.id}
-            trigger={
-              <Button size="sm" variant="outline" className="h-8 gap-2">
-                <Edit className="h-3.5 w-3.5" />
-                Edit
-              </Button>
-            }
-          />
+          <Button size="sm" variant="outline" className="h-8 gap-2" asChild>
+            <Link to={`${basePath}/${entry.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
+              <Edit className="h-3.5 w-3.5" />
+              Edit
+            </Link>
+          </Button>
         ) : null}
         {canPublish ? (
           entry.status === 'PUBLISHED' ? (
@@ -172,7 +168,13 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
   return (
     <div className="space-y-6 p-6">
       <PageHeader heading={title}>
-        {isEditor ? <CreateNewsEventDialog defaultType={type} /> : null}
+        {isEditor ? (
+          <Button asChild>
+            <Link to={`${basePath}/new`} state={{ from: `${location.pathname}${location.search}` }}>
+              Create
+            </Link>
+          </Button>
+        ) : null}
       </PageHeader>
 
       <div className="flex flex-wrap items-end gap-4">

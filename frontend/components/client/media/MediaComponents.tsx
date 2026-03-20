@@ -1,9 +1,20 @@
 'use client';
 
-import { Play } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import BackendImage from '@/components/shared/BackendImage';
+import { getYouTubeThumbnail, isYouTubeUrl } from '@/lib/media-utils';
 import type { MediaFolder, MediaItem, MediaTag } from '@/types/media.types';
+import { Play } from 'lucide-react';
+import Link from 'next/link';
+
+const formatMediaDate = (value: string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('en-GB', {
+    month: 'long',
+    day: '2-digit',
+    year: 'numeric',
+  });
+};
 
 // --- Tag Badge ---
 export const TagBadge = ({ tag }: { tag: MediaTag | string }) => (
@@ -20,7 +31,7 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
       className="group flex flex-col h-full bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-xl transition-all duration-300"
     >
       <div className="relative h-56 w-full bg-slate-100 overflow-hidden shrink-0 border-b border-slate-200">
-        <Image
+        <BackendImage
           src={folder.coverImage}
           alt={folder.name}
           fill
@@ -45,7 +56,7 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
             {folder.mediaCount} Files
           </span>
           <span className="text-xs font-bold text-slate-400">
-            {folder.lastUpdated}
+            {formatMediaDate(folder.lastUpdated)}
           </span>
         </div>
       </div>
@@ -53,20 +64,9 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
   );
 };
 
-// --- Helpers ---
-const getYouTubeThumbnail = (url: string) => {
-  const regExp =
-    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  if (match && match[2].length === 11) {
-    return `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg`;
-  }
-  return null;
-};
-
 // --- Media Item Card ---
 export const MediaItemCard = ({ item }: { item: MediaItem }) => {
-  const isVideo = item.type === 'video';
+  const isVideo = item.type === 'video' || isYouTubeUrl(item.url);
   const youtubeThumbnail = isVideo ? getYouTubeThumbnail(item.url) : null;
   const displayImage = item.thumbnail || youtubeThumbnail || item.url;
 
@@ -78,11 +78,12 @@ export const MediaItemCard = ({ item }: { item: MediaItem }) => {
       className="group flex flex-col bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
     >
       <div className="relative aspect-video bg-slate-100 overflow-hidden border-b border-slate-200">
-        <Image
+        <BackendImage
           src={displayImage}
           alt={item.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          fallback="/images/logo.png"
         />
 
         {isVideo && (

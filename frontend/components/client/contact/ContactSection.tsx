@@ -29,9 +29,9 @@ function ContactForm({
   onSubmit?: (data: Record<string, string>) => Promise<void> | void;
 }) {
   const [formData, setFormData] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>(
-    'idle'
-  );
+  const [status, setStatus] = useState<'idle' | 'submitting'>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (id: string, value: string) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -41,12 +41,19 @@ function ContactForm({
     e.preventDefault();
     setStatus('submitting');
     try {
+      setError(null);
       await onSubmit?.(formData);
-      setStatus('success');
+      setSuccess(true);
       setFormData({});
       (e.target as HTMLFormElement).reset();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.',
+      );
     } finally {
-      setTimeout(() => setStatus('idle'), 3000);
+      setStatus('idle');
     }
   };
 
@@ -65,58 +72,69 @@ function ContactForm({
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6 flex-1 flex flex-col"
-        >
-          <div className="space-y-5 flex-1">
-            {fields.map((field) => (
-              <div key={field.id} className="space-y-2">
-                <label
-                  htmlFor={field.id}
-                  className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest"
-                >
-                  {field.label}{' '}
-                  {field.required && <span className="text-red-500">*</span>}
-                </label>
-
-                {field.type === 'textarea' ? (
-                  <Textarea
-                    id={field.id}
-                    placeholder={field.placeholder}
-                    required={field.required}
-                    onChange={(e) => handleChange(field.id, e.target.value)}
-                    className="h-32 resize-none rounded-lg bg-slate-50 border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
-                  />
-                ) : (
-                  <Input
-                    id={field.id}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    required={field.required}
-                    onChange={(e) => handleChange(field.id, e.target.value)}
-                    className="h-12 rounded-lg bg-slate-50 border-slate-200 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
-                  />
-                )}
-              </div>
-            ))}
+        {success ? (
+          <div className="text-center py-12">
+            <p className="text-lg font-semibold text-slate-900 mb-2">
+              Thank you for your message
+            </p>
+            <p className="text-slate-500 text-sm">
+              Our team will be in touch shortly.
+            </p>
           </div>
-
-          <Button
-            type="submit"
-            disabled={status === 'submitting'}
-            className="w-full h-12 mt-6 text-sm font-semibold rounded-xs bg-cyan-600 hover:bg-cyan-700 text-white shadow-none transition-colors flex items-center justify-center gap-2 group"
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 flex-1 flex flex-col"
           >
-            {status === 'submitting'
-              ? 'Transmitting...'
-              : status === 'success'
-                ? 'Message Received'
-                : buttonText}
-            {status === 'idle' && (
-              <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <div className="space-y-5 flex-1">
+              {fields.map((field) => (
+                <div key={field.id} className="space-y-2">
+                  <label
+                    htmlFor={field.id}
+                    className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest"
+                  >
+                    {field.label}{' '}
+                    {field.required && <span className="text-red-500">*</span>}
+                  </label>
+
+                  {field.type === 'textarea' ? (
+                    <Textarea
+                      id={field.id}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      onChange={(e) => handleChange(field.id, e.target.value)}
+                      className="h-32 resize-none rounded-lg bg-slate-50 border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
+                    />
+                  ) : (
+                    <Input
+                      id={field.id}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      onChange={(e) => handleChange(field.id, e.target.value)}
+                      className="h-12 rounded-lg bg-slate-50 border-slate-200 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={status === 'submitting'}
+              className="w-full h-12 mt-6 text-sm font-semibold rounded-xs bg-cyan-600 hover:bg-cyan-700 text-white shadow-none transition-colors flex items-center justify-center gap-2 group"
+            >
+              {status === 'submitting' ? 'Transmitting...' : buttonText}
+              {status === 'idle' && (
+                <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              )}
+            </Button>
+
+            {error && (
+              <p className="text-sm text-red-600 mt-3 font-medium">{error}</p>
             )}
-          </Button>
-        </form>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -129,30 +147,40 @@ interface ContactSectionProps {
     email: string;
     message: string;
   }) => Promise<void>;
-  faqs?: { question: string; answer: string }[];
+  faqGroups?: FAQGroup[];
 }
 
-const DEFAULT_FAQS = [
+interface FAQGroup {
+  category: string;
+  faqs: { question: string; answer: string }[];
+}
+
+const DEFAULT_FAQ_GROUPS: FAQGroup[] = [
   {
-    question: 'What services does Liyana Healthcare provide?',
-    answer:
-      'We deliver subspecialized medical care, advanced diagnostics, and therapeutic solutions across multiple healthcare sectors, ensuring patient-centered excellence backed by international standards.',
-  },
-  {
-    question: 'Where are your facilities located?',
-    answer:
-      'Our headquarters is centrally located in Addis Ababa, Ethiopia. This hub is supported by a network of regional branches strategically placed to ensure comprehensive and convenient access to our services.',
-  },
-  {
-    question: 'Do you accept international patients?',
-    answer:
-      'Yes. We operate a dedicated international patient desk that offers full end-to-end support for medical travel, including consultation coordination, translation services, and post-treatment continuity of care.',
+    category: 'General',
+    faqs: [
+      {
+        question: 'What services does Liyana Healthcare provide?',
+        answer:
+          'We deliver subspecialized medical care, advanced diagnostics, and therapeutic solutions across multiple healthcare sectors.',
+      },
+      {
+        question: 'Where are your facilities located?',
+        answer:
+          'Our headquarters is centrally located in Addis Ababa, Ethiopia, supported by a network of regional branches.',
+      },
+      {
+        question: 'Do you accept international patients?',
+        answer:
+          'Yes. We operate a dedicated international patient desk with full end-to-end support for medical travel.',
+      },
+    ],
   },
 ];
 
 export default function ContactSection({
   onSubmit,
-  faqs = DEFAULT_FAQS,
+  faqGroups = DEFAULT_FAQ_GROUPS,
 }: ContactSectionProps) {
   return (
     <div className="pb-12 bg-white selection:bg-cyan-100 selection:text-cyan-900">
@@ -205,11 +233,7 @@ export default function ContactSection({
                     email: data.email ?? '',
                     message: data.message ?? '',
                   });
-                  return;
                 }
-
-                console.log('Form Submitted:', data);
-                await new Promise((r) => setTimeout(r, 1000));
               }}
             />
           </div>
@@ -282,7 +306,7 @@ export default function ContactSection({
       </section>
 
       {/* Integrate FAQ at the bottom */}
-      <FAQAccordion faqs={faqs} />
+      <FAQAccordion groups={faqGroups} />
     </div>
   );
 }

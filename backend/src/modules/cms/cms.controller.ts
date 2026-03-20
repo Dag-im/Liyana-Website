@@ -167,10 +167,7 @@ export class CmsController {
   @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  removeCoreValue(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  removeCoreValue(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.coreValuesService.remove(id, req.user.sub);
   }
 

@@ -1,9 +1,9 @@
 'use client';
 
-import gsap from 'gsap';
+import BackendImage from '@/components/shared/BackendImage';
 import type { NewsEvent } from '@/types/news-events.types';
-import { Calendar, Clock, MapPin, Share2 } from 'lucide-react';
-import Image from 'next/image';
+import gsap from 'gsap';
+import { Calendar, MapPin, Share2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 type EventDetailProps = NewsEvent;
@@ -18,6 +18,19 @@ export function EventDetail({
   image2,
 }: EventDetailProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentHtml = content.join('');
+  const handleShare = async () => {
+    try {
+      const url = window.location.href;
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -52,7 +65,7 @@ export function EventDetail({
           <div className="lg:col-span-8 space-y-12">
             {/* Hero Image */}
             <div className="animate-up relative h-[400px] w-full overflow-hidden rounded-sm shadow-xl border-4 border-white">
-              <Image
+              <BackendImage
                 src={mainImage}
                 alt={title}
                 fill
@@ -62,13 +75,10 @@ export function EventDetail({
             </div>
 
             {/* Article Text */}
-            <div className="animate-up prose prose-lg prose-slate max-w-none text-slate-700">
-              {content.map((para, i) => (
-                <p key={i} className="leading-8">
-                  {para}
-                </p>
-              ))}
-            </div>
+            <div
+              className="animate-up prose prose-lg prose-slate max-w-none text-slate-700"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
 
             {/* Gallery Grid */}
             {(image1 || image2) && (
@@ -79,7 +89,7 @@ export function EventDetail({
                 <div className="grid grid-cols-2 gap-6">
                   {image1 && (
                     <div className="relative h-64 bg-slate-100 rounded-sm overflow-hidden">
-                      <Image
+                      <BackendImage
                         src={image1}
                         alt="Gallery 1"
                         fill
@@ -89,7 +99,7 @@ export function EventDetail({
                   )}
                   {image2 && (
                     <div className="relative h-64 bg-slate-100 rounded-sm overflow-hidden">
-                      <Image
+                      <BackendImage
                         src={image2}
                         alt="Gallery 2"
                         fill
@@ -119,17 +129,7 @@ export function EventDetail({
                       <p className="font-semibold text-slate-900">{date}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <Clock className="text-cyan-600 mt-1" size={20} />
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase">
-                        Time
-                      </p>
-                      <p className="font-semibold text-slate-900">
-                        09:00 AM - 05:00 PM
-                      </p>
-                    </div>
-                  </div>
+
                   <div className="flex items-start gap-4">
                     <MapPin className="text-cyan-600 mt-1" size={20} />
                     <div>
@@ -149,8 +149,12 @@ export function EventDetail({
               </button>
 
               <div className="pt-6 border-t border-slate-200">
-                <button className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-cyan-700 transition-colors">
-                  <Share2 size={16} /> Share Event
+                <button
+                  onClick={handleShare}
+                  aria-label="Share event"
+                  className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-cyan-600 hover:text-white transition-colors border border-slate-200 hover:border-transparent"
+                >
+                  <Share2 size={16} />
                 </button>
               </div>
             </div>

@@ -14,6 +14,7 @@ interface TestimonialFormProps {
 export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,13 +29,16 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
     };
 
     try {
-      if (onSubmit) {
-        await onSubmit(data);
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-      }
+      setError(null);
+      await onSubmit?.(data);
       setSubmitted(true);
       form.reset();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -153,6 +157,8 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
           >
             {isSubmitting ? 'Submitting...' : 'Submit Testimonial'}
           </button>
+
+          {error && <p className="text-sm text-red-600 mt-3 font-medium">{error}</p>}
         </form>
       </div>
     </section>

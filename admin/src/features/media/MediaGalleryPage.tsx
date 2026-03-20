@@ -1,6 +1,6 @@
 import { Plus, Search, Settings, Tag } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import EmptyState from '@/components/shared/EmptyState'
@@ -20,8 +20,6 @@ import {
 } from '@/components/ui/select'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { MediaFolder } from '@/types/media.types'
-import CreateMediaFolderDialog from './CreateMediaFolderDialog'
-import EditMediaFolderDialog from './EditMediaFolderDialog'
 import { MediaFolderCard } from './MediaFolderCard'
 import { useDeleteMediaFolder, useMediaFolders } from './useMedia'
 import { useMediaTags } from './useMediaTags'
@@ -30,6 +28,7 @@ export default function MediaGalleryPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [tagId, setTagId] = useState<string>('all')
+  const navigate = useNavigate()
   const debouncedSearch = useDebounce(search, 500)
 
   const { data: tags = [] } = useMediaTags()
@@ -45,8 +44,6 @@ export default function MediaGalleryPage() {
     tagId: tagId === 'all' ? undefined : tagId,
   })
 
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [editFolder, setEditFolder] = useState<MediaFolder | null>(null)
   const [deleteFolder, setDeleteFolder] = useState<MediaFolder | null>(null)
 
   const deleteMutation = useDeleteMediaFolder()
@@ -65,8 +62,10 @@ export default function MediaGalleryPage() {
               <Settings className="mr-2 h-4 w-4" /> Manage Tags
             </Link>
           </Button>
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button asChild>
+            <Link state={{ from: '/media' }} to="/media/new">
             <Plus className="mr-2 h-4 w-4" /> Create Folder
+            </Link>
           </Button>
         </div>
       </PageHeader>
@@ -114,7 +113,7 @@ export default function MediaGalleryPage() {
               <MediaFolderCard
                 key={folder.id}
                 folder={folder}
-                onEdit={() => setEditFolder(folder)}
+                onEdit={() => navigate(`/media/${folder.id}/edit`, { state: { from: '/media' } })}
                 onDelete={() => setDeleteFolder(folder)}
               />
             ))}
@@ -127,19 +126,6 @@ export default function MediaGalleryPage() {
             onPageChange={setPage}
           />
         </div>
-      )}
-
-      <CreateMediaFolderDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-      />
-
-      {editFolder && (
-        <EditMediaFolderDialog
-          folder={editFolder}
-          open={!!editFolder}
-          onOpenChange={(open: boolean) => !open && setEditFolder(null)}
-        />
       )}
 
       <ConfirmDialog

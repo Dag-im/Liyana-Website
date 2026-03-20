@@ -3,7 +3,6 @@ import { useState } from 'react'
 import ErrorState from '@/components/shared/ErrorState'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import type { CreateBlogDto } from '@/api/blogs.api'
 import type { Blog } from '@/types/blogs.types'
 import { useBlog, useUpdateBlog } from '../useBlogs'
@@ -28,33 +27,45 @@ export default function EditBlogDialog({ blogId, trigger }: Props) {
   const updateMutation = useUpdateBlog()
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger render={trigger ?? <Button variant="outline">Edit</Button>} />
-      <DialogContent className="max-w-7xl w-[98vw] h-[92vh] flex flex-col p-0 overflow-hidden">
-        <DialogHeader className="p-6 border-b">
-          <DialogTitle>Edit Blog</DialogTitle>
-          <DialogDescription>Update the blog post using the guided steps.</DialogDescription>
-        </DialogHeader>
-        {blogQuery.isLoading ? (
-          <div className="py-8 flex justify-center">
+    <>
+      {trigger ? (
+        <div onClick={() => setOpen(true)}>{trigger}</div>
+      ) : (
+        <Button onClick={() => setOpen(true)} variant="outline">
+          Edit
+        </Button>
+      )}
+
+      {blogQuery.isLoading ? (
+        open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
             <LoadingSpinner />
           </div>
-        ) : blogQuery.isError || !blogQuery.data ? (
-          <ErrorState onRetry={() => blogQuery.refetch()} />
-        ) : (
-          <BlogWizard
-            defaultValues={toDefaultValues(blogQuery.data)}
-            isLoading={updateMutation.isPending}
-            mode="edit"
-            onSubmit={(dto) => {
-              updateMutation.mutate(
-                { id: blogId, dto },
-                { onSuccess: () => setOpen(false) }
-              )
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+        )
+      ) : blogQuery.isError || !blogQuery.data ? (
+        open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-6">
+             <div className="bg-background rounded-xl border shadow-lg p-6 max-w-md w-full">
+                <ErrorState onRetry={() => blogQuery.refetch()} />
+                <Button onClick={() => setOpen(false)} className="mt-4 w-full" variant="ghost">Close</Button>
+             </div>
+          </div>
+        )
+      ) : (
+        <BlogWizard
+          defaultValues={toDefaultValues(blogQuery.data)}
+          isLoading={updateMutation.isPending}
+          mode="edit"
+          onOpenChange={setOpen}
+          open={open}
+          onSubmit={(dto) => {
+            updateMutation.mutate(
+              { id: blogId, dto },
+              { onSuccess: () => setOpen(false) }
+            )
+          }}
+        />
+      )}
+    </>
   )
 }

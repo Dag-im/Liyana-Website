@@ -7,6 +7,12 @@ export type TestimonialListPayload = {
   total: number;
 };
 
+export type TestimonialCursorResponse = {
+  data: Testimonial[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
 export async function getTestimonials(params?: {
   isFavorite?: boolean;
   perPage?: number;
@@ -23,6 +29,20 @@ export async function getTestimonials(params?: {
   return apiRequest<TestimonialListPayload>(`/testimonials?${query.toString()}`, {
     next: { revalidate: REVALIDATE.SERVICES, tags: ['testimonials'] },
   });
+}
+
+export async function getTestimonialsPublic(params?: {
+  cursor?: string;
+  limit?: number;
+}): Promise<TestimonialCursorResponse> {
+  const query = new URLSearchParams();
+  if (params?.cursor) query.set('cursor', params.cursor);
+  query.set('limit', String(params?.limit ?? 12));
+
+  return apiRequest<TestimonialCursorResponse>(
+    `/testimonials/public?${query.toString()}`,
+    { cache: 'no-store' },
+  );
 }
 
 export async function submitTestimonial(dto: {

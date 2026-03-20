@@ -135,12 +135,18 @@ export class NetworkEntitiesService {
     performedBy: string,
   ): Promise<NetworkEntity> {
     const entity = await this.findOne(id);
+    let relationToAssign: Awaited<
+      ReturnType<NetworkRelationsService['findOne']>
+    > | null = null;
 
     if (dto.relationId) {
-      await this.relationsService.findOne(dto.relationId);
+      relationToAssign = await this.relationsService.findOne(dto.relationId);
     }
 
     Object.assign(entity, dto);
+    if (relationToAssign) {
+      entity.relation = relationToAssign;
+    }
     const updated = await this.repo.save(entity);
 
     this.auditLogService.log(

@@ -1,7 +1,7 @@
 'use client';
 
 import BlogCard from '@/components/client/blog/BlockCard';
-import { blogPosts, getInitials } from '@/data/blogs';
+import BackendImage from '@/components/shared/BackendImage';
 import type { Blog } from '@/types/blog.types';
 import gsap from 'gsap';
 import {
@@ -9,52 +9,58 @@ import {
   ArrowRight,
   Calendar,
   Clock,
-  Linkedin,
   Share2,
-  Twitter,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { use, useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
-type PageProps = {
-  params: Promise<{ slug: string }>;
+type BlogPostPageClientProps = {
+  post: Blog;
+  relatedPosts: Blog[];
 };
 
-const posts: Blog[] = blogPosts.map((post) => ({
-  id: post.id,
-  slug: post.slug,
-  title: post.title,
-  excerpt: post.excerpt,
-  content: post.content,
-  image: post.image,
-  readTime: post.readTime,
-  featured: post.featured ?? false,
-  status: 'PUBLISHED',
-  authorId: post.author.name.toLowerCase().replace(/\s+/g, '-'),
-  authorName: post.author.name,
-  authorRole: post.author.role,
-  categoryId: post.category.toLowerCase().replace(/\s+/g, '-'),
-  category: {
-    id: post.category.toLowerCase().replace(/\s+/g, '-'),
-    name: post.category,
-    slug: post.category.toLowerCase().replace(/\s+/g, '-'),
-  },
-  publishedAt: post.date,
-  createdAt: post.date,
-  updatedAt: post.date,
-}));
+function formatBlogDate(value: string | null) {
+  if (!value) return '';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(parsed);
+}
 
-export default function BlogPostPage({ params }: PageProps) {
-  const { slug } = use(params);
-  const post = posts.find((p) => p.slug === slug);
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter((part) => part.length > 0 && part.toUpperCase() !== 'DR.')
+    .map((part) => part[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
+}
+
+export default function BlogPostPageClient({
+  post,
+  relatedPosts,
+}: BlogPostPageClientProps) {
   const articleRef = useRef<HTMLElement>(null);
-
-  // Get 3 related posts (excluding current, sorted by latest)
+  const handleShare = async () => {
+    try {
+      const url = window.location.href;
+      if (navigator.share) {
+        await navigator.share({ title: post.title, url });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {}
+  };
 
   useLayoutEffect(() => {
-    if (!slug) return;
     const ctx = gsap.context(() => {
       gsap.from('.gsap-article-element', {
         y: 20,
@@ -66,20 +72,7 @@ export default function BlogPostPage({ params }: PageProps) {
       });
     }, articleRef);
     return () => ctx.revert();
-  }, [slug]);
-
-  if (!post) {
-    notFound();
-  }
-
-  const relatedPosts = [...posts]
-    .filter((p) => p.id !== post.id)
-    .sort(
-      (a, b) =>
-        new Date(b.publishedAt ?? b.createdAt).getTime() -
-        new Date(a.publishedAt ?? a.createdAt).getTime()
-    )
-    .slice(0, 3);
+  }, [post.id]);
 
   return (
     <main className="min-h-screen bg-white selection:bg-cyan-100 selection:text-cyan-900 pt-5 pb-24">
@@ -119,7 +112,7 @@ export default function BlogPostPage({ params }: PageProps) {
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-cyan-600" />{' '}
-              {post.publishedAt ?? post.createdAt}
+              {formatBlogDate(post.publishedAt ?? post.createdAt)}
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">
@@ -131,7 +124,7 @@ export default function BlogPostPage({ params }: PageProps) {
         {/* Article Hero Image */}
         <div className="gsap-article-element max-w-6xl mx-auto px-6 mb-20">
           <div className="relative w-full h-[40vh] md:h-[60vh] bg-slate-100 rounded-sm overflow-hidden border border-slate-200">
-            <Image
+            <BackendImage
               src={post.image}
               alt={post.title}
               fill
@@ -145,20 +138,11 @@ export default function BlogPostPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row gap-12 relative">
           {/* Sticky Social Share (Desktop) */}
           <aside className="hidden md:flex flex-col gap-4 sticky top-32 h-fit">
-            <span
-              className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2"
-              style={{ writingMode: 'vertical-rl' }}
+            <button
+              onClick={handleShare}
+              aria-label="Share article"
+              className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-cyan-600 hover:text-white transition-colors border border-slate-200 hover:border-transparent"
             >
-              Share
-            </span>
-            <div className="h-12 w-px bg-slate-200 mx-auto" />
-            <button className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-[#0A66C2] hover:text-white transition-colors border border-slate-200 hover:border-transparent">
-              <Linkedin size={18} />
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-black hover:text-white transition-colors border border-slate-200 hover:border-transparent">
-              <Twitter size={18} />
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-cyan-600 hover:text-white transition-colors border border-slate-200 hover:border-transparent">
               <Share2 size={18} />
             </button>
           </aside>

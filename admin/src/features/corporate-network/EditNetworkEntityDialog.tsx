@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -44,12 +45,14 @@ type EditNetworkEntityDialogProps = {
   open: boolean;
   onClose: () => void;
   entity: NetworkEntity | null;
+  inline?: boolean;
 };
 
 export function EditNetworkEntityDialog({
   open,
   onClose,
   entity,
+  inline = false,
 }: EditNetworkEntityDialogProps) {
   const { data: relations } = useNetworkRelations();
   const updateMutation = useUpdateNetworkEntity(entity?.id || '');
@@ -86,12 +89,17 @@ export function EditNetworkEntityDialog({
     onClose();
   };
 
-  return (
-    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Network Entity</DialogTitle>
-        </DialogHeader>
+  const content = (
+    <>
+        {inline ? (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold">Edit Network Entity</h2>
+          </div>
+        ) : (
+          <DialogHeader>
+            <DialogTitle>Edit Network Entity</DialogTitle>
+          </DialogHeader>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
@@ -235,6 +243,21 @@ export function EditNetworkEntityDialog({
             </DialogFooter>
           </form>
         </Form>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardContent className="pt-6">{content}</CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        {content}
       </DialogContent>
     </Dialog>
   );

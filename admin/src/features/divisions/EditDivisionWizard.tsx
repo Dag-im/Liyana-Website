@@ -1,13 +1,6 @@
 import { divisionsApi } from '@/api/divisions.api';
-import { FileImage } from '@/components/shared/FileImage';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -24,18 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { WizardDialog, type WizardStep } from '@/components/shared/WizardDialog';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDivisionCategories } from '@/features/division-categories/useDivisionCategories';
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
-import { cn } from '@/lib/utils';
+import { getUploadUrl } from '@/lib/upload-utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
   Loader2,
   Plus,
+  Sparkles,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -97,14 +89,16 @@ type DivisionFormData = z.infer<typeof divisionSchema>;
 
 interface EditDivisionWizardProps {
   divisionId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  inline?: boolean;
 }
 
 export function EditDivisionWizard({
   divisionId,
   open,
   onOpenChange,
+  inline = false,
 }: EditDivisionWizardProps) {
   const [step, setStep] = useState(1);
   const { data: division, isLoading: isFetching } = useDivision(divisionId);
@@ -137,7 +131,7 @@ export function EditDivisionWizard({
   });
 
   useEffect(() => {
-    if (division) {
+    if (division && open) {
       form.reset({
         name: division.name,
         shortName: division.shortName,
@@ -158,11 +152,11 @@ export function EditDivisionWizard({
           googleMap: division.contact?.googleMap || '',
         },
         coreServices:
-          division.coreServices?.map((s) => ({ name: s.name })) || [],
+          division.coreServices?.map((s: any) => ({ name: s.name })) || [],
         stats:
-          division.stats?.map((s) => ({ label: s.label, value: s.value })) ||
+          division.stats?.map((s: any) => ({ label: s.label, value: s.value })) ||
           [],
-        images: division.images?.map((img) => ({ path: img.path })) || [],
+        images: division.images?.map((img: any) => ({ path: img.path })) || [],
       });
     }
   }, [division, form, open]);
@@ -214,8 +208,7 @@ export function EditDivisionWizard({
     const isValid = await form.trigger(targetFields);
 
     if (isValid) {
-      if (step < 4) setStep(step + 1);
-      else form.handleSubmit(onSubmit)();
+      if (step < STEPS.length) setStep(step + 1);
     }
   };
 
@@ -227,477 +220,482 @@ export function EditDivisionWizard({
     updateMutation.mutate(values, {
       onSuccess: () => {
         toast.success('Division updated successfully!');
-        onOpenChange(false);
+        onOpenChange?.(false);
         setStep(1);
       },
     });
   };
 
   return (
-    <Dialog
+    <WizardDialog
       open={open}
       onOpenChange={(val) => {
-        onOpenChange(val);
+        onOpenChange?.(val);
         if (!val) setStep(1);
       }}
+      inline={inline}
+      title="Edit Division"
+      description={`Updating ${division?.name || 'Division'}`}
+      steps={STEPS as unknown as WizardStep[]}
+      currentStep={step}
+      onStepClick={(s) => setStep(s)}
+      footer={
+        <div className="flex w-full items-center justify-between">
+          <Button
+            disabled={step === 1}
+            onClick={handleBack}
+            variant="outline"
+          >
+            Back
+          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              disabled={updateMutation.isPending}
+              onClick={() => onOpenChange?.(false)}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+            {step < STEPS.length ? (
+              <Button onClick={handleNext}>Next Step</Button>
+            ) : (
+              <Button disabled={updateMutation.isPending || isFetching} onClick={form.handleSubmit(onSubmit)}>
+                {updateMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                Save Changes
+              </Button>
+            )}
+          </div>
+        </div>
+      }
     >
-      <DialogContent className="sm:max-w-175 gap-0 p-0 overflow-hidden">
-        <div className="flex flex-col h-150">
-          {/* Header */}
-          <div className="p-6 border-b bg-muted/30">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <DialogTitle className="text-xl">Edit Division</DialogTitle>
-                <DialogDescription>Update division profiles.</DialogDescription>
-              </div>
-              <div className="flex items-center gap-1">
-                {STEPS.map((s) => (
-                  <div
-                    key={s.id}
-                    className={cn(
-                      'h-1.5 w-8 rounded-full transition-colors',
-                      step >= s.id ? 'bg-primary' : 'bg-muted'
+      <div className="relative">
+        {isFetching && (
+          <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10 backdrop-blur-[2px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+        <Form {...form}>
+          <form className="space-y-6">
+            {step === 1 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Division Name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                ))}
-              </div>
-            </div>
-          </div>
+                  <FormField
+                    control={form.control}
+                    name="shortName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Short Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g. CARD" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 relative">
-            {isFetching && (
-              <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10 backdrop-blur-[2px]">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="serviceCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Service Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {serviceCategories?.data.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.id}>
+                                {cat.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="divisionCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Division Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {divisionCategories?.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.id}>
+                                {cat.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Building, Floor, etc." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Active Status
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Make this division visible to the public
+                    </p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             )}
-            <Form {...form}>
-              <form className="space-y-6">
-                {step === 1 && (
-                  <div className="space-y-4 animate-in fade-in slide-in-from-right-2">
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Division Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Cardiology Center"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="shortName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Short Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Cardio" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="serviceCategoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Service Category</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select Category" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {serviceCategories?.data.map((c) => (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {c.title}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="divisionCategoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Division Group</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select Group" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {divisionCategories?.map((c) => (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {c.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+            {step === 2 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+                <FormField
+                  control={form.control}
+                  name="overview"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overview</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Brief overview of the division"
+                          rows={4}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <FormField
-                      control={form.control}
-                      name="location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Primary Location</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Block A, Ground Floor"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Active Status
-                        </FormLabel>
-                        <p className="text-xs text-muted-foreground">
-                          Make this division visible to the public
-                        </p>
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name="isActive"
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-lg font-semibold">Detailed Description</FormLabel>
+                    <Button
+                      onClick={() => appendDesc('')}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Paragraph
+                    </Button>
                   </div>
-                )}
+                  <div className="space-y-4">
+                    {descFields.map((field, index) => (
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={`description.${index}` as any}
+                        render={({ field: inputField }) => (
+                          <FormItem>
+                            <div className="flex gap-2">
+                              <FormControl>
+                                <Textarea
+                                  {...inputField}
+                                  className="flex-1"
+                                  placeholder={`Paragraph ${index + 1}`}
+                                  rows={3}
+                                />
+                              </FormControl>
+                              <Button
+                                onClick={() => removeDesc(index)}
+                                size="icon"
+                                type="button"
+                                variant="ghost"
+                                disabled={descFields.length === 1}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
-                {step === 2 && (
-                  <div className="space-y-4 animate-in fade-in slide-in-from-right-2">
-                    <FormField
-                      control={form.control}
-                      name="overview"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Division Overview</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Brief summary of the division..."
-                              className="min-h-25"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            {step === 3 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-2">
+                <FormField
+                  control={form.control}
+                  name="logo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold">Logo</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          currentPath={field.value}
+                          onSuccess={field.onChange}
+                          onUpload={divisionsApi.uploadDivisionFile}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Detailed Description Paragraphs</FormLabel>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => appendDesc('')}
-                        >
-                          <Plus className="h-4 w-4 mr-2" /> Add Paragraph
-                        </Button>
-                      </div>
-                      {descFields.map((field, index) => (
-                        <div key={field.id} className="flex gap-2 group">
-                          <FormField
-                            control={form.control}
-                            name={`description.${index}` as any}
-                            render={({ field }) => (
-                              <FormItem className="flex-1">
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="More details..."
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                <div className="space-y-4 pt-4 border-t">
+                  <FormLabel className="text-lg font-semibold">Gallery Images</FormLabel>
+                  <div className="grid grid-cols-4 gap-4">
+                    {imageFields.map((field, index) => (
+                      <div
+                        className="relative aspect-video rounded-lg border overflow-hidden group"
+                        key={field.id}
+                      >
+                        <img
+                          alt={`Gallery ${index}`}
+                          className="h-full w-full object-cover"
+                          src={getUploadUrl(field.path)}
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <Button
-                            type="button"
-                            variant="ghost"
+                            onClick={() => removeImage(index)}
                             size="icon"
-                            className="text-destructive h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => index > 0 && removeDesc(index)}
+                            type="button"
+                            variant="destructive"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
+                      </div>
+                    ))}
+                    <div className="aspect-video">
+                      <FileUpload
+                        label="Add Image"
+                        multiple
+                        onSuccess={(path) => appendImage({ path })}
+                        onUpload={divisionsApi.uploadDivisionFile}
+                        showPreview={false}
+                      />
                     </div>
                   </div>
-                )}
+                </div>
+              </div>
+            )}
 
-                {step === 3 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+            {step === 4 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-2">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-lg font-semibold">Core Services</FormLabel>
+                    <Button
+                      onClick={() => appendService({ name: '' })}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Service
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {serviceFields.map((field, index) => (
+                      <div
+                        className="relative p-4 rounded-xl border bg-card space-y-3 group"
+                        key={field.id}
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`coreServices.${index}.name`}
+                          render={({ field: inputField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...inputField}
+                                  placeholder="Service Name"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeService(index)}
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-lg font-semibold">Division Statistics</FormLabel>
+                    <Button
+                      onClick={() => appendStat({ label: '', value: '' })}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Stat
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    {statFields.map((field, index) => (
+                      <div
+                        className="relative p-4 rounded-xl border bg-card space-y-3 group"
+                        key={field.id}
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`stats.${index}.value`}
+                          render={({ field: inputField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...inputField}
+                                  placeholder="Value (e.g. 100+)"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`stats.${index}.label`}
+                          render={({ field: inputField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...inputField}
+                                  placeholder="Label (e.g. Patients)"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeStat(index)}
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="space-y-4 pt-4 border-t">
+                  <FormLabel className="text-lg font-semibold">Contact Details</FormLabel>
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="logo"
+                      name="contact.phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Division Logo</FormLabel>
+                          <FormLabel>Phone</FormLabel>
                           <FormControl>
-                            <FileUpload
-                              onUpload={divisionsApi.uploadDivisionFile}
-                              onSuccess={field.onChange}
-                              currentPath={field.value}
-                              label="Upload Logo"
-                            />
+                            <Input {...field} placeholder="+251..." />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
-                    <div className="space-y-3">
-                      <FormLabel>Gallery Images</FormLabel>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {imageFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="relative aspect-square rounded-xl overflow-hidden border group bg-muted"
-                          >
-                            <FileImage
-                              path={field.path}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => removeImage(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                        <div className="aspect-square">
-                          <FileUpload
-                            onUpload={divisionsApi.uploadDivisionFile}
-                            onSuccess={(path) => appendImage({ path })}
-                            multiple
-                            showPreview={false}
-                            label="Add Gallery"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="contact.email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="division@liyana.com" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                )}
-
-                {step === 4 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="contact.phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Contact Phone</FormLabel>
-                            <FormControl>
-                              <Input placeholder="+251..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="contact.email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Contact Email</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="division@liyana.com"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Core Services</FormLabel>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => appendService({ name: '' })}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          {serviceFields.map((f, i) => (
-                            <div key={f.id} className="flex gap-2">
-                              <FormField
-                                control={form.control}
-                                name={`coreServices.${i}.name`}
-                                render={({ field }) => (
-                                  <FormItem className="flex-1">
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Service name..."
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeService(i)}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Statistics</FormLabel>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => appendStat({ label: '', value: '' })}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          {statFields.map((f, i) => (
-                            <div key={f.id} className="flex gap-2">
-                              <div className="grid grid-cols-2 gap-1 flex-1">
-                                <FormField
-                                  control={form.control}
-                                  name={`stats.${i}.label`}
-                                  render={({ field }) => (
-                                    <FormControl>
-                                      <Input placeholder="Label" {...field} />
-                                    </FormControl>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name={`stats.${i}.value`}
-                                  render={({ field }) => (
-                                    <FormControl>
-                                      <Input placeholder="Value" {...field} />
-                                    </FormControl>
-                                  )}
-                                />
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeStat(i)}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </form>
-            </Form>
-          </div>
-
-          {/* Footer */}
-          <div className="p-6 border-t bg-muted/30">
-            <div className="flex items-center justify-between gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                disabled={step === 1}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={updateMutation.isPending}
-                >
-                  {updateMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : step === 4 ? (
-                    <Check className="mr-2 h-4 w-4" />
-                  ) : (
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                  )}
-                  {step === 4 ? 'Save All Changes' : 'Next'}
-                </Button>
+                  <FormField
+                    control={form.control}
+                    name="contact.googleMap"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Map URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="https://maps.google.com/..." />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+            )}
+          </form>
+        </Form>
+      </div>
+    </WizardDialog>
   );
 }

@@ -37,3 +37,19 @@ export async function getNewsEvent(id: string): Promise<NewsEvent> {
     next: { revalidate: REVALIDATE.CONTENT, tags: ['news-events', `news-event-${id}`] },
   });
 }
+
+export async function getLatestNews(count: number = 3): Promise<NewsEvent[]> {
+  const res = await apiRequest<{ data: NewsEvent[]; total: number }>(
+    `/news-events?status=PUBLISHED&type=news&perPage=${count}&page=1`,
+    { next: { revalidate: REVALIDATE.CONTENT, tags: ['news-events', 'news'] } },
+  );
+  return res.data;
+}
+
+export async function getLatestEvents(count: number = 3): Promise<NewsEvent[]> {
+  const res = await apiRequest<{ data: NewsEvent[]; total: number }>(
+    `/news-events?status=PUBLISHED&type=event&perPage=${count}&page=1`,
+    { next: { revalidate: REVALIDATE.CONTENT, tags: ['news-events', 'events'] } },
+  );
+  return res.data;
+}

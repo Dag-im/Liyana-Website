@@ -1,33 +1,19 @@
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import DataTable from '@/components/shared/DataTable'
 import PageHeader from '@/components/shared/PageHeader'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
   useMediaTags,
-  useCreateMediaTag,
-  useUpdateMediaTag,
   useDeleteMediaTag,
 } from './useMediaTags'
-import { slugify } from '@/lib/media-utils'
 import type { MediaTag } from '@/types/media.types'
 
 export default function MediaTagsPage() {
   const { data: tags = [], isLoading, isError, refetch } = useMediaTags()
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [editTag, setEditTag] = useState<MediaTag | null>(null)
   const [deleteTag, setDeleteTag] = useState<MediaTag | null>(null)
 
   const deleteMutation = useDeleteMediaTag()
@@ -52,11 +38,16 @@ export default function MediaTagsPage() {
       cell: ({ row }: { row: { original: MediaTag } }) => (
         <div className="flex items-center gap-2">
           <Button
+            asChild
             variant="ghost"
             size="icon"
-            onClick={() => setEditTag(row.original)}
           >
-            <Edit className="h-4 w-4" />
+            <Link
+              state={{ from: '/media/tags' }}
+              to={`/media/tags/${row.original.id}/edit`}
+            >
+              <Edit className="h-4 w-4" />
+            </Link>
           </Button>
           <Button
             variant="ghost"
@@ -74,8 +65,10 @@ export default function MediaTagsPage() {
   return (
     <div className="container py-6">
       <PageHeader heading="Media Tags" text="Manage tags for categorizing media folders">
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <Button asChild>
+          <Link state={{ from: '/media/tags' }} to="/media/tags/new">
           <Plus className="mr-2 h-4 w-4" /> Add Tag
+          </Link>
         </Button>
       </PageHeader>
 
@@ -86,19 +79,6 @@ export default function MediaTagsPage() {
         isError={isError}
         onRetry={refetch}
       />
-
-      <CreateMediaTagDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-      />
-
-      {editTag && (
-        <EditMediaTagDialog
-          tag={editTag}
-          open={!!editTag}
-          onOpenChange={(open) => !open && setEditTag(null)}
-        />
-      )}
 
       <ConfirmDialog
         open={!!deleteTag}
@@ -116,137 +96,5 @@ export default function MediaTagsPage() {
         isLoading={deleteMutation.isPending}
       />
     </div>
-  )
-}
-
-function CreateMediaTagDialog({
-  open,
-  onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const [name, setName] = useState('')
-  const createMutation = useCreateMediaTag()
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    createMutation.mutate(
-      { name },
-      {
-        onSuccess: () => {
-          onOpenChange(false)
-          setName('')
-        },
-      }
-    )
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Media Tag</DialogTitle>
-          <DialogDescription>
-            Create a new tag to categorize your media folders.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              placeholder="e.g. CSR, Hospital Events"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            {name && (
-              <p className="text-xs text-muted-foreground">
-                Slug preview:{' '}
-                <span className="font-mono">{slugify(name)}</span>
-              </p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              Create Tag
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function EditMediaTagDialog({
-  tag,
-  open,
-  onOpenChange,
-}: {
-  tag: MediaTag
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const [name, setName] = useState(tag.name)
-  const updateMutation = useUpdateMediaTag()
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateMutation.mutate(
-      { id: tag.id, dto: { name } },
-      {
-        onSuccess: () => {
-          onOpenChange(false)
-        },
-      }
-    )
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Media Tag</DialogTitle>
-          <DialogDescription>
-            Update the name of the media tag.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">Name</Label>
-            <Input
-              id="edit-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Slug preview:{' '}
-              <span className="font-mono">{slugify(name)}</span>
-            </p>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              Update Tag
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

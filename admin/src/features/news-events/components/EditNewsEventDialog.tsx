@@ -4,14 +4,6 @@ import type { CreateNewsEventDto } from '@/api/news-events.api';
 import ErrorState from '@/components/shared/ErrorState';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import type { NewsEvent } from '@/types/news-events.types';
 import { useNewsEvent, useUpdateNewsEvent } from '../useNewsEvents';
 import NewsEventWizard from './NewsEventWizard';
@@ -43,41 +35,49 @@ export default function EditNewsEventDialog({
   const updateMutation = useUpdateNewsEvent();
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger
-        render={trigger ?? <Button variant="outline">Edit</Button>}
-      />
-      <DialogContent className="max-w-7xl w-200 h-[92vh] flex flex-col p-0 overflow-hidden">
-        <DialogHeader className="p-6 border-b">
-          <DialogTitle>Edit Entry</DialogTitle>
-          <DialogDescription>
-            Update the news or event entry using the guided steps.
-          </DialogDescription>
-        </DialogHeader>
-        {newsEventQuery.isLoading ? (
-          <div className="py-8 flex justify-center">
-            <LoadingSpinner />
+    <>
+      {trigger ? (
+        <div onClick={() => setOpen(true)}>{trigger}</div>
+      ) : (
+        <Button onClick={() => setOpen(true)} variant="outline">
+          Edit
+        </Button>
+      )}
+
+      {newsEventQuery.isLoading ? (
+        open && (
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+             <LoadingSpinner />
+           </div>
+        )
+      ) : newsEventQuery.isError || !newsEventQuery.data ? (
+        open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-6">
+             <div className="bg-background rounded-xl border shadow-lg p-6 max-w-md w-full">
+                <ErrorState onRetry={() => newsEventQuery.refetch()} />
+                <Button onClick={() => setOpen(false)} className="mt-4 w-full" variant="ghost">Close</Button>
+             </div>
           </div>
-        ) : newsEventQuery.isError || !newsEventQuery.data ? (
-          <ErrorState onRetry={() => newsEventQuery.refetch()} />
-        ) : (
-          <NewsEventWizard
-            defaultValues={toDefaultValues(newsEventQuery.data)}
-            isLoading={updateMutation.isPending}
-            mode="edit"
-            onSubmit={(dto) => {
-              updateMutation.mutate(
-                { id: newsEventId, dto },
-                {
-                  onSuccess: () => {
-                    setOpen(false);
-                  },
-                }
-              );
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+        )
+      ) : (
+        <NewsEventWizard
+          defaultValues={toDefaultValues(newsEventQuery.data)}
+          isLoading={updateMutation.isPending}
+          mode="edit"
+          onOpenChange={setOpen}
+          open={open}
+          onSubmit={(dto) => {
+            updateMutation.mutate(
+              { id: newsEventId, dto },
+              {
+                onSuccess: () => {
+                  setOpen(false);
+                },
+              }
+            );
+          }}
+        />
+      )}
+    </>
   );
 }

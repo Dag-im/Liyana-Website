@@ -5,8 +5,10 @@ import { getNetworkIcon } from '@/lib/network-icons';
 import { Edit, Move, Trash2 } from 'lucide-react';
 import {
   useNetworkEntities,
+  useNetworkTree,
 } from './useNetworkEntities';
 import type { NetworkEntity } from '@/types/corporate-network.types';
+import { useNetworkRelations } from './useNetworkRelations';
 
 type ListViewProps = {
   params: {
@@ -30,6 +32,24 @@ export function CorporateNetworkListView({
   onDelete,
 }: ListViewProps) {
   const { data: entities, isLoading } = useNetworkEntities(params);
+  const { data: treeData } = useNetworkTree();
+  const { data: relations } = useNetworkRelations();
+
+  const flattenTree = (nodes: NetworkEntity[]): NetworkEntity[] => {
+    const result: NetworkEntity[] = [];
+    const walk = (node: NetworkEntity) => {
+      result.push(node);
+      node.children?.forEach(walk);
+    };
+    nodes.forEach(walk);
+    return result;
+  };
+
+  const flatTree = flattenTree(treeData ?? []);
+  const parentNameById = new Map(flatTree.map((node) => [node.id, node.name]));
+  const relationLabelById = new Map(
+    (relations ?? []).map((relation) => [relation.id, relation.label]),
+  );
 
   return (
     <DataTable
@@ -71,7 +91,9 @@ export function CorporateNetworkListView({
           id: 'relation',
           cell: ({ row }) => (
             <Badge variant="outline" className="text-[10px]">
-              {row.original.relation.label}
+              {relationLabelById.get(row.original.relationId) ??
+                row.original.relation?.label ??
+                'Unknown'}
             </Badge>
           ),
         },
@@ -79,7 +101,9 @@ export function CorporateNetworkListView({
           header: 'Parent',
           id: 'parent',
           cell: ({ row }) => {
-            const parentName = (row.original as any).parent?.name || 'Root';
+            const parentName = row.original.parentId
+              ? (parentNameById.get(row.original.parentId) ?? 'Unknown')
+              : 'Root';
             return (
               <Badge
                 variant={parentName === 'Root' ? 'secondary' : 'outline'}

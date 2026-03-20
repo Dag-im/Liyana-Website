@@ -111,6 +111,15 @@ export const APP_NAVIGATION: AppRoute[] = [
     icon: BookOpen,
     roles: ['ADMIN', 'COMMUNICATION', 'BLOGGER'],
     group: 'content',
+    children: [
+      {
+        path: '/blogs/categories',
+        label: 'Blog Categories',
+        icon: FolderTree,
+        roles: ['ADMIN', 'COMMUNICATION', 'BLOGGER'],
+        group: 'content',
+      },
+    ],
   },
   {
     path: '/media',

@@ -14,6 +14,7 @@ export async function getBlogs(params?: {
   perPage?: number;
   categoryId?: string;
   featured?: boolean;
+  search?: string;
 }): Promise<BlogListPayload> {
   const query = new URLSearchParams();
   query.set('status', 'PUBLISHED');
@@ -30,6 +31,10 @@ export async function getBlogs(params?: {
 
   if (params?.featured !== undefined) {
     query.set('featured', String(params.featured));
+  }
+
+  if (params?.search) {
+    query.set('search', params.search);
   }
 
   return apiRequest<BlogListPayload>(`/blogs?${query.toString()}`, {

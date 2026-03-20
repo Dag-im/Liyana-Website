@@ -1,9 +1,10 @@
 'use client';
 
+import { filterNewsEvents } from '@/app/news-events/actions';
 import gsap from 'gsap';
 import type { NewsEvent } from '@/types/news-events.types';
 import { Search } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { EventNewsCard } from './EventNewsCard';
 
 interface EventNewsGridProps {
@@ -12,10 +13,29 @@ interface EventNewsGridProps {
 
 export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
   const [filter, setFilter] = useState<'all' | 'news' | 'event'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filtered, setFiltered] = useState<NewsEvent[]>(items);
+  const [isPending, startTransition] = useTransition();
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const filtered =
-    filter === 'all' ? items : items.filter((item) => item.type === filter);
+  useEffect(() => {
+    if (filter === 'all' && searchQuery.trim() === '') {
+      setFiltered(items);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      startTransition(async () => {
+        const result = await filterNewsEvents({
+          type: filter === 'all' ? undefined : filter,
+          search: searchQuery.trim() || undefined,
+        });
+        setFiltered(result);
+      });
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [filter, items, searchQuery]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -32,7 +52,7 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
       );
     }, contentRef);
     return () => ctx.revert();
-  }, [filter]);
+  }, [filtered]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 space-y-12">
@@ -71,10 +91,16 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
           <input
             type="text"
             placeholder="Search archive..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:border-cyan-500 transition-colors"
           />
         </div>
       </div>
+
+      {isPending ? (
+        <div className="py-2 text-sm text-slate-500">Searching...</div>
+      ) : null}
 
       {/* Grid */}
       <div

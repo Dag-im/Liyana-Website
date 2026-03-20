@@ -1,50 +1,24 @@
 'use client';
 
 import { MediaItemCard } from '@/components/client/media/MediaComponents';
-import { mediaFolders } from '@/data/media';
+import BackendImage from '@/components/shared/BackendImage';
 import type { MediaFolder } from '@/types/media.types';
 import gsap from 'gsap';
 import { ArrowLeft, Image as ImageIcon, Video } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { use, useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
-type Props = {
-  params: Promise<{ id: string }>;
+const formatMediaDate = (value: string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
 };
 
-const folders: MediaFolder[] = mediaFolders.map((folder, index) => ({
-  id: folder.id,
-  name: folder.name,
-  coverImage: folder.coverImage,
-  description: folder.description,
-  sortOrder: index,
-  tag: {
-    id: folder.tag.toLowerCase().replace(/\s+/g, '-'),
-    name: folder.tag,
-    slug: folder.tag.toLowerCase().replace(/\s+/g, '-'),
-  },
-  items: folder.media.map((item, itemIndex) => ({
-    id: item.id,
-    title: item.title,
-    type: item.type,
-    url: item.url,
-    thumbnail: item.thumbnail ?? null,
-    sortOrder: itemIndex,
-    folderId: folder.id,
-    createdAt: folder.lastUpdated,
-    updatedAt: folder.lastUpdated,
-  })),
-  mediaCount: folder.mediaCount,
-  lastUpdated: folder.lastUpdated,
-  createdAt: folder.lastUpdated,
-  updatedAt: folder.lastUpdated,
-}));
-
-export default function MediaFolderPage(props: Props) {
-  const { id } = use(props.params);
-  const folder = folders.find((f) => f.id === id);
+export default function MediaFolderPage({ folder }: { folder: MediaFolder }) {
   const containerRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -71,10 +45,6 @@ export default function MediaFolderPage(props: Props) {
     }, containerRef);
     return () => ctx.revert();
   }, [folder?.id]);
-
-  if (!folder) {
-    notFound();
-  }
 
   const imageCount = (folder.items ?? []).filter((m) => m.type === 'image').length;
   const videoCount = (folder.items ?? []).filter((m) => m.type === 'video').length;
@@ -121,13 +91,13 @@ export default function MediaFolderPage(props: Props) {
                 Videos
               </div>
               <div className="w-px h-6 bg-slate-200" />
-              <div>Updated {folder.lastUpdated}</div>
+              <div>Updated {formatMediaDate(folder.lastUpdated)}</div>
             </div>
           </div>
 
           <div className="gsap-header-el lg:w-1/3 w-full shrink-0">
             <div className="relative aspect-video rounded-sm overflow-hidden border border-slate-200 shadow-sm">
-              <Image
+              <BackendImage
                 src={folder.coverImage}
                 alt={folder.name}
                 fill

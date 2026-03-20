@@ -9,291 +9,12 @@ import {
   Search,
   Target,
 } from 'lucide-react';
-import type { NetworkEntity, NetworkRelation } from '@/types/network.types';
+import type {
+  NetworkEntity,
+  NetworkMeta,
+  NetworkRelation,
+} from '@/types/network.types';
 import { useMemo, useState } from 'react';
-
-// --- Types ---
-type Relationship = 'Controlled' | 'Strategic Partner' | 'Venture' | 'Project';
-
-type SeedEntity = {
-  id: string;
-  name: string;
-  relation: Relationship;
-  summary: string;
-  description: string;
-  insight: string;
-  icon: string;
-  children?: SeedEntity[];
-};
-
-type Entity = Omit<NetworkEntity, 'children'> & { children?: Entity[] };
-
-const RELATION_MAP: Record<Relationship, NetworkRelation> = {
-  Controlled: {
-    id: 'controlled',
-    name: 'controlled',
-    label: 'Controlled',
-    description: null,
-    sortOrder: 1,
-  },
-  'Strategic Partner': {
-    id: 'strategic-partner',
-    name: 'strategic-partner',
-    label: 'Strategic Partner',
-    description: null,
-    sortOrder: 2,
-  },
-  Venture: {
-    id: 'venture',
-    name: 'venture',
-    label: 'Venture',
-    description: null,
-    sortOrder: 3,
-  },
-  Project: {
-    id: 'project',
-    name: 'project',
-    label: 'Project',
-    description: null,
-    sortOrder: 4,
-  },
-};
-
-function enrichEntities(
-  nodes: SeedEntity[],
-  parentId: string | null = null
-): Entity[] {
-  return nodes.map((node, index) => ({
-    id: node.id,
-    name: node.name,
-    summary: node.summary,
-    description: node.description,
-    insight: node.insight,
-    icon: node.icon,
-    sortOrder: index,
-    parentId,
-    relationId: RELATION_MAP[node.relation].id,
-    relation: RELATION_MAP[node.relation],
-    createdAt: '',
-    updatedAt: '',
-    children: node.children ? enrichEntities(node.children, node.id) : undefined,
-  }));
-}
-
-// --- Data Structure ---
-const SEED_DATA: SeedEntity[] = [
-  {
-    id: 'lhs-owned',
-    name: 'Direct Ownership Portfolio',
-    relation: 'Controlled',
-    summary: 'Wholly-owned assets.',
-    description:
-      'The core institutional assets where Liyana Healthcare maintains 100% operational and strategic control.',
-    insight:
-      'Ensures clinical excellence and brand consistency under the Yanet flagship.',
-    icon: 'Building2',
-    children: [
-      {
-        id: 'generalHosp',
-        name: 'Yanet General Hospital',
-        relation: 'Controlled',
-        summary: 'Secondary care facility.',
-        description: 'Main clinical anchor for standard medical care.',
-        insight: 'Provides the primary bed capacity for the network.',
-        icon: 'Building2',
-      },
-      {
-        id: 'trauma',
-        name: 'Yanet Trauma & Surgical Center',
-        relation: 'Controlled',
-        summary: 'Emergency hub.',
-        description: 'High-end facility for Orthopedics and Neurosurgery.',
-        insight: 'Addresses critical trauma gaps in Southern Ethiopia.',
-        icon: 'Activity',
-      },
-      {
-        id: 'college',
-        name: 'Yanet-Liyana College',
-        relation: 'Controlled',
-        summary: 'Professional training.',
-        description: 'Accredited institution for health science degrees.',
-        insight: 'Creates a self-sustaining talent pipeline.',
-        icon: 'GraduationCap',
-      },
-      {
-        id: 'advancedDiag',
-        name: 'Yanet Advanced Diagnostic Center',
-        relation: 'Controlled',
-        summary: 'Medical imaging.',
-        description: 'State-of-the-art facility for lab and imaging research.',
-        insight: 'Keeps testing in-house for faster turnaround.',
-        icon: 'Microscope',
-      },
-      {
-        id: 'internalMed',
-        name: 'Yanet Internal Medicine Center',
-        relation: 'Controlled',
-        summary: 'Chronic disease.',
-        description: 'Expert diagnostics for complex internal diseases.',
-        insight: 'Positions Liyana as a regional referral hub.',
-        icon: 'Activity',
-      },
-      {
-        id: 'ophthalmology',
-        name: 'Yanet Ophthalmology & Dental Clinic',
-        relation: 'Controlled',
-        summary: 'Specialized care.',
-        description: 'Specialty facility for sensory and dental health.',
-        insight: 'Captures outpatient specialty demand.',
-        icon: 'Activity',
-      },
-      {
-        id: 'primaryHosp',
-        name: 'Yanet Primary Hospital',
-        relation: 'Controlled',
-        summary: 'Community health.',
-        description: 'Essential medical services for local communities.',
-        insight: 'First point of contact in the healthcare funnel.',
-        icon: 'Building2',
-      },
-      {
-        id: 'yali',
-        name: 'Yali Detergents & Cosmetics',
-        relation: 'Controlled',
-        summary: 'Industrial hygiene.',
-        description: 'Manufacturing arm for sanitary products.',
-        insight: 'Ensures cost-effective supply chain for hospitals.',
-        icon: 'Factory',
-      },
-      {
-        id: 'boarding',
-        name: 'Liyana Boarding School Systems',
-        relation: 'Controlled',
-        summary: 'Academic infrastructure.',
-        description: 'Infrastructure operation managed under the group.',
-        insight: 'Diversifies group assets into education.',
-        icon: 'GraduationCap',
-      },
-      {
-        id: 'research',
-        name: 'Liyana Research & Consultancy',
-        relation: 'Controlled',
-        summary: 'Strategic advisory.',
-        description: 'Entity for healthcare research and data analysis.',
-        insight: 'Drives evidence-based expansion.',
-        icon: 'Globe',
-      },
-    ],
-  },
-  {
-    id: 'lhs-partners',
-    name: 'Strategic Partnership',
-    relation: 'Strategic Partner',
-    summary: 'Joint ventures and digital-led regional expansion.',
-    description:
-      'Collaborative tracks leveraging shared capital and technology for large-scale impact.',
-    insight:
-      'Enables rapid entry into new markets via co-investment and digital tools.',
-    icon: 'Network',
-    children: [
-      {
-        id: 'digital',
-        name: 'LIYANA Digital Healthcare Solutions SC',
-        relation: 'Strategic Partner',
-        summary: 'Expansion & digital engine.',
-        description:
-          'Primary shareholder model for regional hospital projects.',
-        insight: 'The key driver for Liyana’s "distributed hospital" strategy.',
-        icon: 'Cpu',
-        children: [
-          {
-            id: 'liyanaAddis',
-            name: 'Liyana-Addis Healthcare SC',
-            relation: 'Venture',
-            summary: 'Yanet Gondar operator.',
-            description: 'Multispecialty operations in Northern Ethiopia.',
-            insight: 'Northward expansion strategic hub.',
-            icon: 'Building2',
-          },
-          {
-            id: 'dreamLiyana',
-            name: 'DREAM-LIYANA Healthcare PLC',
-            relation: 'Venture',
-            summary: 'Ortho specialty.',
-            description: 'Operates DREAM Orthopedic center.',
-            insight: 'Niche specialization in orthopedics.',
-            icon: 'Activity',
-          },
-          {
-            id: 'cheliyan',
-            name: 'CHELIYAN Healthcare PLC',
-            relation: 'Venture',
-            summary: 'Surgical hub.',
-            description: 'General surgical and diagnostic center.',
-            insight: 'Regional clinical presence.',
-            icon: 'Building2',
-          },
-          {
-            id: 'p-omcc',
-            name: 'LIYANA-OMCC Oncology Center',
-            relation: 'Project',
-            summary: 'Planned cancer center.',
-            description: 'Future oncology treatment facility.',
-            insight: 'Expanding cancer care reach.',
-            icon: 'Activity',
-          },
-          {
-            id: 'p-juba',
-            name: 'Juba Kidney Hospital',
-            relation: 'Project',
-            summary: 'Renal care.',
-            description: 'Upcoming kidney hospital and diagnostics.',
-            insight: 'Cross-border healthcare delivery.',
-            icon: 'Activity',
-          },
-          {
-            id: 'p-pharma',
-            name: 'Digital Pharma Import',
-            relation: 'Project',
-            summary: 'Supply chain.',
-            description: 'Upcoming pharmaceutical import division.',
-            insight: 'Ensures availability of vital medications.',
-            icon: 'Pill',
-          },
-          {
-            id: 'p-city',
-            name: 'Healthcare City Project',
-            relation: 'Project',
-            summary: 'Medical metropolis.',
-            description: 'Long-term medical city project.',
-            insight: 'The ultimate vision for East African healthcare.',
-            icon: 'Building2',
-          },
-        ],
-      },
-      {
-        id: 'lsoxy',
-        name: 'LIYANA-Oxy Plc',
-        relation: 'Strategic Partner',
-        summary: 'Medical & industrial gas.',
-        description: 'Joint venture for oxygen and industrial gas production.',
-        insight: 'Secures clinical independence for medical-grade oxygen.',
-        icon: 'Factory',
-      },
-      {
-        id: 'onco',
-        name: 'ONCO Plc',
-        relation: 'Strategic Partner',
-        summary: 'Specialized oncology care.',
-        description: 'Oncology partner entity focused on cancer diagnostics.',
-        insight: 'Brings high-level oncology expertise into the network.',
-        icon: 'Activity',
-      },
-    ],
-  },
-];
-
-export const DATA: Entity[] = enrichEntities(SEED_DATA);
 
 const StatusLabel = ({ relation }: { relation: NetworkRelation }) => (
   <span
@@ -308,9 +29,11 @@ const StatusLabel = ({ relation }: { relation: NetworkRelation }) => (
 );
 
 export default function LiyanaCorporateNetwork({
-  data = DATA,
+  data,
+  meta,
 }: {
-  data?: Entity[];
+  data: NetworkEntity[];
+  meta?: NetworkMeta;
 }) {
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(
@@ -322,9 +45,9 @@ export default function LiyanaCorporateNetwork({
     if (!search) return data;
 
     const query = search.toLowerCase();
-    const results: Entity[] = [];
+    const results: NetworkEntity[] = [];
 
-    const findMatches = (nodes: Entity[]) => {
+    const findMatches = (nodes: NetworkEntity[]) => {
       nodes.forEach((node) => {
         if (node.name.toLowerCase().includes(query)) {
           // Clone to prevent showing original children during search
@@ -350,7 +73,7 @@ export default function LiyanaCorporateNetwork({
     setExpanded(next);
   };
 
-  const renderNode = (e: Entity, depth = 0) => {
+  const renderNode = (e: NetworkEntity, depth = 0) => {
     const isSearchMode = search.length > 0;
     const isExpanded = expanded.has(e.id) || isSearchMode;
     const isMatch = isSearchMode; // In search mode, everything rendered is a match
@@ -505,7 +228,8 @@ export default function LiyanaCorporateNetwork({
               Units
             </span>
             <span className="text-xs font-bold text-slate-800">
-              22 Registered Entities
+              {meta?.totalEntities ?? 0} Registered{' '}
+              {(meta?.totalEntities ?? 0) === 1 ? 'Entity' : 'Entities'}
             </span>
           </div>
           <div>
@@ -515,7 +239,7 @@ export default function LiyanaCorporateNetwork({
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-cyan-600" />
               <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter">
-                Core.v.2026
+                {meta?.version ?? `Core.v.${new Date().getFullYear()}`}
               </span>
             </div>
           </div>

@@ -13,8 +13,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
 import type { Faq } from '@/types/faq.types'
-import CreateFaqDialog from './CreateFaqDialog'
-import EditFaqDialog from './EditFaqDialog'
 import { useDeleteFaq, useFaqCategories, useFaqs, useReorderFaq } from './useFaqs'
 
 function truncate(text: string, max: number) {
@@ -30,8 +28,6 @@ export default function FaqsPage() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
 
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editingFaq, setEditingFaq] = useState<Faq | null>(null)
   const [deleteFaq, setDeleteFaq] = useState<Faq | null>(null)
 
   const debouncedSearch = useDebounce(search, 400)
@@ -108,8 +104,13 @@ export default function FaqsPage() {
             >
               <ArrowDown className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => setEditingFaq(row.original)}>
-              <Edit className="h-4 w-4" />
+            <Button asChild size="icon" variant="ghost">
+              <Link
+                state={{ from: '/faqs' }}
+                to={`/faqs/${row.original.id}/edit`}
+              >
+                <Edit className="h-4 w-4" />
+              </Link>
             </Button>
             <Button
               size="icon"
@@ -132,9 +133,11 @@ export default function FaqsPage() {
         <Button variant="outline" asChild>
           <Link to="/faq-categories">Manage Categories</Link>
         </Button>
-        <Button onClick={() => setCreateOpen(true)}>
+        <Button asChild>
+          <Link state={{ from: '/faqs' }} to="/faqs/new">
           <Plus className="mr-2 h-4 w-4" />
           Add FAQ
+          </Link>
         </Button>
       </PageHeader>
 
@@ -179,12 +182,6 @@ export default function FaqsPage() {
           onPageChange={setPage}
         />
       </div>
-
-      <CreateFaqDialog open={createOpen} onOpenChange={setCreateOpen} />
-
-      {editingFaq ? (
-        <EditFaqDialog faq={editingFaq} open={Boolean(editingFaq)} onOpenChange={(open) => !open && setEditingFaq(null)} />
-      ) : null}
 
       <ConfirmDialog
         open={Boolean(deleteFaq)}

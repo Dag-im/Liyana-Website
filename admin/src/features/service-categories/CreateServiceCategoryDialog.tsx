@@ -2,6 +2,7 @@ import { serviceCategoriesApi } from '@/api/service-categories.api'
 import { IconPicker } from '@/components/shared/IconPicker'
 import { FileUpload } from '@/components/shared/FileUpload'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
     Dialog,
     DialogContent,
@@ -36,9 +37,11 @@ type FormData = z.infer<typeof schema>
 export function CreateServiceCategoryDialog({
   open,
   onOpenChange,
+  inline = false,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  inline?: boolean
 }) {
   const createMutation = useCreateServiceCategory()
   const [newAttribute, setNewAttribute] = useState('')
@@ -79,9 +82,8 @@ export function CreateServiceCategoryDialog({
     })
   }
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+  const content = (
+    <>
         <DialogHeader>
           <DialogTitle>Create Service Category</DialogTitle>
           <DialogDescription>Add a new top-level service grouping.</DialogDescription>
@@ -225,7 +227,20 @@ export function CreateServiceCategoryDialog({
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
+    </>
+  )
+
+  if (inline) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardContent className="pt-6">{content}</CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )
 }

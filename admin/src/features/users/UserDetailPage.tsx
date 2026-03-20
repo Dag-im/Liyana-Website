@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 
 import DataTable from '@/components/shared/DataTable'
@@ -31,12 +31,20 @@ export default function UserDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/users">
-        <Button variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to users
+      <div className="flex items-center gap-2">
+        <Link to="/users">
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to users
+          </Button>
+        </Link>
+        <Button asChild variant="outline">
+          <Link state={{ from: `/users/${id}` }} to={`/users/${id}/edit`}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit user
+          </Link>
         </Button>
-      </Link>
+      </div>
 
       <Card>
         <CardHeader>

@@ -6,10 +6,11 @@ type ToggleProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
-  ({ className, pressed, ...props }, ref) => {
+  ({ className, pressed, type, ...props }, ref) => {
     return (
       <button
         ref={ref}
+        type={type ?? 'button'}
         data-state={pressed ? 'on' : 'off'}
         className={cn(
           'inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm transition-colors',

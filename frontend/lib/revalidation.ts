@@ -1,7 +1,7 @@
 export const REVALIDATE = {
-  CMS: 300,
+  CMS: 30,
   SERVICES: 30,
-  CONTENT: 600,
-  MEDIA: 3600,
+  CONTENT: 30,
+  MEDIA: 30,
   STATIC: false,
 } as const;

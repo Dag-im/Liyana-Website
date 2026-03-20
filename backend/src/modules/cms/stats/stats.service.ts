@@ -55,12 +55,9 @@ export class StatsService {
     const stat = await this.findOne(id);
     await this.statRepository.delete(id);
 
-    this.auditLogService.log(
-      AuditAction.CMS_STAT_DELETED,
-      performedBy,
-      id,
-      { label: stat.label },
-    );
+    this.auditLogService.log(AuditAction.CMS_STAT_DELETED, performedBy, id, {
+      label: stat.label,
+    });
 
     return { message: 'Stat deleted successfully' };
   }

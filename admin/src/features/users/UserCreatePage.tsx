@@ -1,0 +1,230 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+import PageHeader from '@/components/shared/PageHeader'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { useDivisions } from '@/features/divisions/useDivisions'
+import { useCreateUser } from '@/features/users/useUsers'
+import type { CreateUserDto } from '@/api/users.api'
+import { ROLES } from '@/lib/constants'
+import { formatEnumLabel } from '@/lib/utils'
+
+const createUserSchema = z
+  .object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    password: z.string().min(8),
+    role: z.enum(ROLES),
+    divisionId: z.string().optional(),
+    isActive: z.boolean(),
+  })
+  .refine(
+    (data) => {
+      if (data.role === 'CUSTOMER_SERVICE' && !data.divisionId) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Division is required for Customer Service role',
+      path: ['divisionId'],
+    }
+  )
+
+type CreateUserSchema = z.infer<typeof createUserSchema>
+
+export default function UserCreatePage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const createUserMutation = useCreateUser()
+  const { data: divisionsData } = useDivisions({ perPage: 100 })
+
+  const returnTo =
+    (location.state as { from?: string } | undefined)?.from ?? '/users'
+
+  const form = useForm<CreateUserSchema>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      role: 'BLOGGER',
+      divisionId: '',
+      isActive: true,
+    },
+  })
+
+  const watchRole = form.watch('role')
+
+  const toPayload = (values: CreateUserSchema): CreateUserDto => ({
+    ...values,
+    divisionId:
+      values.role === 'CUSTOMER_SERVICE' ? values.divisionId?.trim() || null : null,
+  })
+
+  const onSubmit = (values: CreateUserSchema) => {
+    createUserMutation.mutate(toPayload(values), {
+      onSuccess: () => {
+        toast.success('User created')
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+        navigate(returnTo)
+      },
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : 'Failed to create user')
+      },
+    })
+  }
+
+  return (
+    <div className="space-y-5">
+      <PageHeader heading="Create User" text="Add a new user account.">
+        <Button asChild variant="outline">
+          <Link to={returnTo}>Back</Link>
+        </Button>
+      </PageHeader>
+
+      <Card>
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Full name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Email address" type="email" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Password" type="password" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        if (value !== 'CUSTOMER_SERVICE') {
+                          form.setValue('divisionId', '')
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {ROLES.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {formatEnumLabel(role)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {watchRole === 'CUSTOMER_SERVICE' && (
+                <FormField
+                  control={form.control}
+                  name="divisionId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign Division</FormLabel>
+                      <Select defaultValue={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select division" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {divisionsData?.data.map((division) => (
+                            <SelectItem key={division.id} value={division.id}>
+                              {division.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-md border p-3">
+                    <FormLabel>Active Status</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center justify-end gap-2">
+                <Button asChild type="button" variant="outline">
+                  <Link to={returnTo}>Cancel</Link>
+                </Button>
+                <Button disabled={createUserMutation.isPending} type="submit">
+                  {createUserMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Create Account
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

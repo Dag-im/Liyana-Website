@@ -14,7 +14,6 @@ import { useAuth } from '@/features/auth/useAuth'
 import { formatDate } from '@/lib/utils'
 import { useBlog, useDeleteBlog, useFeatureBlog, usePublishBlog, useSubmitBlog, useUnfeatureBlog } from './useBlogs'
 import BlogStatusBadge from './components/BlogStatusBadge'
-import EditBlogDialog from './components/EditBlogDialog'
 import RejectBlogDialog from './components/RejectBlogDialog'
 
 export default function BlogDetailPage() {
@@ -66,15 +65,12 @@ export default function BlogDetailPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {canEdit ? (
-            <EditBlogDialog
-              blogId={blog.id}
-              trigger={
-                <Button size="sm" variant="outline">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              }
-            />
+            <Button size="sm" variant="outline" asChild>
+              <Link to={`/blogs/${blog.id}/edit`} state={{ from: `/blogs/${blog.id}` }}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
           ) : null}
           {isBlogger && blog.authorId === user?.id && (blog.status === 'DRAFT' || blog.status === 'REJECTED') ? (
             <Button size="sm" variant="secondary" onClick={() => submitMutation.mutate(blog.id)}>

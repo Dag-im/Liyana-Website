@@ -18,13 +18,11 @@ import { useServiceCategories } from '@/features/service-categories/useServiceCa
 import { usePagination } from '@/hooks/usePagination';
 import type { Division } from '@/types/services.types';
 import { Edit, Eye, FilterX, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { CreateDivisionWizard } from './CreateDivisionWizard';
-import { EditDivisionWizard } from './EditDivisionWizard';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDeleteDivision, useDivisions } from './useDivisions';
 
 export default function DivisionsPage() {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { page, perPage, setPage } = usePagination();
 
@@ -51,9 +49,6 @@ export default function DivisionsPage() {
   const { data: divisionCategories } = useDivisionCategories();
   const deleteMutation = useDeleteDivision();
 
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [editingDivision, setEditingDivision] = useState<Division | null>(null);
-
   const updateFilters = (key: string, value: string | boolean | undefined) => {
     const newParams = new URLSearchParams(searchParams);
     if (value === undefined || value === 'all' || value === '') {
@@ -76,9 +71,11 @@ export default function DivisionsPage() {
         heading="Divisions"
         text="Manage clinical divisions, administrative departments and hospital units."
       >
-        <Button onClick={() => setIsWizardOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Division
+        <Button asChild>
+          <Link to="/divisions/new" state={{ from: `${location.pathname}${location.search}` }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Division
+          </Link>
         </Button>
       </PageHeader>
 
@@ -257,14 +254,13 @@ export default function DivisionsPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditingDivision(row.original);
-                  }}
                   className="h-8 gap-2"
+                  asChild
                 >
-                  <Edit className="h-3.5 w-3.5" />
-                  Edit
+                  <Link to={`/divisions/${row.original.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
+                    <Edit className="h-3.5 w-3.5" />
+                    Edit
+                  </Link>
                 </Button>
                 <ConfirmDialog
                   title="Delete Division"
@@ -288,19 +284,6 @@ export default function DivisionsPage() {
         ]}
       />
 
-      <CreateDivisionWizard
-        open={isWizardOpen}
-        onOpenChange={setIsWizardOpen}
-      />
-
-      {editingDivision && (
-        <EditDivisionWizard
-          key={editingDivision.id}
-          divisionId={editingDivision.id}
-          open={!!editingDivision}
-          onOpenChange={(open: boolean) => !open && setEditingDivision(null)}
-        />
-      )}
     </div>
   );
 }

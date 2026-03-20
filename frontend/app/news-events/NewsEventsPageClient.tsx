@@ -3,32 +3,17 @@
 import { EventNewsPageGrid } from '@/components/client/news-events/EventNewsGrid';
 import { SectionHeading } from '@/components/shared/sectionHeading';
 import type { NewsEvent } from '@/types/news-events.types';
-import { newsEventsData } from './data';
 
-const items: NewsEvent[] = newsEventsData.map((item) => ({
-  id: item.id,
-  type: item.type,
-  title: item.title,
-  date: item.date,
-  location: item.location ?? null,
-  summary: item.summary,
-  content: item.content,
-  keyHighlights: item.keyHighlights ?? null,
-  mainImage: item.mainImage,
-  image1: item.image1 ?? '',
-  image2: item.image2 ?? '',
-  status: 'PUBLISHED',
-  publishedAt: item.date,
-  createdById: 'mock-author',
-  createdByName: 'Liyana Healthcare',
-  createdAt: item.date,
-  updatedAt: item.date,
-}));
+interface NewsEventsPageClientProps {
+  items?: NewsEvent[];
+}
 
-export default function NewsEventsPage() {
+export default function NewsEventsPageClient({
+  items = [],
+}: NewsEventsPageClientProps) {
   return (
     <div className="bg-white min-h-screen">
-      <header className="bg-white border-b border-slate-200 pt-10 pb-16 px-6">
+      <header className="bg-white border-b border-slate-200 pt-32 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Identity Strip */}
           <div className="flex items-center gap-4 mb-6">

@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,11 +29,13 @@ import { InfoIcon } from 'lucide-react'
 type CreateTeamMemberDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  inline?: boolean
 }
 
 export default function CreateTeamMemberDialog({
   open,
   onOpenChange,
+  inline = false,
 }: CreateTeamMemberDialogProps) {
   const [name, setName] = useState('')
   const [position, setPosition] = useState('')
@@ -84,18 +87,23 @@ export default function CreateTeamMemberDialog({
     setSortOrder('0')
   }
 
-  return (
-    <Dialog open={open} onOpenChange={(val) => {
-      onOpenChange(val)
-      if (!val) resetForm()
-    }}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Add Team Member</DialogTitle>
-          <DialogDescription>
-            Create a new staff entry for the team or leadership section.
-          </DialogDescription>
-        </DialogHeader>
+  const content = (
+    <>
+        {inline ? (
+          <div className="mb-4 space-y-1">
+            <h2 className="text-lg font-semibold">Add Team Member</h2>
+            <p className="text-sm text-muted-foreground">
+              Create a new staff entry for the team or leadership section.
+            </p>
+          </div>
+        ) : (
+          <DialogHeader>
+            <DialogTitle>Add Team Member</DialogTitle>
+            <DialogDescription>
+              Create a new staff entry for the team or leadership section.
+            </DialogDescription>
+          </DialogHeader>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
@@ -220,7 +228,26 @@ export default function CreateTeamMemberDialog({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
+    </>
+  )
+
+  if (inline) {
+    return (
+      <Card className="mx-auto w-full max-w-2xl">
+        <CardContent className="pt-6">{content}</CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        onOpenChange(val)
+        if (!val) resetForm()
+      }}
+    >
+      <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )
 }

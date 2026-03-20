@@ -18,7 +18,6 @@ import {
   usePublishNewsEvent,
   useUnpublishNewsEvent,
 } from './useNewsEvents'
-import EditNewsEventDialog from './components/EditNewsEventDialog'
 import NewsEventStatusBadge from './components/NewsEventStatusBadge'
 
 export default function NewsEventDetailPage() {
@@ -68,15 +67,12 @@ export default function NewsEventDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           {isEditor ? (
-            <EditNewsEventDialog
-              newsEventId={entry.id}
-              trigger={
-                <Button size="sm" variant="outline">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              }
-            />
+            <Button size="sm" variant="outline" asChild>
+              <Link to={`${backPath}/${entry.id}/edit`} state={{ from: `${backPath}/${entry.id}` }}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
           ) : null}
           {isEditor ? (
             entry.status === 'PUBLISHED' ? (

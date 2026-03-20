@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckSquare, FileText, Image as ImageIcon, Info, Sparkles } from 'lucide-react'
+import { CheckSquare, FileText, Image as ImageIcon, Info, Loader2, Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -11,9 +10,7 @@ import {
 } from '@/api/news-events.api'
 import RichTextEditor from '@/components/shared/RichTextEditor'
 import RichTextViewer from '@/components/shared/RichTextViewer'
-import WizardProgress from '@/components/shared/WizardProgress'
-import type { WizardStep } from '@/components/shared/WizardProgress'
-import { Badge } from '@/components/ui/badge'
+import { WizardDialog, type WizardStep } from '@/components/shared/WizardDialog';
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -60,6 +57,9 @@ type Props = {
   fixedType?: NewsEventType
   isLoading: boolean
   onSubmit: (dto: CreateNewsEventDto) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  inline?: boolean
 }
 
 const STEPS = [
@@ -93,12 +93,14 @@ export default function NewsEventWizard({
   mode,
   defaultValues,
   fixedType,
-  isLoading,
+  isLoading: isSubmitLoading,
   onSubmit,
+  open = true,
+  onOpenChange = () => undefined,
+  inline = false,
 }: Props) {
   const [step, setStep] = useState(1)
   const [showHighlights, setShowHighlights] = useState(false)
-  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null)
 
   const initialContent = useMemo(() => {
     const content = defaultValues?.content
@@ -135,23 +137,7 @@ export default function NewsEventWizard({
       image2: defaultValues?.image2 ?? '',
       contentHtml: initialContent,
     })
-  }, [defaultValues, fixedType, form, initialContent])
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | null = null
-    const subscription = form.watch((_value, { type }) => {
-      if (type !== 'change') return
-      if (timeout) clearTimeout(timeout)
-      timeout = setTimeout(() => {
-        setDraftSavedAt(new Date())
-      }, 450)
-    })
-
-    return () => {
-      subscription.unsubscribe()
-      if (timeout) clearTimeout(timeout)
-    }
-  }, [form])
+  }, [defaultValues, fixedType, form, initialContent, open])
 
   const watchType = form.watch('type')
   const contentHtml = form.watch('contentHtml')
@@ -160,23 +146,6 @@ export default function NewsEventWizard({
     1: ['type', 'title', 'date', 'summary', 'location', 'keyHighlights'],
     2: ['mainImage', 'image1', 'image2'],
     3: ['contentHtml'],
-  }
-
-  const validateStep = async (targetStep: number) => {
-    if (targetStep <= 1) return true
-
-    for (let current = 1; current < targetStep; current += 1) {
-      const fields = stepFields[current]
-      if (!fields?.length) continue
-
-      const valid = await form.trigger(fields)
-      if (!valid) {
-        setStep(current)
-        return false
-      }
-    }
-
-    return true
   }
 
   const handleSubmit = (values: FormValues) => {
@@ -227,70 +196,83 @@ export default function NewsEventWizard({
 
   const goBack = () => setStep((prev) => Math.max(prev - 1, 1))
 
-  useEffect(() => {
-    const listener = (event: KeyboardEvent) => {
-      if (step !== 4) return
-      if (!(event.metaKey || event.ctrlKey) || event.key !== 'Enter') return
-      event.preventDefault()
-      void form.handleSubmit(handleSubmit)()
-    }
-
-    window.addEventListener('keydown', listener)
-    return () => window.removeEventListener('keydown', listener)
-  }, [form, step])
-
   const values = form.getValues()
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="space-y-4 border-b p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <p className="text-sm font-semibold">Step {step} of {STEPS.length}</p>
-            <p className="text-xs text-muted-foreground">
-              {STEPS.find((item) => item.id === step)?.description}
-            </p>
-          </div>
+    <WizardDialog
+      open={open}
+      onOpenChange={(val) => {
+        onOpenChange(val)
+        if (!val) setStep(1)
+      }}
+      inline={inline}
+      title={watchType === 'event' ? (mode === 'create' ? 'Create Event' : 'Edit Event') : (mode === 'create' ? 'Create News' : 'Edit News')}
+      description={watchType === 'event' ? 'Add or update an event entry using the guided steps.' : 'Add or update a news entry using the guided steps.'}
+      steps={STEPS as unknown as WizardStep[]}
+      currentStep={step}
+      onStepClick={(s) => setStep(s)}
+      footer={
+        <div className="flex w-full items-center justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={goBack}
+            disabled={step === 1}
+          >
+            Back
+          </Button>
           <div className="flex items-center gap-2">
-            {draftSavedAt ? (
-              <Badge variant="secondary">Draft saved {draftSavedAt.toLocaleTimeString()}</Badge>
-            ) : null}
-            <Badge variant="outline">{mode === 'create' ? 'New Entry' : 'Editing Entry'}</Badge>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            {step < STEPS.length ? (
+              <Button type="button" onClick={goNext}>
+                Continue
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                className="bg-primary"
+                onClick={form.handleSubmit(handleSubmit)}
+                disabled={isSubmitLoading}
+              >
+                {isSubmitLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                {mode === 'create' ? 'Create Entry' : 'Save Changes'}
+              </Button>
+            )}
           </div>
         </div>
-        <WizardProgress
-          step={step}
-          steps={STEPS as unknown as WizardStep[]}
-          onStepClick={(nextStep) => {
-            void (async () => {
-              const allowed = await validateStep(nextStep)
-              if (allowed) setStep(nextStep)
-            })()
-          }}
-        />
-      </div>
-
+      }
+    >
       <Form {...form}>
         <form
-          className="custom-scrollbar flex-1 overflow-y-auto p-6"
+          className="space-y-6"
           onSubmit={form.handleSubmit(handleSubmit)}
         >
-          {step === 1 ? (
-            <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {step === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type</FormLabel>
+                      <FormLabel className="text-base font-semibold">Type</FormLabel>
                       <Select
                         defaultValue={field.value}
                         onValueChange={field.onChange}
                         disabled={mode === 'edit' || !!fixedType}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-11">
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
@@ -309,9 +291,9 @@ export default function NewsEventWizard({
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date</FormLabel>
+                      <FormLabel className="text-base font-semibold">Date</FormLabel>
                       <FormControl>
-                        <Input {...field} type="date" />
+                        <Input {...field} type="date" className="h-11 focus-visible:ring-primary/20" />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">Set the primary publication or event date.</p>
                       <FormMessage />
@@ -325,9 +307,13 @@ export default function NewsEventWizard({
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel className="text-base font-semibold">Title</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Title" />
+                      <Input 
+                        {...field} 
+                        placeholder="Entry title" 
+                        className="h-12 text-lg focus-visible:ring-primary/20"
+                      />
                     </FormControl>
                     <p className="text-xs text-muted-foreground">Keep this concise. It appears in cards and listings.</p>
                     <FormMessage />
@@ -335,30 +321,39 @@ export default function NewsEventWizard({
                 )}
               />
 
-              {watchType === 'event' ? (
+              {watchType === 'event' && (
                 <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel className="text-base font-semibold">Location</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Location" />
+                        <Input 
+                          {...field} 
+                          placeholder="Event location" 
+                          className="h-11 focus-visible:ring-primary/20"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              ) : null}
+              )}
 
               <FormField
                 control={form.control}
                 name="summary"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Summary</FormLabel>
+                    <FormLabel className="text-base font-semibold">Summary</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Summary" rows={4} />
+                      <Textarea 
+                        {...field} 
+                        placeholder="Short summary for the entry" 
+                        rows={3} 
+                        className="resize-none focus-visible:ring-primary/20"
+                      />
                     </FormControl>
                     <p className="text-xs text-muted-foreground">A short teaser shown before users open full content.</p>
                     <FormMessage />
@@ -366,11 +361,14 @@ export default function NewsEventWizard({
                 )}
               />
 
-              <div className="rounded-lg border border-dashed p-3">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium">Optional highlights</p>
+              <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold">Key Highlights</h4>
+                    <p className="text-xs text-muted-foreground">Optional bullet points for quick scanning</p>
+                  </div>
                   <Button
-                    onClick={() => setShowHighlights((prev) => !prev)}
+                    onClick={() => setShowHighlights(!showHighlights)}
                     size="sm"
                     type="button"
                     variant="outline"
@@ -378,7 +376,7 @@ export default function NewsEventWizard({
                     {showHighlights ? 'Hide' : 'Add Highlights'}
                   </Button>
                 </div>
-                {showHighlights ? (
+                {showHighlights && (
                   <FormField
                     control={form.control}
                     name="keyHighlights"
@@ -394,29 +392,33 @@ export default function NewsEventWizard({
                       </FormItem>
                     )}
                   />
-                ) : (
-                  <p className="text-xs text-muted-foreground">Add bullet highlights only when they add value to the announcement.</p>
                 )}
               </div>
             </div>
-          ) : null}
+          )}
 
-          {step === 2 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Upload 3 images to ensure consistent layout in cards and detail pages.</p>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {step === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+              <div className="rounded-xl bg-primary/5 p-4 border border-primary/10 flex items-center gap-3">
+                <Info className="h-5 w-5 text-primary" />
+                <p className="text-sm text-primary-foreground/80">
+                  Upload 3 images to ensure a rich visual experience. The <strong>Main Image</strong> is used for banners.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="mainImage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Main Image</FormLabel>
+                      <FormLabel className="text-base font-semibold">Main Image (Banner)</FormLabel>
                       <FormControl>
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
                           currentPath={field.value}
-                          label="Upload main image"
+                          label="Upload Main Image"
                         />
                       </FormControl>
                       <FormMessage />
@@ -428,13 +430,13 @@ export default function NewsEventWizard({
                   name="image1"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image 1</FormLabel>
+                      <FormLabel className="text-base font-semibold">Supporting Image 1</FormLabel>
                       <FormControl>
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
                           currentPath={field.value}
-                          label="Upload image 1"
+                          label="Upload Image"
                         />
                       </FormControl>
                       <FormMessage />
@@ -446,13 +448,13 @@ export default function NewsEventWizard({
                   name="image2"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image 2</FormLabel>
+                      <FormLabel className="text-base font-semibold">Supporting Image 2</FormLabel>
                       <FormControl>
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
                           currentPath={field.value}
-                          label="Upload image 2"
+                          label="Upload Image"
                         />
                       </FormControl>
                       <FormMessage />
@@ -461,119 +463,115 @@ export default function NewsEventWizard({
                 />
               </div>
             </div>
-          ) : null}
+          )}
 
-          {step === 3 ? (
-            <div className="space-y-4">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="space-y-3">
-                  <Label>Content Editor</Label>
-                  <RichTextEditor
-                    value={contentHtml}
-                    onChange={(html) =>
-                      form.setValue('contentHtml', html, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }
-                    minHeight={320}
-                  />
-                  {form.formState.errors.contentHtml?.message ? (
-                    <p className="text-sm font-medium text-destructive">
-                      {form.formState.errors.contentHtml.message}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Use concise headings and short paragraphs for readability.</p>
-                  )}
+          {step === 3 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[60vh]">
+                <div className="flex flex-col space-y-3">
+                  <FormLabel className="text-base font-semibold flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Content Editor
+                  </FormLabel>
+                  <div className="flex-1 overflow-hidden rounded-xl border">
+                    <RichTextEditor
+                      value={contentHtml}
+                      onChange={(html) =>
+                        form.setValue('contentHtml', html, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                    />
+                  </div>
+                  <FormMessage />
                 </div>
 
-                <div className="space-y-3">
-                  <Label>Live Preview</Label>
-                  <div className="min-h-75 rounded-md border bg-muted/20 p-4">
+                <div className="flex flex-col space-y-3">
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    Live Preview
+                  </Label>
+                  <div className="flex-1 overflow-y-auto rounded-xl border bg-muted/10 p-6 prose prose-sm dark:prose-invert max-w-none">
                     <RichTextViewer content={contentHtml} />
                   </div>
                 </div>
               </div>
             </div>
-          ) : null}
+          )}
 
-          {step === 4 ? (
-            <div className="space-y-5">
-              <div className="rounded-xl border bg-muted/20 p-4">
-                <h3 className="mb-2 text-sm font-semibold">Ready to submit</h3>
-                <p className="text-xs text-muted-foreground">
-                  Review critical fields below. You can click any previous step to edit before submitting.
-                </p>
+          {step === 4 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-2 max-w-4xl mx-auto">
+              <div className="rounded-2xl border bg-primary/5 p-8 border-primary/10 flex items-start gap-4">
+                <div className="bg-primary/10 p-3 rounded-xl">
+                  <CheckSquare className="h-6 w-6 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-foreground">Final Verification</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Review your {watchType} entry details before publishing.
+                  </p>
+                </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <ReviewBlock title="General">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ReviewBlock title="Core Information">
                   <ReviewItem label="Type" value={values.type} />
                   <ReviewItem label="Date" value={values.date} />
                   <ReviewItem label="Title" value={values.title} />
-                  <ReviewItem label="Location" value={values.location || 'Not set'} />
+                  {values.type === 'event' && (
+                    <ReviewItem label="Location" value={values.location || 'Not set'} />
+                  )}
                 </ReviewBlock>
 
-                <ReviewBlock title="Media">
-                  <ReviewItem label="Main image" value={values.mainImage ? 'Added' : 'Missing'} />
-                  <ReviewItem label="Image 1" value={values.image1 ? 'Added' : 'Missing'} />
-                  <ReviewItem label="Image 2" value={values.image2 ? 'Added' : 'Missing'} />
+                <ReviewBlock title="Media Assets">
+                  <ReviewItem label="Banner Image" value={values.mainImage ? 'Ready' : 'Missing'} />
+                  <ReviewItem label="Supporting 1" value={values.image1 ? 'Ready' : 'Missing'} />
+                  <ReviewItem label="Supporting 2" value={values.image2 ? 'Ready' : 'Missing'} />
                 </ReviewBlock>
               </div>
 
-              <ReviewBlock title="Summary">
-                <p className="text-sm text-foreground">{values.summary || 'No summary entered.'}</p>
+              <ReviewBlock title="Summary Teaser">
+                <p className="text-sm leading-relaxed text-muted-foreground italic">
+                  "{values.summary || 'No summary entered.'}"
+                </p>
               </ReviewBlock>
 
-              <ReviewBlock title="Highlights">
-                {(values.keyHighlights ?? []).length ? (
-                  <ul className="list-disc space-y-1 pl-5 text-sm">
-                    {(values.keyHighlights ?? []).map((item, index) => (
-                      <li key={`${item}-${index}`}>{item}</li>
+              {values.keyHighlights && values.keyHighlights.length > 0 && (
+                <ReviewBlock title="Key Highlights">
+                  <ul className="list-disc space-y-2 pl-5">
+                    {values.keyHighlights.map((item, index) => (
+                      <li key={`${item}-${index}`} className="text-sm text-muted-foreground">{item}</li>
                     ))}
                   </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No highlights added.</p>
-                )}
-              </ReviewBlock>
-
-              <ReviewBlock title="Keyboard Shortcut">
-                <p className="text-xs text-muted-foreground">Press <kbd className="rounded border bg-background px-1.5 py-0.5 text-[11px]">Ctrl/Cmd + Enter</kbd> to submit from this step.</p>
-              </ReviewBlock>
+                </ReviewBlock>
+              )}
+              
+              <div className="bg-muted/30 rounded-xl p-4 border border-dashed flex items-center justify-between">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Publishing Tip</h4>
+                  <p className="text-[11px] text-muted-foreground">
+                    Ensure the images are high quality and the content is free of typos.
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="rounded border bg-background px-1.5 py-0.5 text-[10px]">Ctrl</kbd>
+                  <span className="text-[10px]">+</span>
+                  <kbd className="rounded border bg-background px-1.5 py-0.5 text-[10px]">Enter</kbd>
+                </div>
+              </div>
             </div>
-          ) : null}
+          )}
         </form>
       </Form>
-
-      <div className="border-t p-6">
-        <div className="flex items-center justify-between">
-          <Button type="button" variant="ghost" onClick={goBack} disabled={step === 1}>
-            Back
-          </Button>
-          {step < STEPS.length ? (
-            <Button type="button" onClick={goNext}>
-              Continue
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              onClick={form.handleSubmit(handleSubmit)}
-              disabled={isLoading}
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              {mode === 'create' ? 'Create Entry' : 'Save Changes'}
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    </WizardDialog>
   )
 }
 
-function ReviewBlock({ title, children }: { title: string; children: ReactNode }) {
+function ReviewBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2 rounded-xl border border-border/80 bg-background p-4">
-      <h4 className="text-sm font-semibold">{title}</h4>
+    <section className="space-y-3 rounded-2xl border bg-background p-6 shadow-sm">
+      <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">{title}</h4>
       {children}
     </section>
   )
@@ -581,9 +579,9 @@ function ReviewBlock({ title, children }: { title: string; children: ReactNode }
 
 function ReviewItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
+    <div className="flex items-center justify-between gap-4 py-1 border-b border-muted last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground capitalize">{value}</span>
     </div>
   )
 }

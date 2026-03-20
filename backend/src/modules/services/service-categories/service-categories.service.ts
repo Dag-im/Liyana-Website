@@ -52,7 +52,9 @@ export class ServiceCategoriesService {
       );
     }
 
-    query.orderBy('category.sortOrder', 'ASC').addOrderBy('category.createdAt', 'DESC');
+    query
+      .orderBy('category.sortOrder', 'ASC')
+      .addOrderBy('category.createdAt', 'DESC');
     query.skip((page - 1) * perPage).take(perPage);
 
     const [data, total] = await query.getManyAndCount();

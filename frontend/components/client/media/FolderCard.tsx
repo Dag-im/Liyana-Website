@@ -1,11 +1,23 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
+import BackendImage from '@/components/shared/BackendImage';
 import type { MediaFolder } from '@/types/media.types';
+import Link from 'next/link';
 import { TagBadge } from './TagBadge';
 
 export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
+  function formatMediaDate(post: MediaFolder) {
+    const raw = post.lastUpdated;
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) {
+      return raw;
+    }
+    return parsed.toLocaleDateString('en-GB', {
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+    });
+  }
   return (
     <Link
       href={`/media/${folder.id}`}
@@ -16,7 +28,7 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
       "
     >
       <div className="relative h-48 w-full">
-        <Image
+        <BackendImage
           src={folder.coverImage}
           alt={folder.name}
           fill
@@ -37,7 +49,9 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
           </span>
         </div>
 
-        <p className="text-xs text-gray-400">Updated {folder.lastUpdated}</p>
+        <p className="text-xs text-gray-400">
+          Updated {formatMediaDate(folder)}
+        </p>
       </div>
     </Link>
   );

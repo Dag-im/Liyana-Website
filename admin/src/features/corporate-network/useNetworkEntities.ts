@@ -56,10 +56,19 @@ export function useUpdateNetworkEntity(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (dto: any) => networkEntitiesApi.updateNetworkEntity(id, dto),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['network-entities', id] });
-      queryClient.invalidateQueries({ queryKey: ['network-entities'] });
-      queryClient.invalidateQueries({ queryKey: ['network-meta'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['network-entities', id] }),
+        queryClient.invalidateQueries({
+          queryKey: ['network-entities', 'tree'],
+          refetchType: 'all',
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['network-entities'],
+          refetchType: 'all',
+        }),
+        queryClient.invalidateQueries({ queryKey: ['network-meta'] }),
+      ]);
       toast.success('Entity updated');
     },
     onError: (error: any) => {

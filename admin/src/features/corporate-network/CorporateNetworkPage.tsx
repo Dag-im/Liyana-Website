@@ -21,8 +21,6 @@ import {
 } from './useNetworkEntities';
 import { CorporateNetworkTreeView } from './CorporateNetworkTreeView';
 import { CorporateNetworkListView } from './CorporateNetworkListView';
-import { CreateNetworkEntityDialog } from './CreateNetworkEntityDialog';
-import { EditNetworkEntityDialog } from './EditNetworkEntityDialog';
 import { MoveNetworkEntityDialog } from './MoveNetworkEntityDialog';
 import type { NetworkEntity } from '@/types/corporate-network.types';
 import { Card } from '@/components/ui/card';
@@ -37,32 +35,28 @@ export default function CorporateNetworkPage() {
   const deleteMutation = useDeleteNetworkEntity();
 
   // Dialog states
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isMoveOpen, setIsMoveOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [selectedEntity, setSelectedEntity] = useState<NetworkEntity | null>(
     null
   );
-  const [parentId, setParentId] = useState<string | null>(null);
-  const [parentName, setParentName] = useState<string | undefined>();
 
   const handleAddRoot = () => {
-    setParentId(null);
-    setParentName(undefined);
-    setIsCreateOpen(true);
+    navigate('/corporate-network/new', { state: { from: '/corporate-network' } });
   };
 
   const handleAddChild = (parent: NetworkEntity) => {
-    setParentId(parent.id);
-    setParentName(parent.name);
-    setIsCreateOpen(true);
+    navigate(
+      `/corporate-network/new?parentId=${encodeURIComponent(parent.id)}&parentName=${encodeURIComponent(parent.name)}`,
+      { state: { from: '/corporate-network' } }
+    );
   };
 
   const handleEdit = (entity: NetworkEntity) => {
-    setSelectedEntity(entity);
-    setIsEditOpen(true);
+    navigate(`/corporate-network/${entity.id}/edit`, {
+      state: { from: '/corporate-network' },
+    });
   };
 
   const handleMove = (entity: NetworkEntity) => {
@@ -182,20 +176,6 @@ export default function CorporateNetworkPage() {
           />
         </TabsContent>
       </Tabs>
-
-      {/* Dialogs */}
-      <CreateNetworkEntityDialog
-        open={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        parentId={parentId}
-        parentName={parentName}
-      />
-
-      <EditNetworkEntityDialog
-        open={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        entity={selectedEntity}
-      />
 
       <MoveNetworkEntityDialog
         open={isMoveOpen}

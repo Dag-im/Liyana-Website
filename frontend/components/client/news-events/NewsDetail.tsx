@@ -1,9 +1,9 @@
 'use client';
 
 import gsap from 'gsap';
+import BackendImage from '@/components/shared/BackendImage';
 import type { NewsEvent } from '@/types/news-events.types';
-import { ArrowLeft, Clock, Linkedin, Printer, Twitter } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft, Clock, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
@@ -19,6 +19,19 @@ export function NewsDetail({
   image2,
 }: NewsDetailProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentHtml = content.join('');
+  const handleShare = async () => {
+    try {
+      const url = window.location.href;
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -63,7 +76,7 @@ export function NewsDetail({
 
           {/* Main Image */}
           <div className="fade-in relative w-full h-[400px] bg-slate-100 rounded-sm overflow-hidden">
-            <Image
+            <BackendImage
               src={mainImage}
               alt={title}
               fill
@@ -73,18 +86,17 @@ export function NewsDetail({
           </div>
 
           {/* Body Text */}
-          <div className="fade-in prose prose-slate prose-lg max-w-none text-slate-700">
-            {content.map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
-          </div>
+          <div
+            className="fade-in prose prose-slate prose-lg max-w-none text-slate-700"
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
+          />
 
           {/* Additional Images Grid */}
           {(image1 || image2) && (
             <div className="fade-in grid grid-cols-2 gap-4 mt-8">
               {image1 && (
                 <div className="relative h-56 w-full rounded-sm overflow-hidden">
-                  <Image
+                  <BackendImage
                     src={image1}
                     alt="Detail 1"
                     fill
@@ -94,7 +106,7 @@ export function NewsDetail({
               )}
               {image2 && (
                 <div className="relative h-56 w-full rounded-sm overflow-hidden">
-                  <Image
+                  <BackendImage
                     src={image2}
                     alt="Detail 2"
                     fill
@@ -128,20 +140,13 @@ export function NewsDetail({
 
           {/* Share Tools */}
           <div className="border-t border-slate-200 pt-8">
-            <p className="text-xs font-bold text-slate-400 uppercase mb-4">
-              Share this article
-            </p>
-            <div className="flex gap-4">
-              <button className="p-2 border border-slate-200 text-slate-600 hover:bg-cyan-600 hover:text-white hover:border-cyan-600 transition-all rounded-sm">
-                <Linkedin size={20} />
-              </button>
-              <button className="p-2 border border-slate-200 text-slate-600 hover:bg-cyan-600 hover:text-white hover:border-cyan-600 transition-all rounded-sm">
-                <Twitter size={20} />
-              </button>
-              <button className="p-2 border border-slate-200 text-slate-600 hover:bg-cyan-600 hover:text-white hover:border-cyan-600 transition-all rounded-sm">
-                <Printer size={20} />
-              </button>
-            </div>
+            <button
+              onClick={handleShare}
+              aria-label="Share article"
+              className="p-2 border border-slate-200 text-slate-600 hover:bg-cyan-600 hover:text-white hover:border-cyan-600 transition-all rounded-sm"
+            >
+              <Share2 size={20} />
+            </button>
           </div>
 
           {/* Contact Boilerplate */}
