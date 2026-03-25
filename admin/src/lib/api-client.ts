@@ -11,7 +11,6 @@ const isEnvelope = (value: unknown): value is ApiEnvelope<unknown> => {
   const payload = value as Record<string, unknown>;
   return (
     'success' in payload &&
-    'data' in payload &&
     'error' in payload &&
     'meta' in payload
   );
@@ -163,7 +162,7 @@ export async function apiRequest<T>(
     );
   }
 
-  return payload.data as T;
+  return (('data' in payload ? payload.data : null) as T);
 }
 
 export async function fileRequest(path: string): Promise<string> {
