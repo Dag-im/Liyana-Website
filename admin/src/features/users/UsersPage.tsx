@@ -33,7 +33,7 @@ type RoleFilter = UserRole | 'ALL';
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const authQuery = useAuth();
-  const { page, perPage, resetPage, setPage } = usePagination();
+  const { page, perPage, resetPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const [role, setRole] = useState<RoleFilter>('ALL');
   const debouncedSearch = useDebounce(search, 400);
@@ -177,7 +177,8 @@ export default function UsersPage() {
           perPage,
           total: usersQuery.data?.total ?? 0,
           onPageChange: setPage,
-        }}
+          onPerPageChange: setPerPage,
+          }}
       />
     </div>
   );

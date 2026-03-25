@@ -36,7 +36,7 @@ const categoryClass: Record<TimelineCategory, string> = {
 }
 
 export default function TimelinePage() {
-  const { page, perPage, setPage, resetPage } = usePagination()
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination()
   const [search, setSearch] = useState('')
   const [yearFilter, setYearFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -193,6 +193,7 @@ export default function TimelinePage() {
           perPage={perPage}
           total={timelineQuery.data?.total ?? 0}
           onPageChange={setPage}
+          onPerPageChange={setPerPage}
         />
       </div>
 

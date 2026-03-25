@@ -8,6 +8,9 @@ import { Brackets, Repository } from 'typeorm';
 
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
+import { NotificationUrgency } from '../../common/types/notification-urgency.enum';
+import { UserRole } from '../../common/types/user-role.enum';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { QueryContactDto } from './dto/query-contact.dto';
 import { ContactSubmission } from './entity/contact-submission.entity';
@@ -17,6 +20,7 @@ export class ContactService {
   constructor(
     @InjectRepository(ContactSubmission)
     private readonly contactRepository: Repository<ContactSubmission>,
+    private readonly notificationsService: NotificationsService,
     private readonly auditLogService: AuditLogService,
   ) {}
 
@@ -27,6 +31,18 @@ export class ContactService {
     });
 
     const saved = await this.contactRepository.save(submission);
+
+    void this.notificationsService.createForRoles(
+      [UserRole.ADMIN, UserRole.COMMUNICATION],
+      {
+        title: 'New Contact Submission',
+        message: `${saved.name} (${saved.email}) sent a new contact message requiring review.`,
+        urgency: NotificationUrgency.MEDIUM,
+        relatedEntityType: 'contact_submission',
+        relatedEntityId: saved.id,
+      },
+      'system',
+    );
 
     this.auditLogService.log(AuditAction.CONTACT_SUBMITTED, 'public', saved.id);
 

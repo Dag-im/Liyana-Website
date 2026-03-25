@@ -1,8 +1,9 @@
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import DataTable from '@/components/shared/DataTable';
-import PageHeader from '@/components/shared/PageHeader';
 import { FileImage } from '@/components/shared/FileImage';
+import PageHeader from '@/components/shared/PageHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -17,14 +18,14 @@ import { useDivisionCategories } from '@/features/division-categories/useDivisio
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
 import { usePagination } from '@/hooks/usePagination';
 import type { Division } from '@/types/services.types';
-import { Edit, Eye, FilterX, Plus, Trash2 } from 'lucide-react';
+import { Edit, Eye, FilterX, Plus, Settings, Trash2 } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDeleteDivision, useDivisions } from './useDivisions';
 
 export default function DivisionsPage() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { page, perPage, setPage } = usePagination();
+  const { page, perPage, setPage, setPerPage } = usePagination();
 
   const serviceCategoryId = searchParams.get('serviceCategoryId') || undefined;
   const divisionCategoryId =
@@ -71,12 +72,26 @@ export default function DivisionsPage() {
         heading="Divisions"
         text="Manage clinical divisions, administrative departments and hospital units."
       >
-        <Button asChild>
-          <Link to="/divisions/new" state={{ from: `${location.pathname}${location.search}` }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Division
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link
+              to="/division-categories"
+              state={{ from: `${location.pathname}${location.search}` }}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Manage Division Categories
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link
+              to="/divisions/new"
+              state={{ from: `${location.pathname}${location.search}` }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Division
+            </Link>
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4">
@@ -92,9 +107,9 @@ export default function DivisionsPage() {
               <SelectTrigger className="w-50 h-9">
                 <SelectValue placeholder="All Service Categories">
                   {serviceCategoryId && serviceCategoryId !== 'all'
-                    ? serviceCategories?.data.find(
+                    ? (serviceCategories?.data.find(
                         (c) => c.id === serviceCategoryId
-                      )?.title ?? 'All Service Categories'
+                      )?.title ?? 'All Service Categories')
                     : 'All Service Categories'}
                 </SelectValue>
               </SelectTrigger>
@@ -120,9 +135,9 @@ export default function DivisionsPage() {
               <SelectTrigger className="w-50 h-9">
                 <SelectValue placeholder="All Division Categories">
                   {divisionCategoryId && divisionCategoryId !== 'all'
-                    ? divisionCategories?.find(
+                    ? (divisionCategories?.find(
                         (c) => c.id === divisionCategoryId
-                      )?.label ?? 'All Division Categories'
+                      )?.label ?? 'All Division Categories')
                     : 'All Division Categories'}
                 </SelectValue>
               </SelectTrigger>
@@ -170,6 +185,7 @@ export default function DivisionsPage() {
           perPage,
           total: divisionsData?.total || 0,
           onPageChange: setPage,
+          onPerPageChange: setPerPage,
         }}
         columns={[
           {
@@ -221,21 +237,19 @@ export default function DivisionsPage() {
             ),
           },
           {
-            header: 'Contacts',
-            id: 'contacts',
+            header: 'Medical Team',
+            id: 'medicalTeam',
             cell: ({ row }: { row: { original: Division } }) => (
-              <div className="text-xs space-y-0.5">
-                {row.original.contact?.phone && (
-                  <p>{row.original.contact.phone}</p>
-                )}
-                {row.original.contact?.email && (
-                  <p className="text-muted-foreground">
-                    {row.original.contact.email}
-                  </p>
-                )}
-              </div>
+              <Badge
+                variant={
+                  row.original.requiresMedicalTeam ? 'default' : 'secondary'
+                }
+              >
+                {row.original.requiresMedicalTeam ? 'Yes' : 'No'}
+              </Badge>
             ),
           },
+
           {
             header: 'Actions',
             id: 'actions',
@@ -257,7 +271,10 @@ export default function DivisionsPage() {
                   className="h-8 gap-2"
                   asChild
                 >
-                  <Link to={`/divisions/${row.original.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
+                  <Link
+                    to={`/divisions/${row.original.id}/edit`}
+                    state={{ from: `${location.pathname}${location.search}` }}
+                  >
                     <Edit className="h-3.5 w-3.5" />
                     Edit
                   </Link>
@@ -283,7 +300,6 @@ export default function DivisionsPage() {
           },
         ]}
       />
-
     </div>
   );
 }

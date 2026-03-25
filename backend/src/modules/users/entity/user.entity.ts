@@ -21,6 +21,12 @@ export class User {
   @Column({ type: 'varchar', length: 120 })
   name!: string;
 
+  @Column({ type: 'varchar', length: 120, nullable: true, default: null })
+  authorName!: string | null;
+
+  @Column({ type: 'varchar', length: 120, nullable: true, default: null })
+  authorRole!: string | null;
+
   @Column({ type: 'varchar', length: 180, unique: true })
   email!: string;
 

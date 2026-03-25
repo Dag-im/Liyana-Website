@@ -4,7 +4,6 @@ import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { login } from '@/api/auth.api';
@@ -21,6 +20,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/features/auth/useAuth';
+import { showErrorToast } from '@/lib/error-utils';
 import { ShieldCheck } from 'lucide-react';
 
 const loginSchema = z.object({
@@ -49,9 +49,7 @@ export default function LoginPage() {
       queryClient.setQueryData(['auth', 'me'], user);
       navigate('/', { replace: true });
     },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Login failed');
-    },
+    onError: (error) => showErrorToast(error, 'Login failed'),
   });
 
   useEffect(() => {

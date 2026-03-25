@@ -21,7 +21,7 @@ export default function DivisionCategoryCreatePage() {
     e.preventDefault()
     createMutation.mutate(formData, {
       onSuccess: () => navigate(returnTo),
-      onError: handleMutationError,
+      onError: (error) => handleMutationError(error, 'Failed to create category'),
     })
   }
 

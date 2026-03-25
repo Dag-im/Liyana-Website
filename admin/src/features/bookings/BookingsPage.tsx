@@ -25,7 +25,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export default function BookingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { page, perPage, setPage } = usePagination();
+  const { page, perPage, setPage, setPerPage } = usePagination();
 
   const divisionId = searchParams.get('divisionId') || undefined;
   // search is handled via searchParams in useBookings implicitly or we can ignore it if unused
@@ -134,7 +134,8 @@ export default function BookingsPage() {
           perPage,
           total: bookingsData?.total || 0,
           onPageChange: setPage,
-        }}
+          onPerPageChange: setPerPage,
+          }}
         columns={[
           {
             header: 'Patient',

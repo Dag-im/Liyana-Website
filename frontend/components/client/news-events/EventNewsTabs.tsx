@@ -1,8 +1,8 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
-import gsap from 'gsap';
 import type { NewsEvent } from '@/types/news-events.types';
+import gsap from 'gsap';
 import { useEffect, useRef, useState } from 'react';
 import { EventNewsCard } from './EventNewsCard';
 
@@ -16,7 +16,18 @@ export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
 
   const news = items.filter((item) => item.type === 'news');
   const events = items.filter((item) => item.type === 'event');
+  const hasNews = news.length > 0;
+  const hasEvents = events.length > 0;
   const displayItems = activeTab === 'news' ? news : events;
+
+  useEffect(() => {
+    if (activeTab === 'news' && !hasNews && hasEvents) {
+      setActiveTab('event');
+    }
+    if (activeTab === 'event' && !hasEvents && hasNews) {
+      setActiveTab('news');
+    }
+  }, [activeTab, hasEvents, hasNews]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -60,12 +71,17 @@ export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
+                disabled={
+                  (tab === 'news' && !hasNews) ||
+                  (tab === 'event' && !hasEvents)
+                }
                 className={`
                   pb-4 text-sm font-bold uppercase tracking-wider transition-all relative
+                  ${(tab === 'news' && !hasNews) || (tab === 'event' && !hasEvents) ? 'text-slate-300 cursor-not-allowed' : ''}
                   ${activeTab === tab ? 'text-cyan-700' : 'text-slate-400 hover:text-slate-600'}
                 `}
               >
-                {tab === 'news' ? 'Company News' : 'Upcoming Events'}
+                {tab === 'news' ? `Company News` : `Upcoming Events`}
                 {activeTab === tab && (
                   <span className="absolute bottom-0 left-0 w-full h-[3px] bg-cyan-600" />
                 )}
@@ -85,6 +101,11 @@ export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
             </div>
           ))}
         </div>
+        {displayItems.length === 0 ? (
+          <div className="py-12 text-center text-slate-500">
+            No {activeTab === 'news' ? 'news' : 'events'} available right now.
+          </div>
+        ) : null}
       </div>
     </section>
   );

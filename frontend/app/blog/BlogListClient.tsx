@@ -21,14 +21,22 @@ type BlogListClientProps = {
   featuredBlog: Blog | null;
 };
 
-function getInitials(name: string) {
-  return name
+function getInitials(name: string | null) {
+  return (name?.trim() || 'Unknown Author')
     .split(' ')
     .filter((part) => part.length > 0 && part.toUpperCase() !== 'DR.')
     .map((part) => part[0])
     .join('')
     .substring(0, 2)
     .toUpperCase();
+}
+
+function getAuthorName(name: string | null) {
+  return name?.trim() || 'Unknown Author';
+}
+
+function getAuthorRole(role: string | null) {
+  return role?.trim() || 'Blogger';
 }
 
 function formatBlogDate(value: string | null) {
@@ -252,10 +260,10 @@ export default function BlogListClient({
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900">
-                        {featuredBlog.authorName}
+                        {getAuthorName(featuredBlog.authorName)}
                       </p>
                       <p className="text-xs text-slate-500 uppercase tracking-wider mt-0.5">
-                        {featuredBlog.authorRole}
+                        {getAuthorRole(featuredBlog.authorRole)}
                       </p>
                     </div>
                   </div>

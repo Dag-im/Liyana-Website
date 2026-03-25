@@ -1,8 +1,10 @@
 import CharacterCount from '@tiptap/extension-character-count';
+import { Color } from '@tiptap/extension-color';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
+import { TextStyle } from '@tiptap/extension-text-style';
 import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -21,6 +23,7 @@ import {
   Link as LinkIcon,
   List,
   ListOrdered,
+  Palette,
   Pilcrow,
   Quote,
   Redo2,
@@ -58,11 +61,14 @@ export default function RichTextEditor({
   readOnly,
 }: RichTextEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
+  const [textColor, setTextColor] = useState('#0f172a');
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
+      TextStyle,
+      Color,
       Link.configure({ openOnClick: false }),
       Image,
       Placeholder.configure({
@@ -90,6 +96,15 @@ export default function RichTextEditor({
     [editor]
   );
   const canRemoveLink = editor?.isActive('link');
+
+  const applyHexColor = () => {
+    if (!editor) return;
+    const normalized = textColor.trim();
+    if (!/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)) {
+      return;
+    }
+    editor.chain().focus().setColor(normalized).run();
+  };
 
   return (
     <div className="space-y-2">
@@ -250,6 +265,34 @@ export default function RichTextEditor({
             <Unlink className="mr-2 h-4 w-4" />
             Remove Link
           </Button>
+          <Separator className="h-6" orientation="vertical" />
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-muted-foreground" />
+            <Input
+              value={textColor}
+              onChange={(event) => setTextColor(event.target.value)}
+              placeholder="#0ea5e9"
+              className="h-8 w-28"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={applyHexColor}
+            >
+              Apply
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={() => editor?.chain().focus().unsetColor().run()}
+            >
+              Reset
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

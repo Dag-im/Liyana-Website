@@ -43,7 +43,7 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
   const isEditor = userRole === 'ADMIN' || userRole === 'COMMUNICATION'
   const isAdmin = userRole === 'ADMIN'
 
-  const { page, perPage, setPage, resetPage } = usePagination()
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<StatusFilter>('ALL')
   const [startDate, setStartDate] = useState('')
@@ -249,6 +249,7 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
         perPage={perPage}
         total={query.data?.total ?? 0}
         onPageChange={setPage}
+          onPerPageChange={setPerPage}
       />
     </div>
   )

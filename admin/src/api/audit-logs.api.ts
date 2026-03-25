@@ -35,3 +35,7 @@ const toQueryString = (params: Record<string, unknown>) => {
 export function getAuditLogs(params: GetAuditLogsParams): Promise<PaginatedResponse<AuditLog>> {
   return apiRequest<PaginatedResponse<AuditLog>>(`/audit-logs${toQueryString(params)}`)
 }
+
+export function getAuditLog(id: string): Promise<AuditLog> {
+  return apiRequest<AuditLog>(`/audit-logs/${id}`)
+}

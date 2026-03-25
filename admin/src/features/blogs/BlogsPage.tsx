@@ -44,7 +44,7 @@ export default function BlogsPage() {
     user?.role === 'ADMIN' || user?.role === 'COMMUNICATION';
   const isBlogger = user?.role === 'BLOGGER';
 
-  const { page, perPage, setPage, resetPage } = usePagination();
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('ALL');
   const [categoryId, setCategoryId] = useState('ALL');
@@ -355,6 +355,7 @@ export default function BlogsPage() {
         perPage={perPage}
         total={blogsQuery.data?.total ?? 0}
         onPageChange={setPage}
+          onPerPageChange={setPerPage}
       />
     </div>
   );

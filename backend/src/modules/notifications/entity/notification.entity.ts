@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -25,6 +26,10 @@ export class Notification {
     default: NotificationUrgency.LOW,
   })
   urgency!: NotificationUrgency;
+
+  @Index('IDX_NOTIFICATIONS_TARGET_USER')
+  @Column({ type: 'varchar', nullable: true })
+  targetUserId!: string | null;
 
   @Column({ type: 'enum', enum: UserRole })
   targetRole!: UserRole;

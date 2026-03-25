@@ -20,6 +20,7 @@ import { useDivisions } from '@/features/divisions/useDivisions'
 import { useUpdateUser, useUser } from '@/features/users/useUsers'
 import type { UpdateUserDto } from '@/api/users.api'
 import { ROLES } from '@/lib/constants'
+import { showErrorToast } from '@/lib/error-utils'
 import { formatEnumLabel } from '@/lib/utils'
 
 const updateUserSchema = z
@@ -28,19 +29,45 @@ const updateUserSchema = z
     email: z.string().email(),
     role: z.enum(ROLES),
     divisionId: z.string().optional(),
+    authorName: z.string().optional(),
+    authorRole: z.string().optional(),
     isActive: z.boolean(),
   })
   .refine(
     (data) => {
-      if (data.role === 'CUSTOMER_SERVICE' && !data.divisionId) {
+      if ((data.role === 'CUSTOMER_SERVICE' || data.role === 'DIVISION_MANAGER') && !data.divisionId) {
         return false
       }
       return true
     },
     {
-      message: 'Division is required for Customer Service role',
+      message: 'Division is required for Customer Service and Division Manager roles',
       path: ['divisionId'],
-    }
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.role === 'BLOGGER') {
+        return !!data.authorName?.trim()
+      }
+      return true
+    },
+    {
+      message: 'Author name is required for Blogger role',
+      path: ['authorName'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.role === 'BLOGGER') {
+        return !!data.authorRole?.trim()
+      }
+      return true
+    },
+    {
+      message: 'Author role is required for Blogger role',
+      path: ['authorRole'],
+    },
   )
 
 type UpdateUserSchema = z.infer<typeof updateUserSchema>
@@ -65,6 +92,8 @@ export default function UserEditPage() {
       email: '',
       role: 'BLOGGER',
       divisionId: '',
+      authorName: '',
+      authorRole: '',
       isActive: true,
     },
   })
@@ -76,6 +105,8 @@ export default function UserEditPage() {
       email: userQuery.data.email,
       role: userQuery.data.role,
       divisionId: userQuery.data.divisionId || '',
+      authorName: userQuery.data.authorName || '',
+      authorRole: userQuery.data.authorRole || '',
       isActive: userQuery.data.isActive,
     })
   }, [form, userQuery.data])
@@ -85,7 +116,11 @@ export default function UserEditPage() {
   const toPayload = (values: UpdateUserSchema): UpdateUserDto => ({
     ...values,
     divisionId:
-      values.role === 'CUSTOMER_SERVICE' ? values.divisionId?.trim() || null : null,
+      values.role === 'CUSTOMER_SERVICE' || values.role === 'DIVISION_MANAGER'
+        ? values.divisionId?.trim() || null
+        : null,
+    authorName: values.role === 'BLOGGER' ? values.authorName?.trim() || null : null,
+    authorRole: values.role === 'BLOGGER' ? values.authorRole?.trim() || null : null,
   })
 
   const onSubmit = (values: UpdateUserSchema) => {
@@ -100,9 +135,7 @@ export default function UserEditPage() {
         queryClient.invalidateQueries({ queryKey: ['users'] })
         navigate(returnTo)
       },
-      onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to update user')
-      },
+      onError: (error) => showErrorToast(error, 'Failed to update user'),
     })
   }
 
@@ -169,8 +202,12 @@ export default function UserEditPage() {
                       defaultValue={field.value}
                       onValueChange={(value) => {
                         field.onChange(value)
-                        if (value !== 'CUSTOMER_SERVICE') {
+                        if (value !== 'CUSTOMER_SERVICE' && value !== 'DIVISION_MANAGER') {
                           form.setValue('divisionId', '')
+                        }
+                        if (value !== 'BLOGGER') {
+                          form.setValue('authorName', '')
+                          form.setValue('authorRole', '')
                         }
                       }}
                     >
@@ -192,7 +229,7 @@ export default function UserEditPage() {
                 )}
               />
 
-              {watchRole === 'CUSTOMER_SERVICE' && (
+              {(watchRole === 'CUSTOMER_SERVICE' || watchRole === 'DIVISION_MANAGER') && (
                 <FormField
                   control={form.control}
                   name="divisionId"
@@ -217,6 +254,37 @@ export default function UserEditPage() {
                     </FormItem>
                   )}
                 />
+              )}
+
+              {watchRole === 'BLOGGER' && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="authorName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Author Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Displayed public author name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="authorRole"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Author Role</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Displayed public author role" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               )}
 
               <FormField

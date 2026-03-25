@@ -26,8 +26,8 @@ export default async function OGImage({
     if (blog) {
       title = blog.title;
       excerpt = blog.excerpt;
-      authorName = blog.authorName;
-      authorRole = blog.authorRole;
+      authorName = blog.authorName?.trim() || 'Liyana Healthcare';
+      authorRole = blog.authorRole?.trim() || '';
       category = blog.category.name;
       imageUrl = getFileUrl(blog.image);
       publishedAt = blog.publishedAt

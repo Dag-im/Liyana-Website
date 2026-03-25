@@ -3,6 +3,7 @@ import {
   type GetNetworkEntitiesParams,
 } from '@/api/network-entities.api';
 import { networkMetaApi } from '@/api/network-meta.api';
+import { showErrorToast } from '@/lib/error-utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -46,9 +47,7 @@ export function useCreateNetworkEntity() {
       queryClient.invalidateQueries({ queryKey: ['network-meta'] });
       toast.success('Entity created');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create entity');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create entity'),
   });
 }
 
@@ -71,9 +70,7 @@ export function useUpdateNetworkEntity(id: string) {
       ]);
       toast.success('Entity updated');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update entity');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update entity'),
   });
 }
 
@@ -87,9 +84,7 @@ export function useMoveNetworkEntity() {
       queryClient.invalidateQueries({ queryKey: ['network-meta'] });
       toast.success('Entity moved');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to move entity');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to move entity'),
   });
 }
 
@@ -102,8 +97,6 @@ export function useDeleteNetworkEntity() {
       queryClient.invalidateQueries({ queryKey: ['network-meta'] });
       toast.success('Entity and all descendants deleted');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete entity');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete entity'),
   });
 }

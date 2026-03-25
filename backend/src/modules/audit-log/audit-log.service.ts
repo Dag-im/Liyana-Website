@@ -126,9 +126,18 @@ const AUDIT_LOG_SORTABLE_FIELDS = new Set<keyof AuditLog>([
   'createdAt',
 ]);
 
+type AuditLogWithDisplay = AuditLog & {
+  entityName: string;
+  performedByName: string;
+  performedByEmail: string | null;
+};
+
 @Injectable()
 export class AuditLogService {
   private readonly logger = new Logger(AuditLogService.name);
+  private readonly retentionMonths = 6;
+  private readonly cleanupIntervalMs = 6 * 60 * 60 * 1000;
+  private lastCleanupAt = 0;
 
   constructor(
     @InjectRepository(AuditLog)
@@ -159,14 +168,18 @@ export class AuditLogService {
     this.auditLogRepository.save(auditLog).catch((err: Error) => {
       this.logger.error(`Failed to save audit log: ${err.message}`, err.stack);
     });
+
+    void this.cleanupExpiredLogs();
   }
 
   async findAll(queryDto: QueryAuditLogDto): Promise<{
-    data: AuditLog[];
+    data: AuditLogWithDisplay[];
     total: number;
     page: number;
     perPage: number;
   }> {
+    await this.cleanupExpiredLogs();
+
     const page = queryDto.page ?? 1;
     const perPage = queryDto.perPage ?? 20;
 
@@ -227,12 +240,159 @@ export class AuditLogService {
       .take(perPage);
 
     const [data, total] = await query.getManyAndCount();
+    const enriched = await this.enrichLogs(data);
 
     return {
-      data,
+      data: enriched,
       total,
       page,
       perPage,
     };
+  }
+
+  async findOne(id: string): Promise<AuditLogWithDisplay | null> {
+    await this.cleanupExpiredLogs();
+
+    const log = await this.auditLogRepository.findOne({ where: { id } });
+    if (!log) {
+      return null;
+    }
+
+    const [enriched] = await this.enrichLogs([log]);
+    return enriched ?? null;
+  }
+
+  private async enrichLogs(logs: AuditLog[]): Promise<AuditLogWithDisplay[]> {
+    const actorIds = Array.from(
+      new Set(
+        logs
+          .map((log) => log.performedBy)
+          .filter(
+            (value) =>
+              value &&
+              value !== 'public' &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                value,
+              ),
+          ),
+      ),
+    );
+
+    const userById = new Map<string, { name: string; email: string }>();
+    if (actorIds.length > 0) {
+      const users = await this.auditLogRepository.manager
+        .createQueryBuilder()
+        .select('u.id', 'id')
+        .addSelect('u.name', 'name')
+        .addSelect('u.email', 'email')
+        .from('users', 'u')
+        .where('u.id IN (:...ids)', { ids: actorIds })
+        .getRawMany<{ id: string; name: string; email: string }>();
+
+      for (const user of users) {
+        userById.set(user.id, { name: user.name, email: user.email });
+      }
+    }
+
+    return logs.map((log) => {
+      const metadata = this.safeMetadata(log.metadata);
+      const actor = userById.get(log.performedBy);
+      const performedByName =
+        actor?.name ??
+        this.pickMetadataText(metadata, [
+          'performedByName',
+          'actorName',
+          'userName',
+          'name',
+          'email',
+        ]) ??
+        (log.performedBy === 'public' ? 'Public User' : 'System User');
+
+      const entityName =
+        this.pickMetadataText(metadata, [
+          'entityName',
+          'title',
+          'name',
+          'label',
+          'categoryName',
+          'divisionName',
+          'blogTitle',
+          'newsTitle',
+          'eventTitle',
+          'folderName',
+          'tagName',
+          'email',
+        ]) ?? this.humanize(log.entityType);
+
+      return {
+        ...log,
+        entityName,
+        performedByName,
+        performedByEmail: actor?.email ?? null,
+      };
+    });
+  }
+
+  private safeMetadata(
+    metadata: Record<string, any> | null,
+  ): Record<string, unknown> {
+    return metadata && typeof metadata === 'object' ? metadata : {};
+  }
+
+  private pickMetadataText(
+    metadata: Record<string, unknown>,
+    keys: string[],
+  ): string | null {
+    for (const key of keys) {
+      const value = metadata[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  private humanize(value: string): string {
+    return value
+      .split(/[_\s-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
+
+  private async cleanupExpiredLogs(): Promise<void> {
+    const now = Date.now();
+    if (
+      this.lastCleanupAt &&
+      now - this.lastCleanupAt < this.cleanupIntervalMs
+    ) {
+      return;
+    }
+
+    this.lastCleanupAt = now;
+
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - this.retentionMonths);
+
+    try {
+      const result = await this.auditLogRepository
+        .createQueryBuilder()
+        .delete()
+        .from(AuditLog)
+        .where('createdAt < :cutoff', { cutoff })
+        .execute();
+
+      if ((result.affected ?? 0) > 0) {
+        this.logger.log(
+          `Deleted ${result.affected} audit log(s) older than ${cutoff.toISOString()}`,
+        );
+      }
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error(
+        `Failed to cleanup old audit logs: ${err.message}`,
+        err.stack,
+      );
+    }
   }
 }

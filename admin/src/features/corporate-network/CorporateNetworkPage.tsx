@@ -27,7 +27,7 @@ import { Card } from '@/components/ui/card';
 
 export default function CorporateNetworkPage() {
   const navigate = useNavigate();
-  const { page, perPage, setPage } = usePagination();
+  const { page, perPage, setPage, setPerPage } = usePagination();
   const [view, setView] = useState<'tree' | 'list'>('tree');
 
   const { data: treeData } = useNetworkTree();
@@ -170,6 +170,7 @@ export default function CorporateNetworkPage() {
           <CorporateNetworkListView
             params={{ page, perPage }}
             onPageChange={setPage}
+            onPerPageChange={setPerPage}
             onEdit={handleEdit}
             onMove={handleMove}
             onDelete={handleDeleteClick}

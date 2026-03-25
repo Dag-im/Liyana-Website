@@ -69,7 +69,7 @@ export class BlogsController {
   async uploadFile(
     @Req() req: any,
     @Res({ passthrough: true }) res: any,
-  ): Promise<ApiEnvelope<{ path: string }>> {
+  ): Promise<ApiEnvelope<any>> {
     await new Promise<void>((resolve, reject) => {
       multer(this.uploadsService.buildMulterOptions()).single('file')(
         req,
@@ -88,7 +88,10 @@ export class BlogsController {
       throw new BadRequestException('No file uploaded');
     }
 
-    return { path: file.filename } as any;
+    return (await this.uploadsService.createTempUpload(
+      file.filename,
+      req.user.sub,
+    )) as any;
   }
 
   @Get()

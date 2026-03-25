@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CommonModule } from '../../common/common.module';
 import { UploadsModule } from '../../uploads/uploads.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersModule } from '../users/users.module';
 import { BlogCategoriesController } from './blog-categories/blog-categories.controller';
 import { BlogCategoriesService } from './blog-categories/blog-categories.service';
@@ -17,6 +18,7 @@ import { Blog } from './entities/blog.entity';
     CommonModule,
     UsersModule,
     UploadsModule,
+    NotificationsModule,
   ],
   providers: [BlogCategoriesService, BlogsService],
   controllers: [BlogCategoriesController, BlogsController],

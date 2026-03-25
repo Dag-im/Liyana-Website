@@ -79,9 +79,7 @@ export class TimelineController {
       throw new BadRequestException('No file uploaded');
     }
 
-    return {
-      url: file.filename,
-    };
+    return this.uploadsService.createTempUpload(file.filename, req.user.sub);
   }
 
   @Get()

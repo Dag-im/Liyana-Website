@@ -12,7 +12,10 @@ export type AuditLog = {
   action: AuditAction
   entityType: string
   entityId: string
+  entityName?: string
   performedBy: string
+  performedByName?: string
+  performedByEmail?: string | null
   metadata: Record<string, unknown> | null
   createdAt: string
 }

@@ -86,25 +86,32 @@ export class MediaItemsService {
     dto: CreateMediaItemDto,
     performedBy: string,
   ): Promise<MediaItem> {
-    await this.foldersService.findOne(folderId);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      dto,
+      'media-item',
+      async () => {
+        await this.foldersService.findOne(folderId);
 
-    const type = this.detectMediaType(dto.url);
-    if (type === MediaItemType.VIDEO && !this.isYouTubeUrl(dto.url)) {
-      throw new BadRequestException('Invalid YouTube URL');
-    }
+        const type = this.detectMediaType(dto.url);
+        if (type === MediaItemType.VIDEO && !this.isYouTubeUrl(dto.url)) {
+          throw new BadRequestException('Invalid YouTube URL');
+        }
 
-    const item = this.itemRepo.create({
-      ...dto,
-      folderId,
-      type,
-    });
+        const item = this.itemRepo.create({
+          ...dto,
+          folderId,
+          type,
+        });
 
-    const saved = await this.itemRepo.save(item);
-    this.auditLog.log(AuditAction.MEDIA_ITEM_CREATED, performedBy, saved.id, {
-      title: saved.title,
-      folderId,
-    });
-    return saved;
+        const saved = await this.itemRepo.save(item);
+        this.auditLog.log(AuditAction.MEDIA_ITEM_CREATED, performedBy, saved.id, {
+          title: saved.title,
+          folderId,
+        });
+        return saved;
+      },
+    );
   }
 
   async update(
@@ -113,27 +120,42 @@ export class MediaItemsService {
     dto: UpdateMediaItemDto,
     performedBy: string,
   ): Promise<MediaItem> {
-    const item = await this.findOne(folderId, id);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      dto,
+      'media-item',
+      async () => {
+        const item = await this.findOne(folderId, id);
+        const previousUrl =
+          dto.url && dto.url !== item.url && item.type === MediaItemType.IMAGE
+            ? item.url
+            : null;
+        const previousThumbnail =
+          dto.thumbnail && dto.thumbnail !== item.thumbnail && item.thumbnail
+            ? item.thumbnail
+            : null;
 
-    if (dto.url && dto.url !== item.url) {
-      if (item.type === MediaItemType.IMAGE) {
-        await this.uploadsService.delete(item.url);
-      }
-      item.url = dto.url;
-      item.type = this.detectMediaType(dto.url);
-    }
+        if (dto.url && dto.url !== item.url) {
+          item.url = dto.url;
+          item.type = this.detectMediaType(dto.url);
+        }
 
-    if (dto.thumbnail && dto.thumbnail !== item.thumbnail && item.thumbnail) {
-      await this.uploadsService.delete(item.thumbnail);
-    }
+        Object.assign(item, dto);
+        const updated = await this.itemRepo.save(item);
 
-    Object.assign(item, dto);
-    const updated = await this.itemRepo.save(item);
+        if (previousUrl) {
+          await this.uploadsService.delete(previousUrl);
+        }
+        if (previousThumbnail) {
+          await this.uploadsService.delete(previousThumbnail);
+        }
 
-    this.auditLog.log(AuditAction.MEDIA_ITEM_UPDATED, performedBy, updated.id, {
-      changes: dto,
-    });
-    return updated;
+        this.auditLog.log(AuditAction.MEDIA_ITEM_UPDATED, performedBy, updated.id, {
+          changes: dto,
+        });
+        return updated;
+      },
+    );
   }
 
   async remove(

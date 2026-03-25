@@ -1,78 +1,162 @@
-import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { LogOut } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import {
+  Bell,
+  CalendarDays,
+  FileText,
+  Image,
+  Info,
+  LayoutDashboard,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  Stethoscope,
+  Users,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-import { logout } from '@/api/auth.api'
-import NotificationBell from '@/components/layout/NotificationBell'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useAuth } from '@/features/auth/useAuth'
-import { cn } from '@/lib/utils'
-import { APP_NAVIGATION } from '@/types/navigation'
+import { logout } from '@/api/auth.api';
+import NotificationBell from '@/components/layout/NotificationBell';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/features/auth/useAuth';
+import { useMyDivision } from '@/features/my-division/useMyDivision';
+import { showErrorToast } from '@/lib/error-utils';
+import { cn } from '@/lib/utils';
+import { APP_NAVIGATION } from '@/types/navigation';
 
 export default function AppShell() {
-  const location = useLocation()
-  const queryClient = useQueryClient()
-  const authQuery = useAuth()
-  const user = authQuery.data
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const authQuery = useAuth();
+  const user = authQuery.data;
+  const { data: myDivision } = useMyDivision();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
-      toast.success('Logged out')
-      window.location.assign('/login')
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      toast.success('Logged out');
+      window.location.assign('/login');
     },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to log out')
-    },
-  })
+    onError: (error) => showErrorToast(error, 'Failed to log out'),
+  });
 
   const routes = useMemo(
     () =>
       APP_NAVIGATION.reduce<typeof APP_NAVIGATION>((acc, route) => {
         if (route.roles && (!user?.role || !route.roles.includes(user.role))) {
-          return acc
+          return acc;
         }
 
         const children = route.children?.filter((child) => {
-          if (!child.roles) return true
-          return user?.role && child.roles.includes(user.role)
-        })
+          if (!child.roles) return true;
+          return user?.role && child.roles.includes(user.role);
+        });
 
         acc.push({
           ...route,
           children,
-        })
-        return acc
+        });
+        return acc;
       }, []),
-    [user],
-  )
+    [user]
+  );
+
+  const effectiveRoutes = useMemo(() => {
+    if (user?.role !== 'DIVISION_MANAGER') return routes;
+
+    const divisionManagerRoutes: typeof APP_NAVIGATION = [
+      {
+        path: '/dashboard',
+        label: 'Dashboard',
+        icon: LayoutDashboard,
+        group: 'overview',
+      },
+      {
+        path: '/my-division/basics',
+        label: 'Basics',
+        icon: Info,
+        group: 'operations',
+      },
+      {
+        path: '/my-division/media',
+        label: 'Media',
+        icon: Image,
+        group: 'operations',
+      },
+      {
+        path: '/my-division/description',
+        label: 'Description',
+        icon: FileText,
+        group: 'operations',
+      },
+      {
+        path: '/my-division/extras',
+        label: 'Extras',
+        icon: Settings,
+        group: 'operations',
+      },
+      {
+        path: '/my-division/bookings',
+        label: 'Bookings',
+        icon: CalendarDays,
+        group: 'operations',
+      },
+      {
+        path: '/my-division/team',
+        label: 'My Team',
+        icon: Users,
+        group: 'operations',
+      },
+      {
+        path: '/notifications',
+        label: 'Notifications',
+        icon: Bell,
+        group: 'overview',
+      },
+    ];
+
+    if (myDivision?.requiresMedicalTeam) {
+      divisionManagerRoutes.splice(4, 0, {
+        path: '/my-division/medical-team',
+        label: 'Medical Team',
+        icon: Stethoscope,
+        group: 'operations',
+      });
+    }
+
+    return divisionManagerRoutes;
+  }, [myDivision?.requiresMedicalTeam, routes, user?.role]);
 
   const groupedRoutes = useMemo(
     () => ({
-      overview: routes.filter((route) => route.group === 'overview'),
-      operations: routes.filter((route) => route.group === 'operations'),
-      content: routes.filter((route) => route.group === 'content'),
-      system: routes.filter((route) => route.group === 'system'),
+      overview: effectiveRoutes.filter((route) => route.group === 'overview'),
+      operations: effectiveRoutes.filter(
+        (route) => route.group === 'operations'
+      ),
+      content: effectiveRoutes.filter((route) => route.group === 'content'),
+      system: effectiveRoutes.filter((route) => route.group === 'system'),
     }),
-    [routes],
-  )
+    [effectiveRoutes]
+  );
 
-  const currentRoute = routes.find(
-    (route) => location.pathname === route.path || route.children?.some((child) => child.path === location.pathname),
-  )
+  const currentRoute = effectiveRoutes.find(
+    (route) =>
+      location.pathname === route.path ||
+      route.children?.some((child) => child.path === location.pathname)
+  );
 
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground">
       <div className="brand-gradient fixed left-0 right-0 top-0 z-50 h-1" />
 
       <header className="z-40 h-16 shrink-0 border-b border-border/80 bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 md:px-6">
+        <div className="mx-auto flex h-16 max-w-400 items-center justify-between gap-3 px-4 md:px-6">
           <div className="flex min-w-0 items-center gap-2">
             <Button
               aria-label="Toggle navigation menu"
@@ -90,17 +174,27 @@ export default function AppShell() {
               size="icon-sm"
               variant="ghost"
             >
-              {isSidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+              {isSidebarCollapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
             </Button>
             <Separator className="hidden h-5 md:block" orientation="vertical" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{currentRoute?.label ?? 'Liyana Admin'}</p>
-              <p className="hidden truncate text-xs text-muted-foreground sm:block">Operational control panel</p>
+              <p className="truncate text-sm font-semibold">
+                {currentRoute?.label ?? 'Liyana Admin'}
+              </p>
+              <p className="hidden truncate text-xs text-muted-foreground sm:block">
+                Operational control panel
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-muted-foreground lg:inline">{user?.email}</span>
+            <span className="hidden text-sm text-muted-foreground lg:inline">
+              {user?.email}
+            </span>
             <NotificationBell />
             <Button
               aria-label="Log out"
@@ -116,26 +210,50 @@ export default function AppShell() {
         </div>
       </header>
 
-      <div className="mx-auto grid h-[calc(100vh-4rem)] max-w-[1600px] min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[auto_1fr]">
+      <div className="mx-auto grid h-[calc(100vh-4rem)] max-w-400 min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[auto_1fr]">
         <aside
           className={cn(
             'hidden h-full min-h-0 border-r border-border/80 bg-sidebar/70 p-3 backdrop-blur md:block',
-            isSidebarCollapsed ? 'w-[88px]' : 'w-[280px]',
+            isSidebarCollapsed ? 'w-22' : 'w-70'
           )}
         >
           <div className="flex h-full min-h-0 flex-col rounded-xl border border-border/80 bg-card/90 p-2 shadow-sm">
             {!isSidebarCollapsed ? (
-              <Link className="block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight" to="/">
+              <Link
+                className="block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight"
+                to="/"
+              >
                 Liyana Admin
               </Link>
             ) : null}
 
             <div className="custom-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
-              <nav className={cn('space-y-4 py-2', isSidebarCollapsed && 'space-y-2')}>
-                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.overview} title="Overview" />
-                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.operations} title="Operations" />
-                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.content} title="Content" />
-                <NavSection collapsed={isSidebarCollapsed} routes={groupedRoutes.system} title="System" />
+              <nav
+                className={cn(
+                  'space-y-4 py-2',
+                  isSidebarCollapsed && 'space-y-2'
+                )}
+              >
+                <NavSection
+                  collapsed={isSidebarCollapsed}
+                  routes={groupedRoutes.overview}
+                  title="Overview"
+                />
+                <NavSection
+                  collapsed={isSidebarCollapsed}
+                  routes={groupedRoutes.operations}
+                  title="Operations"
+                />
+                <NavSection
+                  collapsed={isSidebarCollapsed}
+                  routes={groupedRoutes.content}
+                  title="Content"
+                />
+                <NavSection
+                  collapsed={isSidebarCollapsed}
+                  routes={groupedRoutes.system}
+                  title="System"
+                />
               </nav>
             </div>
           </div>
@@ -150,15 +268,35 @@ export default function AppShell() {
               type="button"
             />
             <aside className="absolute left-0 top-0 flex h-full w-[84vw] max-w-sm min-h-0 flex-col border-r border-border bg-background p-4">
-              <Link className="mb-4 block shrink-0 text-base font-semibold tracking-tight" onClick={() => setIsMobileNavOpen(false)} to="/">
+              <Link
+                className="mb-4 block shrink-0 text-base font-semibold tracking-tight"
+                onClick={() => setIsMobileNavOpen(false)}
+                to="/"
+              >
                 Liyana Admin
               </Link>
               <div className="custom-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
                 <nav className="space-y-4">
-                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.overview} title="Overview" />
-                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.operations} title="Operations" />
-                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.content} title="Content" />
-                  <NavSection onNavigate={() => setIsMobileNavOpen(false)} routes={groupedRoutes.system} title="System" />
+                  <NavSection
+                    onNavigate={() => setIsMobileNavOpen(false)}
+                    routes={groupedRoutes.overview}
+                    title="Overview"
+                  />
+                  <NavSection
+                    onNavigate={() => setIsMobileNavOpen(false)}
+                    routes={groupedRoutes.operations}
+                    title="Operations"
+                  />
+                  <NavSection
+                    onNavigate={() => setIsMobileNavOpen(false)}
+                    routes={groupedRoutes.content}
+                    title="Content"
+                  />
+                  <NavSection
+                    onNavigate={() => setIsMobileNavOpen(false)}
+                    routes={groupedRoutes.system}
+                    title="System"
+                  />
                 </nav>
               </div>
             </aside>
@@ -166,32 +304,39 @@ export default function AppShell() {
         ) : null}
 
         <main className="custom-scrollbar min-h-0 min-w-0 overflow-y-auto px-4 py-5 md:px-8 md:py-7">
-          <div className="mx-auto w-full max-w-[1160px] pb-10">
+          <div className="mx-auto w-full max-w-290 pb-10">
             <Outlet />
           </div>
         </main>
       </div>
     </div>
-  )
+  );
 }
 
 type NavSectionProps = {
-  title: string
-  routes: typeof APP_NAVIGATION
-  collapsed?: boolean
-  onNavigate?: () => void
-}
+  title: string;
+  routes: typeof APP_NAVIGATION;
+  collapsed?: boolean;
+  onNavigate?: () => void;
+};
 
-function NavSection({ title, routes, collapsed = false, onNavigate }: NavSectionProps) {
-  if (!routes.length) return null
+function NavSection({
+  title,
+  routes,
+  collapsed = false,
+  onNavigate,
+}: NavSectionProps) {
+  if (!routes.length) return null;
 
   return (
     <div className="space-y-1">
       {!collapsed ? (
-        <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">{title}</p>
+        <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
+          {title}
+        </p>
       ) : null}
       {routes.map((route) => {
-        const Icon = route.icon
+        const Icon = route.icon;
 
         return (
           <div key={route.path} className="space-y-1">
@@ -202,7 +347,7 @@ function NavSection({ title, routes, collapsed = false, onNavigate }: NavSection
                   isActive
                     ? 'border-primary/20 bg-primary/10 font-medium text-foreground shadow-sm'
                     : 'text-muted-foreground hover:border-border hover:bg-accent/60 hover:text-foreground',
-                  collapsed && 'justify-center px-2.5',
+                  collapsed && 'justify-center px-2.5'
                 )
               }
               end={!route.children?.length}
@@ -210,13 +355,15 @@ function NavSection({ title, routes, collapsed = false, onNavigate }: NavSection
               to={route.path}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              {!collapsed ? <span className="truncate">{route.label}</span> : null}
+              {!collapsed ? (
+                <span className="truncate">{route.label}</span>
+              ) : null}
             </NavLink>
 
             {route.children?.length && !collapsed ? (
               <div className="ml-5 space-y-1 border-l border-border/80 pl-2">
                 {route.children.map((child) => {
-                  const ChildIcon = child.icon
+                  const ChildIcon = child.icon;
                   return (
                     <NavLink
                       key={child.path}
@@ -225,7 +372,7 @@ function NavSection({ title, routes, collapsed = false, onNavigate }: NavSection
                           'flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-colors',
                           isActive
                             ? 'bg-accent font-medium text-foreground'
-                            : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+                            : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
                         )
                       }
                       onClick={onNavigate}
@@ -234,13 +381,13 @@ function NavSection({ title, routes, collapsed = false, onNavigate }: NavSection
                       <ChildIcon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{child.label}</span>
                     </NavLink>
-                  )
+                  );
                 })}
               </div>
             ) : null}
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

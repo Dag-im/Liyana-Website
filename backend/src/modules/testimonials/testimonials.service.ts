@@ -8,6 +8,9 @@ import { Brackets, Repository } from 'typeorm';
 
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
+import { NotificationUrgency } from '../../common/types/notification-urgency.enum';
+import { UserRole } from '../../common/types/user-role.enum';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { QueryTestimonialPublicDto } from './dto/query-testimonial-public.dto';
 import { QueryTestimonialDto } from './dto/query-testimonial.dto';
@@ -19,6 +22,7 @@ export class TestimonialsService {
   constructor(
     @InjectRepository(Testimonial)
     private readonly testimonialRepository: Repository<Testimonial>,
+    private readonly notificationsService: NotificationsService,
     private readonly auditLogService: AuditLogService,
   ) {}
 
@@ -30,6 +34,18 @@ export class TestimonialsService {
     });
 
     const saved = await this.testimonialRepository.save(testimonial);
+
+    void this.notificationsService.createForRoles(
+      [UserRole.ADMIN, UserRole.COMMUNICATION],
+      {
+        title: 'New Testimonial Submitted',
+        message: `${saved.name} from ${saved.company} submitted a testimonial for moderation.`,
+        urgency: NotificationUrgency.MEDIUM,
+        relatedEntityType: 'testimonial',
+        relatedEntityId: saved.id,
+      },
+      'system',
+    );
 
     this.auditLogService.log(
       AuditAction.TESTIMONIAL_SUBMITTED,

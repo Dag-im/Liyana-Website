@@ -121,10 +121,15 @@ export class CreateDivisionDto {
   @ApiProperty({ required: false })
   logo?: string;
 
-  @IsArray()
-  @IsString({ each: true })
-  @ApiProperty({ type: [String] })
-  description: string[];
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ required: false, default: false })
+  requiresMedicalTeam?: boolean;
 
   @IsOptional()
   @IsString()

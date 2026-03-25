@@ -25,6 +25,8 @@ export const getRoleBadgeColor = (role: UserRole): string => {
       return 'bg-emerald-100 text-emerald-700';
     case 'BLOGGER':
       return 'bg-zinc-100 text-zinc-700';
+    case 'DIVISION_MANAGER':
+      return 'bg-violet-100 text-violet-700';
     default:
       return 'bg-muted text-foreground';
   }

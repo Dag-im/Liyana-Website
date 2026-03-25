@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOperation,
@@ -33,5 +40,22 @@ export class AuditLogController {
   @ApiResponse({ status: 403, description: 'Forbidden. Requires Admin role.' })
   findAll(@Query() query: QueryAuditLogDto) {
     return this.auditLogService.findAll(query);
+  }
+
+  @Get(':id')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Get a single audit log with readable display fields. Admin only.',
+  })
+  @ApiResponse({ status: 200, description: 'Audit log details.' })
+  @ApiResponse({ status: 404, description: 'Audit log not found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden. Requires Admin role.' })
+  async findOne(@Param('id') id: string) {
+    const log = await this.auditLogService.findOne(id);
+    if (!log) {
+      throw new NotFoundException('Audit log not found');
+    }
+    return log;
   }
 }

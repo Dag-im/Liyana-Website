@@ -10,8 +10,10 @@ import { Brackets, Repository } from 'typeorm';
 
 import { AuditAction } from '../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../common/services/audit-log.service';
+import { NotificationUrgency } from '../../common/types/notification-urgency.enum';
 import { UserRole } from '../../common/types/user-role.enum';
 import { UploadsService } from '../../uploads/uploads.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UsersService } from '../users/users.service';
 import { BlogCategoriesService } from './blog-categories/blog-categories.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -32,39 +34,47 @@ export class BlogsService {
     private readonly blogRepository: Repository<Blog>,
     private readonly auditLogService: AuditLogService,
     private readonly uploadsService: UploadsService,
+    private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
     private readonly blogCategoriesService: BlogCategoriesService,
   ) {}
 
   async create(dto: CreateBlogDto, user: JwtUserPayload): Promise<Blog> {
-    await this.blogCategoriesService.findOne(dto.categoryId);
+    return this.uploadsService.withEntityUploads(
+      user.sub,
+      dto,
+      'blog',
+      async () => {
+        await this.blogCategoriesService.findOne(dto.categoryId);
 
-    const author = await this.usersService.findOne(user.sub);
+        const author = await this.usersService.findOne(user.sub);
 
-    const slug = await this.buildUniqueSlug(dto.title);
+        const slug = await this.buildUniqueSlug(dto.title);
 
-    const blog = this.blogRepository.create({
-      title: dto.title,
-      slug,
-      excerpt: dto.excerpt,
-      content: dto.content,
-      image: dto.image,
-      readTime: this.calculateReadTime(dto.content),
-      featured: false,
-      status: BlogStatus.DRAFT,
-      rejectionReason: null,
-      publishedAt: null,
-      authorId: user.sub,
-      authorName: author.name,
-      authorRole: author.role,
-      categoryId: dto.categoryId,
-    });
+        const blog = this.blogRepository.create({
+          title: dto.title,
+          slug,
+          excerpt: dto.excerpt,
+          content: dto.content,
+          image: dto.image,
+          readTime: this.calculateReadTime(dto.content),
+          featured: false,
+          status: BlogStatus.DRAFT,
+          rejectionReason: null,
+          publishedAt: null,
+          authorId: user.sub,
+          authorName: author.authorName ?? author.name,
+          authorRole: author.authorRole ?? 'Blogger',
+          categoryId: dto.categoryId,
+        });
 
-    const saved = await this.blogRepository.save(blog);
+        const saved = await this.blogRepository.save(blog);
 
-    this.auditLogService.log(AuditAction.BLOG_CREATED, user.sub, saved.id);
+        this.auditLogService.log(AuditAction.BLOG_CREATED, user.sub, saved.id);
 
-    return saved;
+        return saved;
+      },
+    );
   }
 
   async findAll(
@@ -202,57 +212,73 @@ export class BlogsService {
     dto: UpdateBlogDto,
     user: JwtUserPayload,
   ): Promise<Blog> {
-    const blog = await this.findOne(id);
+    return this.uploadsService.withEntityUploads(
+      user.sub,
+      dto,
+      'blog',
+      async () => {
+        const blog = await this.findOne(id);
 
-    const isAdminOrComm =
-      user.role === UserRole.ADMIN || user.role === UserRole.COMMUNICATION;
+        const isAdminOrComm =
+          user.role === UserRole.ADMIN || user.role === UserRole.COMMUNICATION;
 
-    if (!isAdminOrComm) {
-      if (blog.authorId !== user.sub) {
-        throw new ForbiddenException('You can only edit your own posts');
-      }
+        if (!isAdminOrComm) {
+          if (blog.authorId !== user.sub) {
+            throw new ForbiddenException('You can only edit your own posts');
+          }
 
-      if (
-        blog.status !== BlogStatus.DRAFT &&
-        blog.status !== BlogStatus.REJECTED
-      ) {
-        throw new BadRequestException(
-          'Only draft or rejected posts can be edited',
-        );
-      }
-    }
+          if (
+            blog.status !== BlogStatus.DRAFT &&
+            blog.status !== BlogStatus.REJECTED
+          ) {
+            throw new BadRequestException(
+              'Only draft or rejected posts can be edited',
+            );
+          }
+        }
 
-    if (dto.categoryId && dto.categoryId !== blog.categoryId) {
-      await this.blogCategoriesService.findOne(dto.categoryId);
-    }
+        if (dto.categoryId && dto.categoryId !== blog.categoryId) {
+          await this.blogCategoriesService.findOne(dto.categoryId);
+        }
 
-    if (dto.title && dto.title !== blog.title) {
-      blog.slug = await this.buildUniqueSlug(dto.title, blog.id);
-      blog.title = dto.title;
-    }
+        if (dto.title && dto.title !== blog.title) {
+          blog.slug = await this.buildUniqueSlug(dto.title, blog.id);
+          blog.title = dto.title;
+        }
 
-    if (dto.content !== undefined) {
-      blog.content = dto.content;
-      blog.readTime = this.calculateReadTime(dto.content);
-    }
+        if (dto.content !== undefined) {
+          blog.content = dto.content;
+          blog.readTime = this.calculateReadTime(dto.content);
+        }
 
-    if (dto.excerpt !== undefined) {
-      blog.excerpt = dto.excerpt;
-    }
+        if (dto.excerpt !== undefined) {
+          blog.excerpt = dto.excerpt;
+        }
 
-    if (dto.image !== undefined) {
-      blog.image = dto.image;
-    }
+        const previousImage =
+          dto.image !== undefined && blog.image && dto.image !== blog.image
+            ? blog.image
+            : null;
 
-    if (dto.categoryId !== undefined) {
-      blog.categoryId = dto.categoryId;
-    }
+        if (dto.image !== undefined) {
+          blog.image = dto.image;
+        }
 
-    const saved = await this.blogRepository.save(blog);
+        if (dto.categoryId !== undefined) {
+          blog.categoryId = dto.categoryId;
+        }
 
-    this.auditLogService.log(AuditAction.BLOG_UPDATED, user.sub, saved.id);
+        const saved = await this.blogRepository.save(blog);
 
-    return saved;
+        if (previousImage) {
+          await this.uploadsService.cleanup(previousImage);
+        }
+
+        this.auditLogService.log(AuditAction.BLOG_UPDATED, user.sub, saved.id);
+
+        return saved;
+      },
+    );
   }
 
   async submit(id: string, user: JwtUserPayload): Promise<Blog> {
@@ -276,6 +302,18 @@ export class BlogsService {
 
     const saved = await this.blogRepository.save(blog);
 
+    void this.notificationsService.createForRoles(
+      [UserRole.ADMIN, UserRole.COMMUNICATION],
+      {
+        title: 'Blog Awaiting Review',
+        message: `"${saved.title}" was submitted by ${saved.authorName} for review.`,
+        urgency: NotificationUrgency.MEDIUM,
+        relatedEntityType: 'blog',
+        relatedEntityId: saved.id,
+      },
+      user.sub,
+    );
+
     this.auditLogService.log(AuditAction.BLOG_SUBMITTED, user.sub, saved.id);
 
     return saved;
@@ -297,6 +335,18 @@ export class BlogsService {
     blog.publishedAt = new Date();
 
     const saved = await this.blogRepository.save(blog);
+
+    void this.notificationsService.createForUser(
+      saved.authorId,
+      {
+        title: 'Blog Published',
+        message: `"${saved.title}" was published on ${saved.publishedAt?.toISOString() ?? new Date().toISOString()}.`,
+        urgency: NotificationUrgency.LOW,
+        relatedEntityType: 'blog',
+        relatedEntityId: saved.id,
+      },
+      performedBy,
+    );
 
     this.auditLogService.log(AuditAction.BLOG_PUBLISHED, performedBy, saved.id);
 
@@ -320,6 +370,18 @@ export class BlogsService {
     blog.rejectionReason = dto.rejectionReason;
 
     const saved = await this.blogRepository.save(blog);
+
+    void this.notificationsService.createForUser(
+      saved.authorId,
+      {
+        title: 'Blog Rejected',
+        message: `"${saved.title}" was rejected. Reason: ${saved.rejectionReason}`,
+        urgency: NotificationUrgency.HIGH,
+        relatedEntityType: 'blog',
+        relatedEntityId: saved.id,
+      },
+      performedBy,
+    );
 
     this.auditLogService.log(AuditAction.BLOG_REJECTED, performedBy, saved.id);
 

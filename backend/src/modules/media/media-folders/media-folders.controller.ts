@@ -59,7 +59,7 @@ export class MediaFoldersController {
   async uploadFile(
     @Req() req: any,
     @Res({ passthrough: true }) res: any,
-  ): Promise<{ path: string }> {
+  ): Promise<any> {
     await new Promise<void>((resolve, reject) => {
       multer(this.uploadsService.buildMulterOptions()).single('file')(
         req,
@@ -76,7 +76,7 @@ export class MediaFoldersController {
       throw new BadRequestException('No file uploaded');
     }
 
-    return { path: file.filename };
+    return this.uploadsService.createTempUpload(file.filename, req.user.sub);
   }
 
   @Get()

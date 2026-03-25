@@ -8,9 +8,7 @@ import {
   Post,
   Query,
   Req,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -29,10 +27,18 @@ import { UploadsService } from '../../../uploads/uploads.service';
 import { DivisionsService } from './divisions.service';
 import multer from 'multer';
 import { BadRequestException, Res } from '@nestjs/common';
-import { ApiEnvelope } from '../../../common/types/api-envelope.type';
 import { CreateDivisionDto } from './dto/create-division.dto';
 import { QueryDivisionDto } from './dto/query-division.dto';
 import { UpdateDivisionDto } from './dto/update-division.dto';
+import type { Request, Response } from 'express';
+
+type AuthenticatedRequest = {
+  user: {
+    sub: string;
+    role: UserRole;
+    divisionId: string | null;
+  };
+};
 
 @ApiTags('Divisions')
 @Controller('divisions')
@@ -68,23 +74,30 @@ export class DivisionsController {
     description: 'No files uploaded or invalid file type.',
   })
   async uploadFiles(
-    @Req() req: any,
-    @Res({ passthrough: true }) res: any,
-  ): Promise<ApiEnvelope<{ path: string }[]>> {
+    @Req() req: Request & { files?: Express.Multer.File[] },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any[]> {
     await new Promise<void>((resolve, reject) => {
       multer(this.uploadsService.buildMulterOptions()).array('files', 10)(
         req,
         res,
         (err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) {
+            reject(err instanceof Error ? err : new Error('Upload failed'));
+            return;
+          }
+          resolve();
         },
       );
     });
-    const files = req.files as Express.Multer.File[];
+    const files = req.files ?? [];
     if (!files || files.length === 0)
       throw new BadRequestException('No files uploaded');
-    return files.map((file) => ({ path: file.filename })) as any;
+    return Promise.all(
+      files.map((file) =>
+        this.uploadsService.createTempUpload(file.filename, (req as any).user.sub),
+      ),
+    );
   }
 
   @Get()
@@ -131,10 +144,13 @@ export class DivisionsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @ApiCookieAuth()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
-  @ApiOperation({ summary: 'Update a division' })
+  @ApiOperation({
+    summary:
+      'Update a division. Division managers can only update their own division and cannot modify slug, category, active status, or medical team settings.',
+  })
   @ApiResponse({ status: 200, description: 'The division has been updated.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
   @ApiResponse({ status: 404, description: 'Division not found.' })
@@ -142,9 +158,15 @@ export class DivisionsController {
   update(
     @Param('id') id: string,
     @Body() updateDto: UpdateDivisionDto,
-    @Req() req: { user: { sub: string } },
+    @Req() req: AuthenticatedRequest,
   ) {
-    return this.divisionsService.update(id, updateDto, req.user.sub);
+    return this.divisionsService.update(
+      id,
+      updateDto,
+      req.user.sub,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 
   @Delete(':id')

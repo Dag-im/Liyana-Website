@@ -1,5 +1,7 @@
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DataSource, Repository } from 'typeorm';
 import { AuditAction } from '../../../common/enums/audit-action.enum';
 import { AuditLogService } from '../../../common/services/audit-log.service';
+import { UserRole } from '../../../common/types/user-role.enum';
 import { UploadsService } from '../../../uploads/uploads.service';
 import { User } from '../../users/entity/user.entity';
 import { DivisionCategoriesService } from '../division-categories/division-categories.service';
@@ -115,259 +118,306 @@ export class DivisionsService {
     createDto: CreateDivisionDto,
     performedBy: string,
   ): Promise<Division> {
-    await this.serviceCategoriesService.findOne(createDto.serviceCategoryId);
-    await this.divisionCategoriesService.findOne(createDto.divisionCategoryId);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      createDto,
+      'division',
+      async () => {
+        await this.serviceCategoriesService.findOne(createDto.serviceCategoryId);
+        await this.divisionCategoriesService.findOne(createDto.divisionCategoryId);
 
-    const existingSlug = await this.divisionRepository.findOne({
-      where: { slug: createDto.slug },
-      withDeleted: true,
-    });
-    if (existingSlug) {
-      throw new ConflictException('Slug already exists');
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const division = queryRunner.manager.create(Division, {
-        slug: createDto.slug,
-        name: createDto.name,
-        shortName: createDto.shortName,
-        location: createDto.location,
-        overview: createDto.overview,
-        logo: createDto.logo,
-        description: createDto.description,
-        groupPhoto: createDto.groupPhoto,
-        isActive: createDto.isActive ?? true,
-        serviceCategoryId: createDto.serviceCategoryId,
-        divisionCategoryId: createDto.divisionCategoryId,
-      });
-
-      const savedDivision = await queryRunner.manager.save(division);
-
-      if (createDto.images?.length) {
-        const imageEntities = createDto.images.map((img, index) =>
-          queryRunner.manager.create(DivisionImage, {
-            path: img.path,
-            sortOrder: index,
-            divisionId: savedDivision.id,
-          }),
-        );
-        await queryRunner.manager.save(imageEntities);
-      }
-
-      if (createDto.coreServices?.length) {
-        const coreServicesEntities = createDto.coreServices.map(
-          (service, index) =>
-            queryRunner.manager.create(DivisionCoreService, {
-              name: service.name,
-              description: service.description,
-              sortOrder: index,
-              divisionId: savedDivision.id,
-            }),
-        );
-        await queryRunner.manager.save(coreServicesEntities);
-      }
-
-      if (createDto.stats?.length) {
-        const statEntities = createDto.stats.map((stat, index) =>
-          queryRunner.manager.create(DivisionStat, {
-            ...stat,
-            sortOrder: stat.sortOrder ?? index,
-            divisionId: savedDivision.id,
-          }),
-        );
-        await queryRunner.manager.save(statEntities);
-      }
-
-      if (createDto.contact) {
-        const contactEntity = queryRunner.manager.create(DivisionContact, {
-          ...createDto.contact,
-          divisionId: savedDivision.id,
+        const existingSlug = await this.divisionRepository.findOne({
+          where: { slug: createDto.slug },
+          withDeleted: true,
         });
-        await queryRunner.manager.save(contactEntity);
-      }
+        if (existingSlug) {
+          throw new ConflictException('Slug already exists');
+        }
 
-      await queryRunner.commitTransaction();
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-      this.auditLogService.log(
-        AuditAction.DIVISION_CREATED,
-        performedBy,
-        savedDivision.id,
-      );
+        try {
+          const division = queryRunner.manager.create(Division, {
+            slug: createDto.slug,
+            name: createDto.name,
+            shortName: createDto.shortName,
+            location: createDto.location,
+            overview: createDto.overview,
+            logo: createDto.logo,
+            description: createDto.description ?? null,
+            requiresMedicalTeam: createDto.requiresMedicalTeam ?? false,
+            groupPhoto: createDto.groupPhoto,
+            isActive: createDto.isActive ?? true,
+            serviceCategoryId: createDto.serviceCategoryId,
+            divisionCategoryId: createDto.divisionCategoryId,
+          });
 
-      return this.findOne(savedDivision.id);
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
+          const savedDivision = await queryRunner.manager.save(division);
+
+          if (createDto.images?.length) {
+            const imageEntities = createDto.images.map((img, index) =>
+              queryRunner.manager.create(DivisionImage, {
+                path: img.path,
+                sortOrder: index,
+                divisionId: savedDivision.id,
+              }),
+            );
+            await queryRunner.manager.save(imageEntities);
+          }
+
+          if (createDto.coreServices?.length) {
+            const coreServicesEntities = createDto.coreServices.map(
+              (service, index) =>
+                queryRunner.manager.create(DivisionCoreService, {
+                  name: service.name,
+                  description: service.description,
+                  sortOrder: index,
+                  divisionId: savedDivision.id,
+                }),
+            );
+            await queryRunner.manager.save(coreServicesEntities);
+          }
+
+          if (createDto.stats?.length) {
+            const statEntities = createDto.stats.map((stat, index) =>
+              queryRunner.manager.create(DivisionStat, {
+                ...stat,
+                sortOrder: stat.sortOrder ?? index,
+                divisionId: savedDivision.id,
+              }),
+            );
+            await queryRunner.manager.save(statEntities);
+          }
+
+          if (createDto.contact) {
+            const contactEntity = queryRunner.manager.create(DivisionContact, {
+              ...createDto.contact,
+              divisionId: savedDivision.id,
+            });
+            await queryRunner.manager.save(contactEntity);
+          }
+
+          await queryRunner.commitTransaction();
+
+          this.auditLogService.log(
+            AuditAction.DIVISION_CREATED,
+            performedBy,
+            savedDivision.id,
+          );
+
+          return this.findOne(savedDivision.id);
+        } catch (err) {
+          await queryRunner.rollbackTransaction();
+          throw err;
+        } finally {
+          await queryRunner.release();
+        }
+      },
+    );
   }
 
   async update(
     id: string,
     updateDto: UpdateDivisionDto,
     performedBy: string,
+    callerRole?: UserRole,
+    callerDivisionId?: string | null,
   ): Promise<Division> {
-    const division = await this.findOne(id);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      updateDto,
+      'division',
+      async () => {
+        if (callerRole === UserRole.DIVISION_MANAGER) {
+          if (!callerDivisionId || callerDivisionId !== id) {
+            throw new ForbiddenException(
+              'Division managers can only update their own division',
+            );
+          }
 
-    if (updateDto.serviceCategoryId) {
-      await this.serviceCategoriesService.findOne(updateDto.serviceCategoryId);
-    }
-
-    if (updateDto.divisionCategoryId) {
-      await this.divisionCategoriesService.findOne(
-        updateDto.divisionCategoryId,
-      );
-    }
-
-    if (updateDto.slug && updateDto.slug !== division.slug) {
-      const existingSlug = await this.divisionRepository.findOne({
-        where: { slug: updateDto.slug },
-        withDeleted: true,
-      });
-      if (existingSlug && existingSlug.id !== id) {
-        throw new ConflictException('Slug already exists');
-      }
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // Merge base division fields
-      queryRunner.manager.merge(Division, division, {
-        slug: updateDto.slug,
-        name: updateDto.name,
-        shortName: updateDto.shortName,
-        location: updateDto.location,
-        overview: updateDto.overview,
-        logo: updateDto.logo,
-        description: updateDto.description,
-        groupPhoto: updateDto.groupPhoto,
-        isActive: updateDto.isActive,
-        serviceCategoryId: updateDto.serviceCategoryId,
-        divisionCategoryId: updateDto.divisionCategoryId,
-      });
-
-      if (updateDto.logo && division.logo && updateDto.logo !== division.logo) {
-        await this.uploadsService.cleanup(division.logo);
-      }
-
-      if (
-        updateDto.groupPhoto &&
-        division.groupPhoto &&
-        updateDto.groupPhoto !== division.groupPhoto
-      ) {
-        await this.uploadsService.cleanup(division.groupPhoto);
-      }
-
-      const updatedDivision = await queryRunner.manager.save(division);
-
-      if (updateDto.images !== undefined) {
-        const oldImages = await queryRunner.manager.find(DivisionImage, {
-          where: { divisionId: id },
-        });
-
-        await queryRunner.manager.delete(DivisionImage, { divisionId: id });
-
-        if (updateDto.images && updateDto.images.length > 0) {
-          const imageEntities = updateDto.images.map((img, index) =>
-            queryRunner.manager.create(DivisionImage, {
-              path: img.path,
-              sortOrder: index,
-              divisionId: id,
-            }),
-          );
-          await queryRunner.manager.save(imageEntities);
-        }
-
-        // Cleanup files for deleted images
-        const currentImagePaths =
-          updateDto.images?.map((img) => img.path) || [];
-        for (const oldImage of oldImages) {
-          if (!currentImagePaths.includes(oldImage.path)) {
-            await this.uploadsService.cleanup(oldImage.path);
+          if (
+            updateDto.slug !== undefined ||
+            updateDto.serviceCategoryId !== undefined ||
+            updateDto.divisionCategoryId !== undefined ||
+            updateDto.isActive !== undefined ||
+            updateDto.requiresMedicalTeam !== undefined
+          ) {
+            throw new BadRequestException(
+              'Division managers cannot modify slug, category, active status, or medical team settings',
+            );
           }
         }
-      }
 
-      if (updateDto.coreServices !== undefined) {
-        await queryRunner.manager.delete(DivisionCoreService, {
-          divisionId: id,
-        });
-        if (updateDto.coreServices && updateDto.coreServices.length > 0) {
-          const coreServicesEntities = updateDto.coreServices.map(
-            (service, index) =>
-              queryRunner.manager.create(DivisionCoreService, {
-                name: service.name,
-                description: service.description,
-                sortOrder: index,
-                divisionId: id,
-              }),
-          );
-          await queryRunner.manager.save(coreServicesEntities);
+        const division = await this.findOne(id);
+
+        if (updateDto.serviceCategoryId) {
+          await this.serviceCategoriesService.findOne(updateDto.serviceCategoryId);
         }
-      }
 
-      if (updateDto.stats !== undefined) {
-        await queryRunner.manager.delete(DivisionStat, { divisionId: id });
-        if (updateDto.stats && updateDto.stats.length > 0) {
-          const statEntities = updateDto.stats.map((stat, index) =>
-            queryRunner.manager.create(DivisionStat, {
-              ...stat,
-              sortOrder: stat.sortOrder ?? index,
-              divisionId: id,
-            }),
+        if (updateDto.divisionCategoryId) {
+          await this.divisionCategoriesService.findOne(
+            updateDto.divisionCategoryId,
           );
-          await queryRunner.manager.save(statEntities);
         }
-      }
 
-      if (updateDto.contact !== undefined) {
-        if (updateDto.contact === null) {
-          await queryRunner.manager.delete(DivisionContact, { divisionId: id });
-        } else {
-          const existingContact = await queryRunner.manager.findOne(
-            DivisionContact,
-            { where: { divisionId: id } },
-          );
-          if (existingContact) {
-            queryRunner.manager.merge(
-              DivisionContact,
-              existingContact,
-              updateDto.contact,
-            );
-            await queryRunner.manager.save(existingContact);
-          } else {
-            const contactEntity = queryRunner.manager.create(DivisionContact, {
-              ...updateDto.contact,
+        if (updateDto.slug && updateDto.slug !== division.slug) {
+          const existingSlug = await this.divisionRepository.findOne({
+            where: { slug: updateDto.slug },
+            withDeleted: true,
+          });
+          if (existingSlug && existingSlug.id !== id) {
+            throw new ConflictException('Slug already exists');
+          }
+        }
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+          const previousLogo =
+            updateDto.logo && division.logo && updateDto.logo !== division.logo
+              ? division.logo
+              : null;
+          const previousGroupPhoto =
+            updateDto.groupPhoto &&
+            division.groupPhoto &&
+            updateDto.groupPhoto !== division.groupPhoto
+              ? division.groupPhoto
+              : null;
+
+          queryRunner.manager.merge(Division, division, {
+            slug: updateDto.slug,
+            name: updateDto.name,
+            shortName: updateDto.shortName,
+            location: updateDto.location,
+            overview: updateDto.overview,
+            logo: updateDto.logo,
+            description: updateDto.description,
+            requiresMedicalTeam: updateDto.requiresMedicalTeam,
+            groupPhoto: updateDto.groupPhoto,
+            isActive: updateDto.isActive,
+            serviceCategoryId: updateDto.serviceCategoryId,
+            divisionCategoryId: updateDto.divisionCategoryId,
+          });
+
+          const updatedDivision = await queryRunner.manager.save(division);
+
+          if (updateDto.images !== undefined) {
+            const oldImages = await queryRunner.manager.find(DivisionImage, {
+              where: { divisionId: id },
+            });
+
+            await queryRunner.manager.delete(DivisionImage, { divisionId: id });
+
+            if (updateDto.images && updateDto.images.length > 0) {
+              const imageEntities = updateDto.images.map((img, index) =>
+                queryRunner.manager.create(DivisionImage, {
+                  path: img.path,
+                  sortOrder: index,
+                  divisionId: id,
+                }),
+              );
+              await queryRunner.manager.save(imageEntities);
+            }
+
+            const currentImagePaths =
+              updateDto.images?.map((img) => img.path) || [];
+            for (const oldImage of oldImages) {
+              if (!currentImagePaths.includes(oldImage.path)) {
+                await this.uploadsService.cleanup(oldImage.path);
+              }
+            }
+          }
+
+          if (updateDto.coreServices !== undefined) {
+            await queryRunner.manager.delete(DivisionCoreService, {
               divisionId: id,
             });
-            await queryRunner.manager.save(contactEntity);
+            if (updateDto.coreServices && updateDto.coreServices.length > 0) {
+              const coreServicesEntities = updateDto.coreServices.map(
+                (service, index) =>
+                  queryRunner.manager.create(DivisionCoreService, {
+                    name: service.name,
+                    description: service.description,
+                    sortOrder: index,
+                    divisionId: id,
+                  }),
+              );
+              await queryRunner.manager.save(coreServicesEntities);
+            }
           }
+
+          if (updateDto.stats !== undefined) {
+            await queryRunner.manager.delete(DivisionStat, { divisionId: id });
+            if (updateDto.stats && updateDto.stats.length > 0) {
+              const statEntities = updateDto.stats.map((stat, index) =>
+                queryRunner.manager.create(DivisionStat, {
+                  ...stat,
+                  sortOrder: stat.sortOrder ?? index,
+                  divisionId: id,
+                }),
+              );
+              await queryRunner.manager.save(statEntities);
+            }
+          }
+
+          if (updateDto.contact !== undefined) {
+            if (updateDto.contact === null) {
+              await queryRunner.manager.delete(DivisionContact, {
+                divisionId: id,
+              });
+            } else {
+              const existingContact = await queryRunner.manager.findOne(
+                DivisionContact,
+                { where: { divisionId: id } },
+              );
+              if (existingContact) {
+                queryRunner.manager.merge(
+                  DivisionContact,
+                  existingContact,
+                  updateDto.contact,
+                );
+                await queryRunner.manager.save(existingContact);
+              } else {
+                const contactEntity = queryRunner.manager.create(
+                  DivisionContact,
+                  {
+                    ...updateDto.contact,
+                    divisionId: id,
+                  },
+                );
+                await queryRunner.manager.save(contactEntity);
+              }
+            }
+          }
+
+          await queryRunner.commitTransaction();
+
+          if (previousLogo) {
+            await this.uploadsService.cleanup(previousLogo);
+          }
+
+          if (previousGroupPhoto) {
+            await this.uploadsService.cleanup(previousGroupPhoto);
+          }
+
+          this.auditLogService.log(
+            AuditAction.DIVISION_UPDATED,
+            performedBy,
+            updatedDivision.id,
+          );
+
+          return this.findOne(id);
+        } catch (err) {
+          await queryRunner.rollbackTransaction();
+          throw err;
+        } finally {
+          await queryRunner.release();
         }
-      }
-
-      await queryRunner.commitTransaction();
-
-      this.auditLogService.log(
-        AuditAction.DIVISION_UPDATED,
-        performedBy,
-        updatedDivision.id,
-      );
-
-      return this.findOne(id);
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
+      },
+    );
   }
 
   async remove(id: string, performedBy: string): Promise<{ message: string }> {

@@ -24,6 +24,10 @@ export class CreateNotificationDto {
   @IsEnum(NotificationUrgency)
   urgency?: NotificationUrgency = NotificationUrgency.LOW;
 
+  @ApiProperty()
+  @IsString()
+  targetUserId!: string;
+
   @ApiProperty({ enum: UserRole })
   @IsEnum(UserRole)
   targetRole!: UserRole;

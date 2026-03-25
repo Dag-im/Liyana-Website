@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client'
 import type { TimelineItem } from '@/types/timeline.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 import type { PaginatedResponse } from '@/types/user.types'
 
 export type GetTimelineItemsParams = {
@@ -25,17 +26,15 @@ const buildQuery = (params: Record<string, string | number | undefined>) => {
 }
 
 export const timelineApi = {
-  async uploadTimelineImage(file: File): Promise<{ path: string }> {
+  async uploadTimelineImage(file: File): Promise<UploadedAsset> {
     const formData = new FormData()
     formData.append('file', file)
 
-    const result = await apiRequest<{ path?: string; url?: string }>('/timeline/upload', {
+    return apiRequest<UploadedAsset>('/timeline/upload', {
       method: 'POST',
       body: formData,
       headers: {},
     })
-
-    return { path: result.path ?? result.url ?? '' }
   },
 
   getTimelineItems(params: GetTimelineItemsParams): Promise<PaginatedResponse<TimelineItem>> {

@@ -27,7 +27,7 @@ import { TestimonialDetailDialog } from './TestimonialDetailDialog'
 type FilterTab = 'all' | 'pending' | 'approved' | 'favorites'
 
 export default function TestimonialsPage() {
-  const { page, perPage, setPage, resetPage } = usePagination()
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination()
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null)
@@ -297,6 +297,7 @@ export default function TestimonialsPage() {
           perPage={perPage}
           total={testimonialsQuery.data?.total ?? 0}
           onPageChange={setPage}
+          onPerPageChange={setPerPage}
         />
       </div>
 

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 import {
   getMediaFolders,
   getMediaFolder,
@@ -42,9 +43,7 @@ export function useCreateMediaFolder() {
       queryClient.invalidateQueries({ queryKey: ['media-folders'] })
       toast.success('Media folder created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create media folder')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create media folder'),
   })
 }
 
@@ -56,9 +55,7 @@ export function useUpdateMediaFolder(id: string) {
       queryClient.invalidateQueries({ queryKey: ['media-folders'] })
       toast.success('Media folder updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update media folder')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update media folder'),
   })
 }
 
@@ -70,9 +67,7 @@ export function useDeleteMediaFolder() {
       queryClient.invalidateQueries({ queryKey: ['media-folders'] })
       toast.success('Media folder deleted')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete media folder')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete media folder'),
   })
 }
 
@@ -97,9 +92,7 @@ export function useCreateMediaItem(folderId: string) {
       queryClient.invalidateQueries({ queryKey: ['media-items', folderId] })
       toast.success('Media item added')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to add media item')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to add media item'),
   })
 }
 
@@ -111,9 +104,7 @@ export function useUpdateMediaItem(folderId: string, id: string) {
       queryClient.invalidateQueries({ queryKey: ['media-items', folderId] })
       toast.success('Media item updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update media item')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update media item'),
   })
 }
 
@@ -125,8 +116,6 @@ export function useDeleteMediaItem(folderId: string) {
       queryClient.invalidateQueries({ queryKey: ['media-items', folderId] })
       toast.success('Media item deleted')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete media item')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete media item'),
   })
 }

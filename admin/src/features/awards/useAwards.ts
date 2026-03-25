@@ -1,6 +1,7 @@
 import { awardsApi, type CreateAwardDto, type GetAwardsParams, type UpdateAwardDto } from '@/api/awards.api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useAwards(params: GetAwardsParams) {
   return useQuery({
@@ -26,9 +27,7 @@ export function useCreateAward() {
       queryClient.invalidateQueries({ queryKey: ['awards'] })
       toast.success('Award created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create award')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create award'),
   })
 }
 
@@ -42,9 +41,7 @@ export function useUpdateAward() {
       queryClient.invalidateQueries({ queryKey: ['awards'] })
       toast.success('Award updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update award')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update award'),
   })
 }
 
@@ -57,8 +54,6 @@ export function useDeleteAward() {
       queryClient.invalidateQueries({ queryKey: ['awards'] })
       toast.success('Award deleted')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete award')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete award'),
   })
 }

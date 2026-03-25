@@ -60,12 +60,12 @@ export class BookingsService {
 
     const saved = await this.bookingsRepository.save(booking);
 
-    void this.notificationsService.create(
+    void this.notificationsService.createForRoles(
+      [UserRole.CUSTOMER_SERVICE, UserRole.DIVISION_MANAGER],
       {
         title: 'New Booking Request',
         message: `New booking from ${dto.patientName} for ${dto.selectionLabel} at ${division.name}`,
         urgency: NotificationUrgency.MEDIUM,
-        targetRole: UserRole.CUSTOMER_SERVICE,
         relatedEntityType: 'booking',
         relatedEntityId: saved.id,
       },
@@ -97,7 +97,10 @@ export class BookingsService {
           divisionId: queryDto.divisionId,
         });
       }
-    } else if (user.role === UserRole.CUSTOMER_SERVICE) {
+    } else if (
+      user.role === UserRole.CUSTOMER_SERVICE ||
+      user.role === UserRole.DIVISION_MANAGER
+    ) {
       if (!user.divisionId) {
         throw new ForbiddenException('No division assigned to this account');
       }
@@ -164,7 +167,10 @@ export class BookingsService {
       return booking;
     }
 
-    if (user.role === UserRole.CUSTOMER_SERVICE) {
+    if (
+      user.role === UserRole.CUSTOMER_SERVICE ||
+      user.role === UserRole.DIVISION_MANAGER
+    ) {
       if (booking.divisionId !== user.divisionId) {
         throw new ForbiddenException('Access denied to this booking');
       }

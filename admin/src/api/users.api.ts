@@ -20,6 +20,8 @@ export type CreateUserDto = {
   password: string
   role: UserRole
   divisionId?: string | null
+  authorName?: string | null
+  authorRole?: string | null
   isActive: boolean
 }
 
@@ -28,6 +30,8 @@ export type UpdateUserDto = {
   email?: string
   role?: UserRole
   divisionId?: string | null
+  authorName?: string | null
+  authorRole?: string | null
   isActive?: boolean
 }
 

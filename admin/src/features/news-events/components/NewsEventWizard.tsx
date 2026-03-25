@@ -9,7 +9,6 @@ import {
   type CreateNewsEventDto,
 } from '@/api/news-events.api'
 import RichTextEditor from '@/components/shared/RichTextEditor'
-import RichTextViewer from '@/components/shared/RichTextViewer'
 import { WizardDialog, type WizardStep } from '@/components/shared/WizardDialog';
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +20,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -30,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useTempUploadSession } from '@/lib/temp-upload-session'
 import type { NewsEventType } from '@/types/news-events.types'
 import KeyHighlightsEditor from './KeyHighlightsEditor'
 import { FileUpload } from '@/components/shared/FileUpload'
@@ -78,7 +77,7 @@ const STEPS = [
   {
     id: 3,
     title: 'Content',
-    description: 'Write and preview body',
+    description: 'Write content body',
     icon: FileText,
   },
   {
@@ -101,6 +100,7 @@ export default function NewsEventWizard({
 }: Props) {
   const [step, setStep] = useState(1)
   const [showHighlights, setShowHighlights] = useState(false)
+  const tempUploads = useTempUploadSession()
 
   const initialContent = useMemo(() => {
     const content = defaultValues?.content
@@ -183,6 +183,7 @@ export default function NewsEventWizard({
     }
 
     onSubmit(payload)
+    tempUploads.clear()
   }
 
   const goNext = async () => {
@@ -202,6 +203,9 @@ export default function NewsEventWizard({
     <WizardDialog
       open={open}
       onOpenChange={(val) => {
+        if (!val) {
+          void tempUploads.releaseAll({ silent: true })
+        }
         onOpenChange(val)
         if (!val) setStep(1)
       }}
@@ -417,6 +421,7 @@ export default function NewsEventWizard({
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           currentPath={field.value}
                           label="Upload Main Image"
                         />
@@ -435,6 +440,7 @@ export default function NewsEventWizard({
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           currentPath={field.value}
                           label="Upload Image"
                         />
@@ -453,6 +459,7 @@ export default function NewsEventWizard({
                         <FileUpload
                           onUpload={uploadNewsEventFile}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           currentPath={field.value}
                           label="Upload Image"
                         />
@@ -467,8 +474,8 @@ export default function NewsEventWizard({
 
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[60vh]">
-                <div className="flex flex-col space-y-3">
+              <div className="min-h-[70vh] rounded-xl border bg-card p-4">
+                <div className="flex flex-col space-y-3 h-full">
                   <FormLabel className="text-base font-semibold flex items-center gap-2">
                     <FileText className="h-4 w-4 text-primary" />
                     Content Editor
@@ -485,16 +492,6 @@ export default function NewsEventWizard({
                     />
                   </div>
                   <FormMessage />
-                </div>
-
-                <div className="flex flex-col space-y-3">
-                  <Label className="text-base font-semibold flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    Live Preview
-                  </Label>
-                  <div className="flex-1 overflow-y-auto rounded-xl border bg-muted/10 p-6 prose prose-sm dark:prose-invert max-w-none">
-                    <RichTextViewer content={contentHtml} />
-                  </div>
                 </div>
               </div>
             </div>

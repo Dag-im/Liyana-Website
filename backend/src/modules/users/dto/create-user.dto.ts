@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
@@ -35,6 +36,28 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID()
   divisionId?: string;
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 'Dr. Hanna Tesfaye',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  authorName?: string;
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 'Senior Medical Editor',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  authorRole?: string;
 
   @ApiProperty({ required: false, default: true })
   @IsOptional()

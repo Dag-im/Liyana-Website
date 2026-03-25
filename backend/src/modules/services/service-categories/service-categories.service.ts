@@ -92,30 +92,37 @@ export class ServiceCategoriesService {
     createDto: CreateServiceCategoryDto,
     performedBy: string,
   ): Promise<ServiceCategory> {
-    let sortOrder = createDto.sortOrder;
-
-    if (sortOrder === undefined) {
-      const lastCategory = await this.categoryRepository
-        .createQueryBuilder('category')
-        .orderBy('category.sortOrder', 'DESC')
-        .addOrderBy('category.createdAt', 'DESC')
-        .getOne();
-      sortOrder = (lastCategory?.sortOrder ?? -1) + 1;
-    }
-
-    const category = this.categoryRepository.create({
-      ...createDto,
-      sortOrder,
-    });
-    const saved = await this.categoryRepository.save(category);
-
-    this.auditLogService.log(
-      AuditAction.SERVICE_CATEGORY_CREATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      saved.id,
-    );
+      createDto,
+      'service-category',
+      async () => {
+        let sortOrder = createDto.sortOrder;
 
-    return saved;
+        if (sortOrder === undefined) {
+          const lastCategory = await this.categoryRepository
+            .createQueryBuilder('category')
+            .orderBy('category.sortOrder', 'DESC')
+            .addOrderBy('category.createdAt', 'DESC')
+            .getOne();
+          sortOrder = (lastCategory?.sortOrder ?? -1) + 1;
+        }
+
+        const category = this.categoryRepository.create({
+          ...createDto,
+          sortOrder,
+        });
+        const saved = await this.categoryRepository.save(category);
+
+        this.auditLogService.log(
+          AuditAction.SERVICE_CATEGORY_CREATED,
+          performedBy,
+          saved.id,
+        );
+
+        return saved;
+      },
+    );
   }
 
   async update(
@@ -123,26 +130,35 @@ export class ServiceCategoriesService {
     updateDto: UpdateServiceCategoryDto,
     performedBy: string,
   ): Promise<ServiceCategory> {
-    const category = await this.findOne(id);
-
-    if (
-      updateDto.heroImage &&
-      category.heroImage &&
-      updateDto.heroImage !== category.heroImage
-    ) {
-      await this.uploadsService.cleanup(category.heroImage);
-    }
-
-    this.categoryRepository.merge(category, updateDto);
-    const saved = await this.categoryRepository.save(category);
-
-    this.auditLogService.log(
-      AuditAction.SERVICE_CATEGORY_UPDATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      saved.id,
-    );
+      updateDto,
+      'service-category',
+      async () => {
+        const category = await this.findOne(id);
+        const previousHeroImage =
+          updateDto.heroImage &&
+          category.heroImage &&
+          updateDto.heroImage !== category.heroImage
+            ? category.heroImage
+            : null;
 
-    return saved;
+        this.categoryRepository.merge(category, updateDto);
+        const saved = await this.categoryRepository.save(category);
+
+        if (previousHeroImage) {
+          await this.uploadsService.cleanup(previousHeroImage);
+        }
+
+        this.auditLogService.log(
+          AuditAction.SERVICE_CATEGORY_UPDATED,
+          performedBy,
+          saved.id,
+        );
+
+        return saved;
+      },
+    );
   }
 
   async remove(id: string, performedBy: string): Promise<{ message: string }> {

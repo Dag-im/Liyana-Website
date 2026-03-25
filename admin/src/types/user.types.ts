@@ -1,10 +1,18 @@
 import type { Division } from './services.types'
 
-export type UserRole = 'ADMIN' | 'COMMUNICATION' | 'HR' | 'BLOGGER' | 'CUSTOMER_SERVICE'
+export type UserRole =
+  | 'ADMIN'
+  | 'COMMUNICATION'
+  | 'HR'
+  | 'BLOGGER'
+  | 'CUSTOMER_SERVICE'
+  | 'DIVISION_MANAGER'
 
 export type User = {
   id: string
   name: string
+  authorName: string | null
+  authorRole: string | null
   email: string
   role: UserRole
   divisionId: string | null

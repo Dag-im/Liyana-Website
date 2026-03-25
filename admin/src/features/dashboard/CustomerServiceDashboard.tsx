@@ -1,117 +1,85 @@
-import DataTable from '@/components/shared/DataTable';
-import PageHeader from '@/components/shared/PageHeader';
-import { BookingStatusBadge } from '@/components/shared/StatusBadge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { useBookings } from '@/features/bookings/useBookings';
-import type { User } from '@/types/user.types';
-import type { BookingStatus } from '@/types/booking.types';
-import {
-  ArrowRight,
-  Building,
-  CalendarCheck,
-  CalendarDays,
-  CalendarX,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import DataTable from '@/components/shared/DataTable'
+import { BookingStatusBadge } from '@/components/shared/StatusBadge'
+import { Badge } from '@/components/ui/badge'
+import { useBookings } from '@/features/bookings/useBookings'
+import { useContactSubmissions } from '@/features/contact/useContact'
+import type { BookingStatus } from '@/types/booking.types'
+import type { User } from '@/types/user.types'
+import { CalendarCheck, CalendarClock, CalendarDays, CalendarX, Inbox, ListChecks } from 'lucide-react'
+
+import { DashboardHero, MetricCard, QuickActionGrid, SectionCard } from './DashboardPrimitives'
 
 export function CustomerServiceDashboard({ user }: { user: User }) {
-  const { data: pendingData } = useBookings({ perPage: 1, status: 'PENDING' });
-  const { data: confirmedData } = useBookings({
-    perPage: 1,
-    status: 'CONFIRMED',
-  });
-  const { data: cancelledData } = useBookings({
-    perPage: 1,
-    status: 'CANCELLED',
-  });
-  const { data: recentBookings } = useBookings({ perPage: 5 });
-
-  const stats = [
-    {
-      label: 'Pending Bookings',
-      value: pendingData?.total ?? 0,
-      icon: CalendarDays,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
-    },
-    {
-      label: 'Confirmed Bookings',
-      value: confirmedData?.total ?? 0,
-      icon: CalendarCheck,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50',
-    },
-    {
-      label: 'Cancelled Bookings',
-      value: cancelledData?.total ?? 0,
-      icon: CalendarX,
-      color: 'text-red-600',
-      bg: 'bg-red-50',
-    },
-  ];
+  const { data: pendingData } = useBookings({ perPage: 1, status: 'PENDING' })
+  const { data: confirmedData } = useBookings({ perPage: 1, status: 'CONFIRMED' })
+  const { data: cancelledData } = useBookings({ perPage: 1, status: 'CANCELLED' })
+  const recentBookingsQuery = useBookings({ perPage: 6 })
+  const { data: unreviewedContact } = useContactSubmissions({ isReviewed: false, perPage: 1 })
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader
-          heading={`Welcome, ${user.name}`}
-          text="Manage bookings for your division."
+      <DashboardHero
+        eyebrow="Front Desk"
+        title={`Welcome back, ${user.name}`}
+        description="Track booking flow, keep queue times low, and close inbound requests quickly."
+        chips={[
+          `Division: ${user.division?.name ?? 'All Divisions'}`,
+          `${pendingData?.total ?? 0} pending bookings`,
+          `${unreviewedContact?.total ?? 0} unreviewed messages`,
+        ]}
+        actions={[
+          { label: 'Open Booking Queue', to: '/bookings' },
+          { label: 'Open Contact Inbox', to: '/contact', variant: 'outline' },
+        ]}
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          title="Pending"
+          value={pendingData?.total ?? 0}
+          description="New requests awaiting review"
+          icon={CalendarDays}
+          tone="amber"
+          to="/bookings"
         />
-        <Card className="min-w-50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-full bg-primary/10">
-              <Building className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Assigned Division</p>
-              <p className="font-semibold">
-                {user.division?.name || 'All Divisions'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Confirmed"
+          value={confirmedData?.total ?? 0}
+          description="Appointments validated"
+          icon={CalendarCheck}
+          tone="emerald"
+          to="/bookings"
+        />
+        <MetricCard
+          title="Cancelled"
+          value={cancelledData?.total ?? 0}
+          description="Requires follow-up"
+          icon={CalendarX}
+          tone="rose"
+          to="/bookings"
+        />
+        <MetricCard
+          title="Unreviewed Contact"
+          value={unreviewedContact?.total ?? 0}
+          description="Shared inbox messages"
+          icon={Inbox}
+          tone={(unreviewedContact?.total ?? 0) > 0 ? 'rose' : 'default'}
+          to="/contact"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.label}
-              </CardTitle>
-              <div className={`p-2 rounded-md ${stat.bg}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Recent Bookings</CardTitle>
-            <CardDescription>Latest booking requests received.</CardDescription>
-          </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/bookings">
-              Manage All Bookings <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
+      <div className="grid gap-4 xl:grid-cols-12">
+        <SectionCard
+          title="Recent Booking Requests"
+          description="Latest requests sorted by creation time"
+          action={{ label: 'Manage all', to: '/bookings' }}
+          className="xl:col-span-8"
+        >
           <DataTable
-            data={recentBookings?.data || []}
+            data={recentBookingsQuery.data?.data ?? []}
+            isLoading={recentBookingsQuery.isLoading}
+            isError={recentBookingsQuery.isError}
+            onRetry={() => recentBookingsQuery.refetch()}
             columns={[
               {
                 header: 'Patient',
@@ -129,15 +97,38 @@ export function CustomerServiceDashboard({ user }: { user: User }) {
                 ),
               },
               {
-                header: 'Date',
+                header: 'Created',
                 id: 'createdAt',
-                cell: ({ row }: { row: { original: { createdAt: string } } }) =>
-                  new Date(row.original.createdAt).toLocaleDateString(),
+                cell: ({ row }: { row: { original: { createdAt: string } } }) => (
+                  <span className="text-sm">{new Date(row.original.createdAt).toLocaleString()}</span>
+                ),
               },
             ]}
           />
-        </CardContent>
-      </Card>
+        </SectionCard>
+
+        <SectionCard
+          title="Service Operations"
+          description="Common actions for customer service"
+          className="xl:col-span-4"
+        >
+          <QuickActionGrid
+            actions={[
+              { label: 'Booking Queue', to: '/bookings', icon: ListChecks },
+              { label: 'Notifications', to: '/notifications', icon: CalendarClock },
+              { label: 'Contact Submissions', to: '/contact', icon: Inbox },
+            ]}
+          />
+          <div className="mt-4 rounded-lg border border-border/70 bg-background/70 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Coverage</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Badge variant="outline">Bookings</Badge>
+              <Badge variant="outline">Notifications</Badge>
+              <Badge variant="outline">Contact Queue</Badge>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
     </div>
-  );
+  )
 }

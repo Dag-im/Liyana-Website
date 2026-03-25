@@ -1,9 +1,11 @@
-import { Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 
 import CommunicationRoute from '@/components/auth/CommunicationRoute';
 import AppShell from '@/components/layout/AppShell';
+import AuditLogDetailPage from '@/features/audit-logs/AuditLogDetailPage';
 import AuditLogsPage from '@/features/audit-logs/AuditLogsPage';
 import LoginPage from '@/features/auth/LoginPage';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import AwardsPage from '@/features/awards/AwardsPage';
 import AwardCreatePage from '@/features/awards/AwardCreatePage';
 import AwardEditPage from '@/features/awards/AwardEditPage';
@@ -48,6 +50,13 @@ import NewsEventDetailPage from '@/features/news-events/NewsEventDetailPage';
 import NewsEventEditPage from '@/features/news-events/NewsEventEditPage';
 import NewsPage from '@/features/news-events/NewsPage';
 import NotificationsPage from '@/features/notifications/NotificationsPage';
+import BasicsPage from '@/features/my-division/BasicsPage';
+import MyDivisionBookingsPage from '@/features/my-division/BookingsPage';
+import DescriptionPage from '@/features/my-division/DescriptionPage';
+import ExtrasPage from '@/features/my-division/ExtrasPage';
+import MedicalTeamPage from '@/features/my-division/MedicalTeamPage';
+import MediaPage from '@/features/my-division/MediaPage';
+import TeamPageManaged from '@/features/my-division/TeamPage';
 import ServiceCategoriesPage from '@/features/service-categories/ServiceCategoriesPage';
 import ServiceCategoryCreatePage from '@/features/service-categories/ServiceCategoryCreatePage';
 import ServiceCategoryDetailPage from '@/features/service-categories/ServiceCategoryDetailPage';
@@ -67,6 +76,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import AdminRoute from '@/router/AdminRoute';
 import ProtectedRoute from '@/router/ProtectedRoute';
 import RoleRoute from '@/router/RoleRoute';
+import { useAuth } from '@/features/auth/useAuth';
 
 export default function App() {
   return (
@@ -76,6 +86,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />} path="/">
           <Route element={<DashboardPage />} index />
+          <Route element={<DashboardPage />} path="dashboard" />
           <Route element={<NotificationsPage />} path="notifications" />
 
           {/* Customer Service & Admin */}
@@ -83,6 +94,16 @@ export default function App() {
             element={<RoleRoute allowedRoles={['ADMIN', 'CUSTOMER_SERVICE']} />}
           >
             <Route element={<BookingsPage />} path="bookings" />
+          </Route>
+
+          <Route element={<DivisionManagerRoute />}>
+            <Route element={<BasicsPage />} path="my-division/basics" />
+            <Route element={<MediaPage />} path="my-division/media" />
+            <Route element={<DescriptionPage />} path="my-division/description" />
+            <Route element={<ExtrasPage />} path="my-division/extras" />
+            <Route element={<MedicalTeamPage />} path="my-division/medical-team" />
+            <Route element={<MyDivisionBookingsPage />} path="my-division/bookings" />
+            <Route element={<TeamPageManaged />} path="my-division/team" />
           </Route>
 
           {/* Admin, Communication, Blogger */}
@@ -192,6 +213,7 @@ export default function App() {
             <Route element={<FaqCategoryEditPage />} path="faq-categories/:id/edit" />
             <Route element={<CmsPage />} path="cms" />
             <Route element={<AuditLogsPage />} path="audit-logs" />
+            <Route element={<AuditLogDetailPage />} path="audit-logs/:id" />
           </Route>
         </Route>
       </Route>
@@ -199,4 +221,18 @@ export default function App() {
       <Route element={<NotFoundPage />} path="*" />
     </Routes>
   );
+}
+
+function DivisionManagerRoute() {
+  const { data: user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner fullPage />;
+  }
+
+  if (user?.role !== 'DIVISION_MANAGER') {
+    return <div className="p-8 text-center text-slate-500">Access Denied</div>;
+  }
+
+  return <Outlet />;
 }

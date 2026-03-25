@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client'
 import type { MediaFolder, MediaItem, MediaItemType } from '@/types/media.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 import type { PaginatedResponse } from '@/types/user.types'
 
 const toQueryString = (params: Record<string, unknown>) => {
@@ -14,11 +15,11 @@ const toQueryString = (params: Record<string, unknown>) => {
   return query ? `?${query}` : ''
 }
 
-export function uploadFolderCover(file: File): Promise<{ path: string }> {
+export function uploadFolderCover(file: File): Promise<UploadedAsset> {
   const formData = new FormData()
   formData.append('file', file)
 
-  return apiRequest<{ path: string }>('/media-folders/upload', {
+  return apiRequest<UploadedAsset>('/media-folders/upload', {
     method: 'POST',
     body: formData,
   })
@@ -69,11 +70,11 @@ export function deleteMediaFolder(id: string): Promise<{ message: string }> {
   })
 }
 
-export function uploadMediaItem(folderId: string, file: File): Promise<{ path: string }> {
+export function uploadMediaItem(folderId: string, file: File): Promise<UploadedAsset> {
   const formData = new FormData()
   formData.append('file', file)
 
-  return apiRequest<{ path: string }>(`/media-folders/${folderId}/items/upload`, {
+  return apiRequest<UploadedAsset>(`/media-folders/${folderId}/items/upload`, {
     method: 'POST',
     body: formData,
   })

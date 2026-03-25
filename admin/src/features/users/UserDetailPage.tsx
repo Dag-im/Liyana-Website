@@ -52,6 +52,8 @@ export default function UserDetailPage() {
         </CardHeader>
         <CardContent className="grid gap-2 text-sm">
           <p><span className="font-medium">Name:</span> {user.name}</p>
+          <p><span className="font-medium">Author Name:</span> {user.authorName ?? '—'}</p>
+          <p><span className="font-medium">Author Role:</span> {user.authorRole ?? '—'}</p>
           <p><span className="font-medium">Email:</span> {user.email}</p>
           <p><span className="font-medium">Role:</span> {user.role}</p>
           <p><span className="font-medium">Status:</span> {user.isActive ? 'Active' : 'Inactive'}</p>

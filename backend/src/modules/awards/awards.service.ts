@@ -19,17 +19,24 @@ export class AwardsService {
   ) {}
 
   async create(createAwardDto: CreateAwardDto, performedBy: string) {
-    const award = this.awardRepository.create(createAwardDto);
-    const savedAward = await this.awardRepository.save(award);
-
-    this.auditLogService.log(
-      AuditAction.AWARD_CREATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      savedAward.id,
-      { title: savedAward.title },
-    );
+      createAwardDto,
+      'award',
+      async () => {
+        const award = this.awardRepository.create(createAwardDto);
+        const savedAward = await this.awardRepository.save(award);
 
-    return savedAward;
+        this.auditLogService.log(
+          AuditAction.AWARD_CREATED,
+          performedBy,
+          savedAward.id,
+          { title: savedAward.title },
+        );
+
+        return savedAward;
+      },
+    );
   }
 
   async findAll(queryDto: QueryAwardDto) {
@@ -89,23 +96,34 @@ export class AwardsService {
     updateAwardDto: UpdateAwardDto,
     performedBy: string,
   ) {
-    const award = await this.findOne(id);
-
-    if (updateAwardDto.image && updateAwardDto.image !== award.image) {
-      await this.uploadsService.delete(award.image);
-    }
-
-    Object.assign(award, updateAwardDto);
-    const updatedAward = await this.awardRepository.save(award);
-
-    this.auditLogService.log(
-      AuditAction.AWARD_UPDATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      updatedAward.id,
-      { title: updatedAward.title },
-    );
+      updateAwardDto,
+      'award',
+      async () => {
+        const award = await this.findOne(id);
+        const previousImage =
+          updateAwardDto.image && updateAwardDto.image !== award.image
+            ? award.image
+            : null;
 
-    return updatedAward;
+        Object.assign(award, updateAwardDto);
+        const updatedAward = await this.awardRepository.save(award);
+
+        if (previousImage) {
+          await this.uploadsService.delete(previousImage);
+        }
+
+        this.auditLogService.log(
+          AuditAction.AWARD_UPDATED,
+          performedBy,
+          updatedAward.id,
+          { title: updatedAward.title },
+        );
+
+        return updatedAward;
+      },
+    );
   }
 
   async remove(id: string, performedBy: string) {

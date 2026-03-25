@@ -1,4 +1,5 @@
 import { networkRelationsApi } from '@/api/network-relations.api';
+import { showErrorToast } from '@/lib/error-utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -23,9 +24,7 @@ export function useCreateNetworkRelation() {
       queryClient.invalidateQueries({ queryKey: ['network-relations'] });
       toast.success('Relation type created');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create relation type');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create relation type'),
   });
 }
 
@@ -37,9 +36,7 @@ export function useUpdateNetworkRelation(id: string) {
       queryClient.invalidateQueries({ queryKey: ['network-relations'] });
       toast.success('Relation type updated');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update relation type');
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update relation type'),
   });
 }
 
@@ -55,7 +52,7 @@ export function useDeleteNetworkRelation() {
       if (error.status === 409) {
         toast.error('Cannot delete: entities are assigned to this relation type');
       } else {
-        toast.error(error.message || 'Failed to delete relation type');
+        showErrorToast(error, 'Failed to delete relation type');
       }
     },
   });

@@ -8,6 +8,7 @@ import {
 } from '@/api/faqs.api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useFaqCategories() {
   return useQuery({
@@ -26,9 +27,7 @@ export function useCreateFaqCategory() {
       queryClient.invalidateQueries({ queryKey: ['faq-categories'] })
       toast.success('FAQ category created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create FAQ category')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create FAQ category'),
   })
 }
 
@@ -42,9 +41,7 @@ export function useUpdateFaqCategory() {
       queryClient.invalidateQueries({ queryKey: ['faq-categories'] })
       toast.success('FAQ category updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update FAQ category')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update FAQ category'),
   })
 }
 
@@ -62,7 +59,7 @@ export function useDeleteFaqCategory() {
         toast.error('Cannot delete: FAQs are assigned to this category')
         return
       }
-      toast.error(error.message || 'Failed to delete FAQ category')
+      showErrorToast(error, 'Failed to delete FAQ category')
     },
   })
 }
@@ -91,9 +88,7 @@ export function useCreateFaq() {
       queryClient.invalidateQueries({ queryKey: ['faqs'] })
       toast.success('FAQ created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create FAQ')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create FAQ'),
   })
 }
 
@@ -107,9 +102,7 @@ export function useUpdateFaq() {
       queryClient.invalidateQueries({ queryKey: ['faqs'] })
       toast.success('FAQ updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update FAQ')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update FAQ'),
   })
 }
 
@@ -123,9 +116,7 @@ export function useReorderFaq() {
       queryClient.invalidateQueries({ queryKey: ['faqs'] })
       toast.success('FAQ order updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to reorder FAQ')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to reorder FAQ'),
   })
 }
 
@@ -138,8 +129,6 @@ export function useDeleteFaq() {
       queryClient.invalidateQueries({ queryKey: ['faqs'] })
       toast.success('FAQ deleted')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete FAQ')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete FAQ'),
   })
 }

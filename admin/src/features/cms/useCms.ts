@@ -2,17 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { cmsApi } from '@/api/cms.api'
+import { getErrorMessage } from '@/lib/error-utils'
 import type { MissionVision } from '@/types/cms.types'
 
 const cmsStaleTime = 5 * 60 * 1000
-
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  return 'Request failed'
-}
 
 export function useMissionVision() {
   return useQuery({

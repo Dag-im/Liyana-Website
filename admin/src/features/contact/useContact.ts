@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as api from '@/api/contact.api'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useContactSubmissions(params: Parameters<typeof api.getContactSubmissions>[0]) {
   return useQuery({
@@ -26,7 +27,7 @@ export function useReviewContactSubmission() {
       queryClient.invalidateQueries({ queryKey: ['contact'] })
       toast.success('Marked as reviewed')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to review submission'),
   })
 }
 
@@ -38,6 +39,6 @@ export function useDeleteContactSubmission() {
       queryClient.invalidateQueries({ queryKey: ['contact'] })
       toast.success('Submission deleted')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete submission'),
   })
 }

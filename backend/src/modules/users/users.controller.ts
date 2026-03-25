@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -46,11 +47,11 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary:
-      'Create a user (Admin only). Rate limit: 20 requests per 60 seconds.',
+      'Create a user (Admin or Division Manager). Managers can only create CUSTOMER_SERVICE users for their own division. Rate limit: 20 requests per 60 seconds.',
   })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -60,6 +61,19 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @Req() req: AuthenticatedRequest,
   ) {
+    if (req.user.role === UserRole.DIVISION_MANAGER) {
+      if (createUserDto.role !== UserRole.CUSTOMER_SERVICE) {
+        throw new BadRequestException(
+          'Division managers can only create customer service users',
+        );
+      }
+      if (createUserDto.divisionId !== req.user.divisionId) {
+        throw new BadRequestException(
+          'Division managers can only create users for their own division',
+        );
+      }
+    }
+
     return this.usersService.create(createUserDto, req.user.sub);
   }
 
@@ -67,7 +81,7 @@ export class UsersController {
   @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({
     summary:
-      'List users with pagination and filtering. Rate limit: 60 requests per 60 seconds.',
+      'List users with pagination and filtering. Division managers only see customer service users in their own division. Rate limit: 60 requests per 60 seconds.',
   })
   @ApiQuery({ type: QueryUserDto })
   @ApiResponse({
@@ -75,7 +89,23 @@ export class UsersController {
     description: 'Paginated users response.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  findAll(@Query() queryUserDto: QueryUserDto) {
+  findAll(
+    @Query() queryUserDto: QueryUserDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (req.user.role === UserRole.DIVISION_MANAGER) {
+      if (!req.user.divisionId) {
+        throw new BadRequestException(
+          'Division managers must be assigned to a division',
+        );
+      }
+      return this.usersService.findAll({
+        ...queryUserDto,
+        role: UserRole.CUSTOMER_SERVICE,
+        divisionId: req.user.divisionId,
+      });
+    }
+
     return this.usersService.findAll(queryUserDto);
   }
 
@@ -93,11 +123,11 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({
     summary:
-      'Update user (Admin only). Rate limit: 20 requests per 60 seconds.',
+      'Update user (Admin or Division Manager). Managers can only update customer service users in their own division. Rate limit: 20 requests per 60 seconds.',
   })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'User updated successfully.' })
@@ -110,7 +140,13 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.usersService.update(id, updateUserDto, req.user.sub);
+    return this.usersService.update(
+      id,
+      updateUserDto,
+      req.user.sub,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 
   @Patch(':id/password')
@@ -138,11 +174,11 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
     summary:
-      'Deactivate and soft-delete a user (Admin only). Rate limit: 10 requests per 60 seconds.',
+      'Deactivate and soft-delete a user (Admin or Division Manager). Managers can only remove customer service users in their own division. Rate limit: 10 requests per 60 seconds.',
     description:
       'This endpoint deactivates and soft-deletes the user. It does not hard-delete records.',
   })
@@ -152,6 +188,11 @@ export class UsersController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.usersService.remove(id, req.user.sub);
+    return this.usersService.remove(
+      id,
+      req.user.sub,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 }

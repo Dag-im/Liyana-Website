@@ -16,7 +16,7 @@ import {
 } from './useServiceCategories';
 
 export default function ServiceCategoriesPage() {
-  const { page, perPage, setPage } = usePagination();
+  const { page, perPage, setPage, setPerPage } = usePagination();
   const { data: categoriesData, isLoading } = useServiceCategories({
     page,
     perPage,
@@ -32,12 +32,18 @@ export default function ServiceCategoriesPage() {
     });
   };
 
-  const handleMove = async (category: ServiceCategory, direction: 'up' | 'down') => {
+  const handleMove = async (
+    category: ServiceCategory,
+    direction: 'up' | 'down'
+  ) => {
     const categories = categoriesData?.data ?? [];
-    const currentIndex = categories.findIndex((item) => item.id === category.id);
+    const currentIndex = categories.findIndex(
+      (item) => item.id === category.id
+    );
     if (currentIndex < 0) return;
 
-    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const targetIndex =
+      direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (targetIndex < 0 || targetIndex >= categories.length) return;
 
     const target = categories[targetIndex];
@@ -61,9 +67,12 @@ export default function ServiceCategoriesPage() {
         text="Manage diagnostic, clinical and administrative services offered."
       >
         <Button asChild>
-          <Link state={{ from: '/service-categories' }} to="/service-categories/new">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Category
+          <Link
+            state={{ from: '/service-categories' }}
+            to="/service-categories/new"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create Category
           </Link>
         </Button>
       </PageHeader>
@@ -76,17 +85,22 @@ export default function ServiceCategoriesPage() {
           perPage,
           total: categoriesData?.total || 0,
           onPageChange: setPage,
+          onPerPageChange: setPerPage,
         }}
         columns={[
+          {
+            header: 'Icon',
+            id: 'icon',
+            cell: ({ row }: { row: { original: ServiceCategory } }) => {
+              const Icon = getServiceIcon(row.original.icon ?? '');
+              return Icon ? <Icon className="h-6 w-6 text-cyan-700" /> : null;
+            },
+          },
           {
             header: 'Name',
             accessorKey: 'title',
             cell: ({ row }: { row: { original: ServiceCategory } }) => (
               <div className="flex items-center gap-2">
-                {(() => {
-                  const Icon = getServiceIcon(row.original.icon);
-                  return <Icon className="h-4 w-4 text-cyan-700" />;
-                })()}
                 {row.original.heroImage && (
                   <FileImage
                     path={row.original.heroImage}
@@ -151,12 +165,7 @@ export default function ServiceCategoriesPage() {
                     <Eye className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  size="icon"
-                  variant="ghost"
-                  title="Edit"
-                >
+                <Button asChild size="icon" variant="ghost" title="Edit">
                   <Link
                     state={{ from: '/service-categories' }}
                     to={`/service-categories/${row.original.id}/edit`}

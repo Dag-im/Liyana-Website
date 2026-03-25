@@ -25,6 +25,7 @@ import { useUpdateTeamMember } from './useTeam'
 import { useDivisions } from '../divisions/useDivisions'
 import { uploadTeamMemberImage } from '@/api/team.api'
 import { AlertCircle, InfoIcon } from 'lucide-react'
+import { useTempUploadSession } from '@/lib/temp-upload-session'
 import type { TeamMember } from '@/types/team.types'
 
 type EditTeamMemberDialogProps = {
@@ -47,6 +48,7 @@ export default function EditTeamMemberDialog({
   const [isCorporate, setIsCorporate] = useState(member.isCorporate)
   const [divisionId, setDivisionId] = useState(member.divisionId || '')
   const [sortOrder, setSortOrder] = useState(member.sortOrder.toString())
+  const tempUploads = useTempUploadSession()
 
   useEffect(() => {
     if (open) {
@@ -90,6 +92,7 @@ export default function EditTeamMemberDialog({
       },
       {
         onSuccess: () => {
+          tempUploads.clear()
           onOpenChange(false)
         },
       }
@@ -211,6 +214,7 @@ export default function EditTeamMemberDialog({
                 <FileUpload
                   onUpload={uploadTeamMemberImage}
                   onSuccess={setImage}
+                  onUploadedAsset={tempUploads.registerUpload}
                   currentPath={image}
                   label="Update Member Photo"
                 />
@@ -233,7 +237,10 @@ export default function EditTeamMemberDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                void tempUploads.releaseAll({ silent: true })
+                onOpenChange(false)
+              }}
             >
               Cancel
             </Button>
@@ -254,7 +261,15 @@ export default function EditTeamMemberDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          void tempUploads.releaseAll({ silent: true })
+        }
+        onOpenChange(nextOpen)
+      }}
+    >
       <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )

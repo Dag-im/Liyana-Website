@@ -43,7 +43,10 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Returns unread count.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   getUnreadCount(@Req() req: JwtRequest) {
-    return this.notificationsService.getUnreadCount(req.user.role);
+    return this.notificationsService.getUnreadCount(
+      req.user.sub,
+      req.user.role,
+    );
   }
 
   @Get()
@@ -55,7 +58,11 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'List of notifications.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   findAll(@Req() req: JwtRequest, @Query() query: QueryNotificationDto) {
-    return this.notificationsService.findForRole(req.user.role, query);
+    return this.notificationsService.findForUser(
+      req.user.sub,
+      req.user.role,
+      query,
+    );
   }
 
   @Patch(':id/read')
@@ -69,6 +76,6 @@ export class NotificationsController {
   @ApiResponse({ status: 403, description: 'Forbidden. Role mismatch.' })
   @ApiResponse({ status: 404, description: 'Notification not found.' })
   markRead(@Param('id') id: string, @Req() req: JwtRequest) {
-    return this.notificationsService.markRead(id, req.user.role);
+    return this.notificationsService.markRead(id, req.user.sub, req.user.role);
   }
 }

@@ -35,34 +35,41 @@ export class NewsEventsService {
     dto: CreateNewsEventDto,
     user: JwtUserPayload,
   ): Promise<NewsEvent> {
-    const creator = await this.usersService.findOne(user.sub);
-
-    const entry = this.newsEventsRepository.create({
-      type: dto.type,
-      title: dto.title,
-      date: new Date(dto.date),
-      location: dto.location ?? null,
-      summary: dto.summary,
-      content: dto.content,
-      keyHighlights: dto.keyHighlights ?? null,
-      mainImage: dto.mainImage,
-      image1: dto.image1,
-      image2: dto.image2,
-      status: NewsEventStatus.DRAFT,
-      publishedAt: null,
-      createdById: user.sub,
-      createdByName: creator.name,
-    });
-
-    const saved = await this.newsEventsRepository.save(entry);
-
-    this.auditLogService.log(
-      AuditAction.NEWS_EVENT_CREATED,
+    return this.uploadsService.withEntityUploads(
       user.sub,
-      saved.id,
-    );
+      dto,
+      'news-event',
+      async () => {
+        const creator = await this.usersService.findOne(user.sub);
 
-    return saved;
+        const entry = this.newsEventsRepository.create({
+          type: dto.type,
+          title: dto.title,
+          date: new Date(dto.date),
+          location: dto.location ?? null,
+          summary: dto.summary,
+          content: dto.content,
+          keyHighlights: dto.keyHighlights ?? null,
+          mainImage: dto.mainImage,
+          image1: dto.image1,
+          image2: dto.image2,
+          status: NewsEventStatus.DRAFT,
+          publishedAt: null,
+          createdById: user.sub,
+          createdByName: creator.name,
+        });
+
+        const saved = await this.newsEventsRepository.save(entry);
+
+        this.auditLogService.log(
+          AuditAction.NEWS_EVENT_CREATED,
+          user.sub,
+          saved.id,
+        );
+
+        return saved;
+      },
+    );
   }
 
   async findAll(
@@ -141,47 +148,65 @@ export class NewsEventsService {
     dto: UpdateNewsEventDto,
     performedBy: string,
   ): Promise<NewsEvent> {
-    const entry = await this.findOne(id);
-
-    const wantsToEditImages =
-      dto.mainImage !== undefined ||
-      dto.image1 !== undefined ||
-      dto.image2 !== undefined;
-
-    if (entry.status === NewsEventStatus.PUBLISHED && wantsToEditImages) {
-      throw new BadRequestException(
-        'Unpublish the entry before editing images',
-      );
-    }
-
-    if (dto.mainImage && entry.mainImage && dto.mainImage !== entry.mainImage) {
-      await this.uploadsService.cleanup(entry.mainImage);
-    }
-
-    if (dto.image1 && entry.image1 && dto.image1 !== entry.image1) {
-      await this.uploadsService.cleanup(entry.image1);
-    }
-
-    if (dto.image2 && entry.image2 && dto.image2 !== entry.image2) {
-      await this.uploadsService.cleanup(entry.image2);
-    }
-
-    this.newsEventsRepository.merge(entry, {
-      ...dto,
-      ...(dto.date !== undefined ? { date: new Date(dto.date) } : {}),
-      location: dto.location ?? entry.location,
-      keyHighlights: dto.keyHighlights ?? entry.keyHighlights,
-    });
-
-    const saved = await this.newsEventsRepository.save(entry);
-
-    this.auditLogService.log(
-      AuditAction.NEWS_EVENT_UPDATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      saved.id,
-    );
+      dto,
+      'news-event',
+      async () => {
+        const entry = await this.findOne(id);
 
-    return saved;
+        const wantsToEditImages =
+          dto.mainImage !== undefined ||
+          dto.image1 !== undefined ||
+          dto.image2 !== undefined;
+
+        if (entry.status === NewsEventStatus.PUBLISHED && wantsToEditImages) {
+          throw new BadRequestException(
+            'Unpublish the entry before editing images',
+          );
+        }
+
+        const previousMainImage =
+          dto.mainImage && entry.mainImage && dto.mainImage !== entry.mainImage
+            ? entry.mainImage
+            : null;
+        const previousImage1 =
+          dto.image1 && entry.image1 && dto.image1 !== entry.image1
+            ? entry.image1
+            : null;
+        const previousImage2 =
+          dto.image2 && entry.image2 && dto.image2 !== entry.image2
+            ? entry.image2
+            : null;
+
+        this.newsEventsRepository.merge(entry, {
+          ...dto,
+          ...(dto.date !== undefined ? { date: new Date(dto.date) } : {}),
+          location: dto.location ?? entry.location,
+          keyHighlights: dto.keyHighlights ?? entry.keyHighlights,
+        });
+
+        const saved = await this.newsEventsRepository.save(entry);
+
+        if (previousMainImage) {
+          await this.uploadsService.cleanup(previousMainImage);
+        }
+        if (previousImage1) {
+          await this.uploadsService.cleanup(previousImage1);
+        }
+        if (previousImage2) {
+          await this.uploadsService.cleanup(previousImage2);
+        }
+
+        this.auditLogService.log(
+          AuditAction.NEWS_EVENT_UPDATED,
+          performedBy,
+          saved.id,
+        );
+
+        return saved;
+      },
+    );
   }
 
   async publish(id: string, performedBy: string): Promise<NewsEvent> {

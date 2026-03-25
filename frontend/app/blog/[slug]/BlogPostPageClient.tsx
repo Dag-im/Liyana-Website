@@ -32,14 +32,22 @@ function formatBlogDate(value: string | null) {
   }).format(parsed);
 }
 
-function getInitials(name: string) {
-  return name
+function getInitials(name: string | null) {
+  return (name?.trim() || 'Unknown Author')
     .split(' ')
     .filter((part) => part.length > 0 && part.toUpperCase() !== 'DR.')
     .map((part) => part[0])
     .join('')
     .substring(0, 2)
     .toUpperCase();
+}
+
+function getAuthorName(name: string | null) {
+  return name?.trim() || 'Unknown Author';
+}
+
+function getAuthorRole(role: string | null) {
+  return role?.trim() || 'Blogger';
 }
 
 export default function BlogPostPageClient({
@@ -105,8 +113,8 @@ export default function BlogPostPageClient({
                 {getInitials(post.authorName)}
               </div>
               <div className="text-left">
-                <span className="block text-slate-900">{post.authorName}</span>
-                <span className="text-xs">{post.authorRole}</span>
+                <span className="block text-slate-900">{getAuthorName(post.authorName)}</span>
+                <span className="text-xs">{getAuthorRole(post.authorRole)}</span>
               </div>
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />

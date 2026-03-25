@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client';
 import type { Division, Doctor } from '@/types/services.types';
+import type { UploadedAsset } from '@/types/uploads.types';
 import type { PaginatedResponse } from '@/types/user.types';
 
 export type GetDivisionsParams = {
@@ -10,11 +11,30 @@ export type GetDivisionsParams = {
   isActive?: boolean;
 };
 
+export type UpdateMyDivisionDto = Partial<{
+  name: string;
+  shortName: string;
+  location: string;
+  overview: string;
+  description: string;
+  logo: string;
+  groupPhoto: string;
+  images: Array<{ path: string; alt?: string }>;
+  coreServices: Array<{ name: string; description?: string }>;
+  stats: Array<{ label: string; value: string; sortOrder?: number }>;
+  contact: {
+    phone?: string;
+    email?: string;
+    address?: string;
+    googleMap?: string;
+  };
+}>;
+
 export const divisionsApi = {
-  uploadDivisionFile: async (file: File): Promise<{ path: string }> => {
+  uploadDivisionFile: async (file: File): Promise<UploadedAsset> => {
     const formData = new FormData();
     formData.append('files', file); // Backend expects 'files' array for divisions
-    const results = await apiRequest<{ path: string }[]>('/divisions/upload', {
+    const results = await apiRequest<UploadedAsset[]>('/divisions/upload', {
       method: 'POST',
       body: formData,
       headers: {},
@@ -34,6 +54,7 @@ export const divisionsApi = {
   },
 
   getDivision: (id: string) => apiRequest<Division>(`/divisions/${id}`),
+  getMyDivision: (divisionId: string) => apiRequest<Division>(`/divisions/${divisionId}`),
 
   getDivisionDoctors: (id: string) =>
     apiRequest<Doctor[]>(`/divisions/${id}/doctors`),
@@ -52,6 +73,12 @@ export const divisionsApi = {
       body: JSON.stringify(dto),
     }),
 
+  updateMyDivision: (divisionId: string, dto: UpdateMyDivisionDto) =>
+    apiRequest<Division>(`/divisions/${divisionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(dto),
+    }),
+
   deleteDivision: (id: string) =>
     apiRequest<{ message: string }>(`/divisions/${id}`, {
       method: 'DELETE',
@@ -60,7 +87,7 @@ export const divisionsApi = {
   uploadDoctorFile: (divisionId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiRequest<{ path: string }>(
+    return apiRequest<UploadedAsset>(
       `/divisions/${divisionId}/doctors/upload`,
       {
         method: 'POST',

@@ -4,15 +4,16 @@ import { FileUpload } from '@/components/shared/FileUpload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
+  Dialog,
+  DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import type { ServiceCategory } from '@/types/services.types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Plus, X } from 'lucide-react'
@@ -22,6 +23,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { handleMutationError } from '@/lib/error-utils'
 import { SERVICE_ICON_OPTIONS, getServiceIcon } from '@/lib/service-icons'
+import { useTempUploadSession } from '@/lib/temp-upload-session'
 import { useUpdateServiceCategory } from './useServiceCategories'
 
 const schema = z.object({
@@ -47,6 +49,7 @@ export function EditServiceCategoryDialog({
   inline?: boolean
 }) {
   const updateMutation = useUpdateServiceCategory(category.id)
+  const tempUploads = useTempUploadSession()
   const [newAttribute, setNewAttribute] = useState('')
 
   const form = useForm<FormData>({
@@ -88,19 +91,32 @@ export function EditServiceCategoryDialog({
   const onSubmit = (values: FormData) => {
     updateMutation.mutate(values, {
       onSuccess: () => {
+        tempUploads.clear()
         toast.success('Service category updated')
         onOpenChange(false)
       },
-      onError: handleMutationError,
+      onError: (error) => handleMutationError(error, 'Failed to update service category'),
     })
   }
 
   const content = (
     <>
+      {inline ? (
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-xl font-semibold">Edit Service Category</h2>
+            <p className="text-sm text-muted-foreground">
+              Update the details and attributes of this category.
+            </p>
+          </div>
+          <Separator />
+        </div>
+      ) : (
         <DialogHeader>
           <DialogTitle>Edit Service Category</DialogTitle>
           <DialogDescription>Update the details and attributes of this category.</DialogDescription>
         </DialogHeader>
+      )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-6">
@@ -213,6 +229,7 @@ export function EditServiceCategoryDialog({
                         <FileUpload
                           onUpload={serviceCategoriesApi.uploadServiceCategoryFile}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           currentPath={field.value}
                           label="Replace Hero Image"
                         />
@@ -244,7 +261,15 @@ export function EditServiceCategoryDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          void tempUploads.releaseAll({ silent: true })
+        }
+        onOpenChange(nextOpen)
+      }}
+    >
       <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )

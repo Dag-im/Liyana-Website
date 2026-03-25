@@ -65,7 +65,7 @@ export class ServiceCategoriesController {
   async uploadFile(
     @Req() req: any,
     @Res({ passthrough: true }) res: any,
-  ): Promise<ApiEnvelope<{ path: string }>> {
+  ): Promise<ApiEnvelope<any>> {
     await new Promise<void>((resolve, reject) => {
       multer(this.uploadsService.buildMulterOptions()).single('file')(
         req,
@@ -78,7 +78,10 @@ export class ServiceCategoriesController {
     });
     const file = req.file as Express.Multer.File;
     if (!file) throw new BadRequestException('No file uploaded');
-    return { path: file.filename } as any; // Interceptor will wrap it, but type-wise we promise ApiEnvelope
+    return (await this.uploadsService.createTempUpload(
+      file.filename,
+      req.user.sub,
+    )) as any;
   }
 
   @Get()

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 import {
   createBlogCategory,
@@ -25,9 +26,7 @@ export function useCreateBlogCategory() {
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] })
       toast.success('Category created')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create category'),
   })
 }
 
@@ -41,9 +40,7 @@ export function useUpdateBlogCategory() {
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] })
       toast.success('Category updated')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update category'),
   })
 }
 
@@ -56,8 +53,6 @@ export function useDeleteBlogCategory() {
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] })
       toast.success('Category deleted')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete category'),
   })
 }

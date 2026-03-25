@@ -42,8 +42,11 @@ export class Division {
   @Column({ nullable: true })
   logo: string;
 
-  @Column('simple-array')
-  description: string[];
+  @Column({ type: 'text', nullable: true })
+  description: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  requiresMedicalTeam: boolean;
 
   @Column({ nullable: true })
   groupPhoto: string;

@@ -2,6 +2,7 @@ import ErrorState from '@/components/shared/ErrorState'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 import PageHeader from '@/components/shared/PageHeader'
 import { FileImage } from '@/components/shared/FileImage'
+import RichTextViewer from '@/components/shared/RichTextViewer'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -135,11 +136,7 @@ export default function DivisionDetailPage() {
                 </CardHeader>
                 <CardContent className="prose prose-sm max-w-none">
                   <p className="whitespace-pre-wrap">{division.overview}</p>
-                  <div className="mt-4 space-y-2">
-                    {division.description.map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
-                  </div>
+                  <RichTextViewer content={division.description ?? ''} className="mt-4 text-slate-600" />
                 </CardContent>
               </Card>
 
@@ -189,7 +186,14 @@ export default function DivisionDetailPage() {
         </TabsContent>
 
         <TabsContent value="team">
-          <DoctorManagement divisionId={division.id} />
+          {division.requiresMedicalTeam ? (
+            <DoctorManagement divisionId={division.id} />
+          ) : (
+            <div className="text-center py-8 text-slate-400 text-sm">
+              Medical team is not enabled for this division. Enable it in
+              division settings to manage doctors.
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

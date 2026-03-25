@@ -29,31 +29,38 @@ export class TeamService {
     dto: CreateTeamMemberDto,
     performedBy: string,
   ): Promise<TeamMember> {
-    if (dto.isCorporate && dto.divisionId) {
-      throw new BadRequestException(
-        'Corporate members cannot be assigned to a division',
-      );
-    }
-    if (!dto.isCorporate && !dto.divisionId) {
-      throw new BadRequestException(
-        'Non-corporate members must be assigned to a division',
-      );
-    }
-
-    if (dto.divisionId) {
-      await this.divisionsService.findOne(dto.divisionId);
-    }
-
-    const member = this.teamMemberRepository.create(dto);
-    const savedMember = await this.teamMemberRepository.save(member);
-
-    this.auditLogService.log(
-      AuditAction.TEAM_MEMBER_CREATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      savedMember.id,
-    );
+      dto,
+      'team-member',
+      async () => {
+        if (dto.isCorporate && dto.divisionId) {
+          throw new BadRequestException(
+            'Corporate members cannot be assigned to a division',
+          );
+        }
+        if (!dto.isCorporate && !dto.divisionId) {
+          throw new BadRequestException(
+            'Non-corporate members must be assigned to a division',
+          );
+        }
 
-    return this.findOne(savedMember.id, true);
+        if (dto.divisionId) {
+          await this.divisionsService.findOne(dto.divisionId);
+        }
+
+        const member = this.teamMemberRepository.create(dto);
+        const savedMember = await this.teamMemberRepository.save(member);
+
+        this.auditLogService.log(
+          AuditAction.TEAM_MEMBER_CREATED,
+          performedBy,
+          savedMember.id,
+        );
+
+        return this.findOne(savedMember.id, true);
+      },
+    );
   }
 
   async findAll(queryDto: QueryTeamMemberDto) {
@@ -140,37 +147,49 @@ export class TeamService {
     dto: UpdateTeamMemberDto,
     performedBy: string,
   ): Promise<TeamMember> {
-    const member = await this.findOne(id, true);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      dto,
+      'team-member',
+      async () => {
+        const member = await this.findOne(id, true);
 
-    const effectiveIsCorporate = dto.isCorporate ?? member.isCorporate;
-    const effectiveDivisionId =
-      'divisionId' in dto ? dto.divisionId : member.divisionId;
+        const effectiveIsCorporate = dto.isCorporate ?? member.isCorporate;
+        const effectiveDivisionId =
+          'divisionId' in dto ? dto.divisionId : member.divisionId;
 
-    if (effectiveIsCorporate && effectiveDivisionId) {
-      throw new BadRequestException(
-        'Corporate members cannot be assigned to a division',
-      );
-    }
-    if (!effectiveIsCorporate && !effectiveDivisionId) {
-      throw new BadRequestException(
-        'Non-corporate members must be assigned to a division',
-      );
-    }
+        if (effectiveIsCorporate && effectiveDivisionId) {
+          throw new BadRequestException(
+            'Corporate members cannot be assigned to a division',
+          );
+        }
+        if (!effectiveIsCorporate && !effectiveDivisionId) {
+          throw new BadRequestException(
+            'Non-corporate members must be assigned to a division',
+          );
+        }
 
-    if (dto.divisionId) {
-      await this.divisionsService.findOne(dto.divisionId);
-    }
+        if (dto.divisionId) {
+          await this.divisionsService.findOne(dto.divisionId);
+        }
 
-    if (dto.image && member.image && dto.image !== member.image) {
-      await this.uploadsService.delete(member.image);
-    }
+        const previousImage =
+          dto.image && member.image && dto.image !== member.image
+            ? member.image
+            : null;
 
-    Object.assign(member, dto);
-    const updatedMember = await this.teamMemberRepository.save(member);
+        Object.assign(member, dto);
+        const updatedMember = await this.teamMemberRepository.save(member);
 
-    this.auditLogService.log(AuditAction.TEAM_MEMBER_UPDATED, performedBy, id);
+        if (previousImage) {
+          await this.uploadsService.delete(previousImage);
+        }
 
-    return this.findOne(updatedMember.id, true);
+        this.auditLogService.log(AuditAction.TEAM_MEMBER_UPDATED, performedBy, id);
+
+        return this.findOne(updatedMember.id, true);
+      },
+    );
   }
 
   async remove(id: string, performedBy: string): Promise<void> {

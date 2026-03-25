@@ -11,13 +11,14 @@ import { Button } from '@/components/ui/button'
 import NotificationFilters from '@/features/notifications/NotificationFilters'
 import { useMarkRead, useNotifications } from '@/features/notifications/useNotifications'
 import { usePagination } from '@/hooks/usePagination'
+import { showErrorToast } from '@/lib/error-utils'
 import { formatDate, truncate } from '@/lib/utils'
 
 type NotificationTab = 'all' | 'unread' | 'read'
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient()
-  const { page, perPage, resetPage, setPage } = usePagination()
+  const { page, perPage, resetPage, setPage, setPerPage } = usePagination()
   const [tab, setTab] = useState<NotificationTab>('all')
   const [expandedId, setExpandedId] = useState<string | undefined>()
 
@@ -66,9 +67,7 @@ export default function NotificationsPage() {
                   queryClient.invalidateQueries({ queryKey: ['notifications'] })
                   queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })
                 },
-                onError: (error) => {
-                  toast.error(error instanceof Error ? error.message : 'Failed to mark as read')
-                },
+                onError: (error) => showErrorToast(error, 'Failed to mark as read'),
               })
             }}
             size="sm"
@@ -114,6 +113,7 @@ export default function NotificationsPage() {
 
       <Pagination
         onPageChange={setPage}
+          onPerPageChange={setPerPage}
         page={page}
         perPage={perPage}
         total={notificationsQuery.data?.total ?? 0}

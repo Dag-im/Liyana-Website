@@ -6,6 +6,7 @@ import {
 } from '@/api/timeline.api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useTimelineItems(params: GetTimelineItemsParams) {
   return useQuery({
@@ -31,9 +32,7 @@ export function useCreateTimelineItem() {
       queryClient.invalidateQueries({ queryKey: ['timeline'] })
       toast.success('Timeline entry created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create timeline entry')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create timeline entry'),
   })
 }
 
@@ -48,9 +47,7 @@ export function useUpdateTimelineItem() {
       queryClient.invalidateQueries({ queryKey: ['timeline'] })
       toast.success('Timeline entry updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update timeline entry')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update timeline entry'),
   })
 }
 
@@ -63,8 +60,6 @@ export function useDeleteTimelineItem() {
       queryClient.invalidateQueries({ queryKey: ['timeline'] })
       toast.success('Timeline entry deleted')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete timeline entry')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete timeline entry'),
   })
 }

@@ -3,10 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getNetworkIcon } from '@/lib/network-icons';
 import { Edit, Move, Trash2 } from 'lucide-react';
-import {
-  useNetworkEntities,
-  useNetworkTree,
-} from './useNetworkEntities';
+import { useNetworkEntities, useNetworkTree } from './useNetworkEntities';
 import type { NetworkEntity } from '@/types/corporate-network.types';
 import { useNetworkRelations } from './useNetworkRelations';
 
@@ -19,6 +16,7 @@ type ListViewProps = {
     parentId?: string;
   };
   onPageChange: (page: number) => void;
+  onPerPageChange: (perPage: number) => void;
   onEdit: (entity: NetworkEntity) => void;
   onMove: (entity: NetworkEntity) => void;
   onDelete: (entity: NetworkEntity) => void;
@@ -27,6 +25,7 @@ type ListViewProps = {
 export function CorporateNetworkListView({
   params,
   onPageChange,
+  onPerPageChange,
   onEdit,
   onMove,
   onDelete,
@@ -48,7 +47,7 @@ export function CorporateNetworkListView({
   const flatTree = flattenTree(treeData ?? []);
   const parentNameById = new Map(flatTree.map((node) => [node.id, node.name]));
   const relationLabelById = new Map(
-    (relations ?? []).map((relation) => [relation.id, relation.label]),
+    (relations ?? []).map((relation) => [relation.id, relation.label])
   );
 
   return (
@@ -60,6 +59,7 @@ export function CorporateNetworkListView({
         perPage: params.perPage,
         total: entities?.total || 0,
         onPageChange,
+        onPerPageChange,
       }}
       columns={[
         {
@@ -80,7 +80,7 @@ export function CorporateNetworkListView({
           cell: ({ row }) => (
             <div>
               <p className="font-medium">{row.original.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">
+              <p className="text-[10px] text-muted-foreground truncate max-w-50">
                 {row.original.summary}
               </p>
             </div>

@@ -45,20 +45,28 @@ export const APP_NAVIGATION: AppRoute[] = [
   { path: '/bookings', label: 'Bookings', icon: CalendarCheck, roles: ['ADMIN', 'CUSTOMER_SERVICE'], group: 'operations' },
   { path: '/users', label: 'Users', icon: Users, roles: ['ADMIN'], group: 'operations' },
   {
-    path: '/division-categories',
-    label: 'Division Categories',
-    icon: LandPlot,
-    roles: ['ADMIN'],
-    group: 'operations',
-  },
-  {
     path: '/service-categories',
     label: 'Service Categories',
     icon: LayoutGrid,
     roles: ['ADMIN'],
     group: 'operations',
   },
-  { path: '/divisions', label: 'Divisions', icon: Building2, roles: ['ADMIN'], group: 'operations' },
+  {
+    path: '/divisions',
+    label: 'Divisions',
+    icon: Building2,
+    roles: ['ADMIN'],
+    group: 'operations',
+    children: [
+      {
+        path: '/division-categories',
+        label: 'Division Categories',
+        icon: LandPlot,
+        roles: ['ADMIN'],
+        group: 'operations',
+      },
+    ],
+  },
   {
     path: '/corporate-network',
     label: 'Corporate Network',

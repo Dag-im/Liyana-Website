@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 import { useDeactivateUser } from '@/features/users/useUsers'
+import { showErrorToast } from '@/lib/error-utils'
 import type { User } from '@/types/user.types'
 
 type DeactivateUserDialogProps = {
@@ -24,9 +25,7 @@ export default function DeactivateUserDialog({ user }: DeactivateUserDialogProps
         queryClient.invalidateQueries({ queryKey: ['users'] })
         setOpen(false)
       },
-      onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to deactivate user')
-      },
+      onError: (error) => showErrorToast(error, 'Failed to deactivate user'),
     })
   }
 

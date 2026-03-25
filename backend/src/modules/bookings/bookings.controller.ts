@@ -63,7 +63,7 @@ export class BookingsController {
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({
     summary:
-      'List bookings. ADMIN sees all, CUSTOMER_SERVICE sees own division only.',
+      'List bookings. ADMIN sees all, CUSTOMER_SERVICE and DIVISION_MANAGER see own division only.',
   })
   @ApiResponse({ status: 200, description: 'Return paginated bookings.' })
   @ApiResponse({

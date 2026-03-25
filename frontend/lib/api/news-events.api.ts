@@ -13,6 +13,7 @@ export async function getNewsEvents(params?: {
   page?: number;
   perPage?: number;
   type?: NewsEventType;
+  search?: string;
 }): Promise<NewsEventsListPayload> {
   const query = new URLSearchParams();
   query.set('status', 'PUBLISHED');
@@ -25,6 +26,10 @@ export async function getNewsEvents(params?: {
 
   if (params?.type) {
     query.set('type', params.type);
+  }
+
+  if (params?.search?.trim()) {
+    query.set('search', params.search.trim());
   }
 
   return apiRequest<NewsEventsListPayload>(`/news-events?${query.toString()}`, {

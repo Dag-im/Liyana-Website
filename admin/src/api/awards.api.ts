@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client'
 import type { Award } from '@/types/awards.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 import type { PaginatedResponse } from '@/types/user.types'
 
 export type GetAwardsParams = {
@@ -25,17 +26,15 @@ const buildQuery = (params: Record<string, string | number | undefined>) => {
 }
 
 export const awardsApi = {
-  async uploadAwardImage(file: File): Promise<{ path: string }> {
+  async uploadAwardImage(file: File): Promise<UploadedAsset> {
     const formData = new FormData()
     formData.append('file', file)
 
-    const result = await apiRequest<{ path?: string; url?: string }>('/awards/upload', {
+    return apiRequest<UploadedAsset>('/awards/upload', {
       method: 'POST',
       body: formData,
       headers: {},
     })
-
-    return { path: result.path ?? result.url ?? '' }
   },
 
   getAwards(params: GetAwardsParams): Promise<PaginatedResponse<Award>> {

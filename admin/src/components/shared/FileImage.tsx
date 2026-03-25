@@ -11,8 +11,6 @@ type FileImageProps = {
 export function FileImage({ path, alt, className, fallback }: FileImageProps) {
   const url = useFileUrl(path);
 
-  console.log('FileImage', { path, url });
-
   if (!url) return fallback ? <>{fallback}</> : null;
 
   return <img src={url} alt={alt} className={className} />;

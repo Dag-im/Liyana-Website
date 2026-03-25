@@ -22,14 +22,19 @@ function formatBlogDate(post: Blog) {
   }).format(parsed);
 }
 
-function getInitials(name: string) {
-  return name
+function getInitials(name: string | null) {
+  const source = name?.trim() || 'Unknown Author';
+  return source
     .split(' ')
     .filter((part) => part.length > 0 && part.toUpperCase() !== 'DR.')
     .map((part) => part[0])
     .join('')
     .substring(0, 2)
     .toUpperCase();
+}
+
+function getAuthorName(name: string | null) {
+  return name?.trim() || 'Unknown Author';
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
@@ -73,7 +78,7 @@ export default function BlogCard({ post }: BlogCardProps) {
               {getInitials(post.authorName)}
             </div>
             <span className="text-sm font-bold text-slate-900 line-clamp-1">
-              {post.authorName}
+              {getAuthorName(post.authorName)}
             </span>
           </div>
 

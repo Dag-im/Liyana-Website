@@ -4,15 +4,16 @@ import { FileUpload } from '@/components/shared/FileUpload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
+  Dialog,
+  DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
@@ -21,6 +22,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { handleMutationError } from '@/lib/error-utils'
 import { SERVICE_ICON_OPTIONS, getServiceIcon } from '@/lib/service-icons'
+import { useTempUploadSession } from '@/lib/temp-upload-session'
 import { useCreateServiceCategory } from './useServiceCategories'
 
 const schema = z.object({
@@ -44,6 +46,7 @@ export function CreateServiceCategoryDialog({
   inline?: boolean
 }) {
   const createMutation = useCreateServiceCategory()
+  const tempUploads = useTempUploadSession()
   const [newAttribute, setNewAttribute] = useState('')
 
   const form = useForm<FormData>({
@@ -74,20 +77,33 @@ export function CreateServiceCategoryDialog({
   const onSubmit = (values: FormData) => {
     createMutation.mutate(values, {
       onSuccess: () => {
+        tempUploads.clear()
         toast.success('Service category created')
         onOpenChange(false)
         form.reset()
       },
-      onError: handleMutationError,
+      onError: (error) => handleMutationError(error, 'Failed to create service category'),
     })
   }
 
   const content = (
     <>
+      {inline ? (
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-xl font-semibold">Create Service Category</h2>
+            <p className="text-sm text-muted-foreground">
+              Add a new top-level service grouping.
+            </p>
+          </div>
+          <Separator />
+        </div>
+      ) : (
         <DialogHeader>
           <DialogTitle>Create Service Category</DialogTitle>
           <DialogDescription>Add a new top-level service grouping.</DialogDescription>
         </DialogHeader>
+      )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-6">
@@ -208,6 +224,7 @@ export function CreateServiceCategoryDialog({
                         <FileUpload
                           onUpload={serviceCategoriesApi.uploadServiceCategoryFile}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           currentPath={field.value}
                           label="Upload Hero Image"
                         />
@@ -239,7 +256,15 @@ export function CreateServiceCategoryDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          void tempUploads.releaseAll({ silent: true })
+        }
+        onOpenChange(nextOpen)
+      }}
+    >
       <DialogContent className="max-w-2xl">{content}</DialogContent>
     </Dialog>
   )

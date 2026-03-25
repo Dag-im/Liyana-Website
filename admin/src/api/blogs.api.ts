@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client'
 import type { Blog, BlogStatus } from '@/types/blogs.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 import type { PaginatedResponse } from '@/types/user.types'
 
 export type CreateBlogDto = {
@@ -40,11 +41,11 @@ const toQueryString = (params: Record<string, unknown>) => {
   return query ? `?${query}` : ''
 }
 
-export function uploadBlogFile(file: File): Promise<{ path: string }> {
+export function uploadBlogFile(file: File): Promise<UploadedAsset> {
   const formData = new FormData()
   formData.append('file', file)
 
-  return apiRequest<{ path: string }>('/blogs/upload', {
+  return apiRequest<UploadedAsset>('/blogs/upload', {
     method: 'POST',
     body: formData,
   })

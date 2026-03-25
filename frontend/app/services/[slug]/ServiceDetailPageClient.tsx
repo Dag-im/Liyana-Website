@@ -1,6 +1,7 @@
 'use client';
 
 import BackendImage from '@/components/shared/BackendImage';
+import RichTextViewer from '@/components/shared/RichTextViewer';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -297,11 +298,9 @@ export default function DivisionDetailPageClient({
             <SectionTitle subtitle="About Us">
               Who We Are <br /> & What We Do
             </SectionTitle>
-            <div className="space-y-5 text-[16px] text-slate-600 font-normal leading-relaxed">
-              {division.description.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
+            {division.description && (
+              <RichTextViewer content={division.description} className="text-[16px] font-normal leading-relaxed" />
+            )}
 
             <div className="mt-8 flex gap-3">
               <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200 shadow-sm shadow-slate-900/5 rounded-lg text-sm font-medium text-slate-700">
@@ -366,7 +365,7 @@ export default function DivisionDetailPageClient({
         </section>
 
         {/* 4. TEAM (CONDITIONAL) */}
-        {!isEdu && division.doctors && (
+        {!isEdu && division.requiresMedicalTeam && division.doctors && (
           <section>
             <div className="flex justify-between items-end mb-10">
               <SectionTitle subtitle="Experts">

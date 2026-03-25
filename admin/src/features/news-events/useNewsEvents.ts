@@ -12,6 +12,7 @@ import {
   updateNewsEvent,
 } from '@/api/news-events.api'
 import { ApiClientError } from '@/lib/api-client'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useNewsEvents(params: GetNewsEventsParams) {
   return useQuery({
@@ -38,9 +39,7 @@ export function useCreateNewsEvent() {
       queryClient.invalidateQueries({ queryKey: ['news-events'] })
       toast.success('Entry created successfully')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create entry'),
   })
 }
 
@@ -54,9 +53,7 @@ export function useUpdateNewsEvent() {
       queryClient.invalidateQueries({ queryKey: ['news-events'] })
       toast.success('Entry updated successfully')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update entry'),
   })
 }
 
@@ -69,12 +66,12 @@ export function usePublishNewsEvent() {
       queryClient.invalidateQueries({ queryKey: ['news-events'] })
       toast.success('Published successfully')
     },
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
       if (error instanceof ApiClientError && error.status === 400) {
         toast.error('This entry is already published')
         return
       }
-      toast.error(error.message)
+      showErrorToast(error, 'Failed to publish entry')
     },
   })
 }
@@ -88,12 +85,12 @@ export function useUnpublishNewsEvent() {
       queryClient.invalidateQueries({ queryKey: ['news-events'] })
       toast.success('Unpublished successfully')
     },
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
       if (error instanceof ApiClientError && error.status === 400) {
         toast.error('This entry is already unpublished')
         return
       }
-      toast.error(error.message)
+      showErrorToast(error, 'Failed to unpublish entry')
     },
   })
 }
@@ -107,8 +104,6 @@ export function useDeleteNewsEvent() {
       queryClient.invalidateQueries({ queryKey: ['news-events'] })
       toast.success('Entry deleted')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete entry'),
   })
 }

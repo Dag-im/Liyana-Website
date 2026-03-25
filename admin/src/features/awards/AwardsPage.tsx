@@ -1,30 +1,30 @@
-import { useMemo, useState } from 'react'
-import { Edit, Plus, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useMemo, useState } from 'react';
+import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import DataTable from '@/components/shared/DataTable'
-import { FileImage } from '@/components/shared/FileImage'
-import PageHeader from '@/components/shared/PageHeader'
-import Pagination from '@/components/shared/Pagination'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useDebounce } from '@/hooks/useDebounce'
-import { usePagination } from '@/hooks/usePagination'
-import type { Award } from '@/types/awards.types'
-import { useAwards, useDeleteAward } from './useAwards'
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import DataTable from '@/components/shared/DataTable';
+import { FileImage } from '@/components/shared/FileImage';
+import PageHeader from '@/components/shared/PageHeader';
+import Pagination from '@/components/shared/Pagination';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/useDebounce';
+import { usePagination } from '@/hooks/usePagination';
+import type { Award } from '@/types/awards.types';
+import { useAwards, useDeleteAward } from './useAwards';
 
 export default function AwardsPage() {
-  const { page, perPage, setPage, resetPage } = usePagination()
-  const [search, setSearch] = useState('')
-  const [yearFilter, setYearFilter] = useState('all')
-  const [categoryFilter, setCategoryFilter] = useState('')
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination();
+  const [search, setSearch] = useState('');
+  const [yearFilter, setYearFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('');
 
-  const [deleteAward, setDeleteAward] = useState<Award | null>(null)
+  const [deleteAward, setDeleteAward] = useState<Award | null>(null);
 
-  const debouncedSearch = useDebounce(search, 400)
-  const debouncedCategory = useDebounce(categoryFilter, 400)
+  const debouncedSearch = useDebounce(search, 400);
+  const debouncedCategory = useDebounce(categoryFilter, 400);
 
   const awardsQuery = useAwards({
     page,
@@ -32,15 +32,15 @@ export default function AwardsPage() {
     search: debouncedSearch || undefined,
     year: yearFilter === 'all' ? undefined : yearFilter,
     category: debouncedCategory || undefined,
-  })
+  });
 
-  const deleteMutation = useDeleteAward()
+  const deleteMutation = useDeleteAward();
 
   const yearOptions = useMemo(() => {
-    const years = new Set<string>()
-    ;(awardsQuery.data?.data ?? []).forEach((award) => years.add(award.year))
-    return Array.from(years).sort((a, b) => Number(b) - Number(a))
-  }, [awardsQuery.data?.data])
+    const years = new Set<string>();
+    (awardsQuery.data?.data ?? []).forEach((award) => years.add(award.year));
+    return Array.from(years).sort((a, b) => Number(b) - Number(a));
+  }, [awardsQuery.data?.data]);
 
   const columns = useMemo(
     () => [
@@ -51,8 +51,8 @@ export default function AwardsPage() {
           <FileImage
             path={row.original.image}
             alt={row.original.imageAlt || row.original.title}
-            className="h-[60px] w-[60px] rounded-md object-cover"
-            fallback={<div className="h-[60px] w-[60px] rounded-md bg-muted" />}
+            className="h-15 w-15 rounded-md object-cover"
+            fallback={<div className="h-15 w-15 rounded-md bg-muted" />}
           />
         ),
       },
@@ -62,14 +62,18 @@ export default function AwardsPage() {
         cell: ({ row }: { row: { original: Award } }) => (
           <div className="space-y-1">
             <p className="font-medium">{row.original.title}</p>
-            <p className="text-xs text-muted-foreground">{row.original.organization}</p>
+            <p className="text-xs text-muted-foreground">
+              {row.original.organization}
+            </p>
           </div>
         ),
       },
       {
         header: 'Year',
         id: 'year',
-        cell: ({ row }: { row: { original: Award } }) => <Badge variant="secondary">{row.original.year}</Badge>,
+        cell: ({ row }: { row: { original: Award } }) => (
+          <Badge variant="secondary">{row.original.year}</Badge>
+        ),
       },
       {
         header: 'Category',
@@ -105,15 +109,18 @@ export default function AwardsPage() {
       },
     ],
     []
-  )
+  );
 
   return (
     <div className="space-y-6">
-      <PageHeader heading="Awards" text="Manage award entries shown on the public site.">
+      <PageHeader
+        heading="Awards"
+        text="Manage award entries shown on the public site."
+      >
         <Button asChild>
           <Link state={{ from: '/awards' }} to="/awards/new">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Award
+            <Plus className="mr-2 h-4 w-4" />
+            Add Award
           </Link>
         </Button>
       </PageHeader>
@@ -123,8 +130,8 @@ export default function AwardsPage() {
           placeholder="Search title or organization..."
           value={search}
           onChange={(event) => {
-            setSearch(event.target.value)
-            resetPage()
+            setSearch(event.target.value);
+            resetPage();
           }}
         />
 
@@ -132,8 +139,8 @@ export default function AwardsPage() {
           className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
           value={yearFilter}
           onChange={(event) => {
-            setYearFilter(event.target.value)
-            resetPage()
+            setYearFilter(event.target.value);
+            resetPage();
           }}
         >
           <option value="all">All Years</option>
@@ -148,8 +155,8 @@ export default function AwardsPage() {
           placeholder="Filter by category..."
           value={categoryFilter}
           onChange={(event) => {
-            setCategoryFilter(event.target.value)
-            resetPage()
+            setCategoryFilter(event.target.value);
+            resetPage();
           }}
         />
       </div>
@@ -167,6 +174,7 @@ export default function AwardsPage() {
           perPage={perPage}
           total={awardsQuery.data?.total ?? 0}
           onPageChange={setPage}
+          onPerPageChange={setPerPage}
         />
       </div>
 
@@ -174,10 +182,10 @@ export default function AwardsPage() {
         open={Boolean(deleteAward)}
         onClose={() => setDeleteAward(null)}
         onConfirm={() => {
-          if (!deleteAward) return
+          if (!deleteAward) return;
           deleteMutation.mutate(deleteAward.id, {
             onSuccess: () => setDeleteAward(null),
-          })
+          });
         }}
         title="Delete Award"
         description="Are you sure you want to delete this award? The associated image will be permanently deleted."
@@ -185,5 +193,5 @@ export default function AwardsPage() {
         isLoading={deleteMutation.isPending}
       />
     </div>
-  )
+  );
 }

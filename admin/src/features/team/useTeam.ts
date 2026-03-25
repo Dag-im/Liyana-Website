@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as teamApi from '@/api/team.api'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useTeamMembers(params: {
   page?: number
@@ -33,9 +34,7 @@ export function useCreateTeamMember() {
       queryClient.invalidateQueries({ queryKey: ['team'] })
       toast.success('Team member added')
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || error.message || 'Failed to add team member')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to add team member'),
   })
 }
 
@@ -47,9 +46,7 @@ export function useUpdateTeamMember() {
       queryClient.invalidateQueries({ queryKey: ['team'] })
       toast.success('Team member updated')
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || error.message || 'Failed to update team member')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update team member'),
   })
 }
 
@@ -61,8 +58,6 @@ export function useDeleteTeamMember() {
       queryClient.invalidateQueries({ queryKey: ['team'] })
       toast.success('Team member deleted')
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || error.message || 'Failed to delete team member')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete team member'),
   })
 }

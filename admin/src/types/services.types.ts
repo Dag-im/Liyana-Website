@@ -31,7 +31,8 @@ export type Division = {
   location: string | null
   overview: string
   logo: string | null
-  description: string[]
+  description: string | null
+  requiresMedicalTeam: boolean
   groupPhoto: string | null
   isActive: boolean
   serviceCategoryId: string

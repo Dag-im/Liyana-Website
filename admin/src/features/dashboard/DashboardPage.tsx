@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/useAuth'
 import { AdminDashboard } from '@/features/dashboard/AdminDashboard'
 import { BloggerDashboard, CommunicationDashboard, HrDashboard } from '@/features/dashboard/CommunicationDashboard'
 import { CustomerServiceDashboard } from '@/features/dashboard/CustomerServiceDashboard'
+import { DivisionManagerDashboard } from '@/features/dashboard/DivisionManagerDashboard'
 
 export default function DashboardPage() {
   const { data: user, isLoading, isError, refetch } = useAuth()
@@ -17,11 +18,13 @@ export default function DashboardPage() {
     case 'CUSTOMER_SERVICE':
       return <CustomerServiceDashboard user={user} />
     case 'COMMUNICATION':
-      return <CommunicationDashboard />
+      return <CommunicationDashboard user={user} />
     case 'HR':
-      return <HrDashboard />
+      return <HrDashboard user={user} />
     case 'BLOGGER':
-      return <BloggerDashboard />
+      return <BloggerDashboard user={user} />
+    case 'DIVISION_MANAGER':
+      return <DivisionManagerDashboard user={user} />
     default:
       return (
         <div className="p-8 text-center">

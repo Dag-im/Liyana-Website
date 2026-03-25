@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as api from '@/api/testimonials.api'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useTestimonials(params: Parameters<typeof api.getTestimonials>[0]) {
   return useQuery({
@@ -18,7 +19,7 @@ export function useApproveTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] })
       toast.success('Testimonial approved')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to approve testimonial'),
   })
 }
 
@@ -30,7 +31,7 @@ export function useUnapproveTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] })
       toast.success('Testimonial unapproved')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to unapprove testimonial'),
   })
 }
 
@@ -42,7 +43,7 @@ export function useFavoriteTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] })
       toast.success('Added to favorites')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to favorite testimonial'),
   })
 }
 
@@ -54,7 +55,7 @@ export function useUnfavoriteTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] })
       toast.success('Removed from favorites')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to unfavorite testimonial'),
   })
 }
 
@@ -66,6 +67,6 @@ export function useDeleteTestimonial() {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] })
       toast.success('Testimonial deleted')
     },
-    onError: (error: unknown) => toast.error(error instanceof Error ? error.message : 'An error occurred'),
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete testimonial'),
   })
 }

@@ -2,6 +2,7 @@ import { divisionCategoriesApi } from '@/api/division-categories.api'
 import type { DivisionCategory } from '@/types/services.types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 export function useDivisionCategories() {
   return useQuery({
@@ -20,9 +21,7 @@ export function useCreateDivisionCategory() {
       queryClient.invalidateQueries({ queryKey: ['division-categories'] })
       toast.success('Category created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create category')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create category'),
   })
 }
 
@@ -35,9 +34,7 @@ export function useUpdateDivisionCategory() {
       queryClient.invalidateQueries({ queryKey: ['division-categories'] })
       toast.success('Category updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update category')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update category'),
   })
 }
 
@@ -53,7 +50,7 @@ export function useDeleteDivisionCategory() {
       if (error.status === 409) {
         toast.error('Cannot delete: divisions are assigned to this category')
       } else {
-        toast.error(error.message || 'Failed to delete category')
+        showErrorToast(error, 'Failed to delete category')
       }
     },
   })

@@ -1,5 +1,6 @@
 import { divisionsApi } from '@/api/divisions.api';
 import { FileUpload } from '@/components/shared/FileUpload';
+import RichTextEditor from '@/components/shared/RichTextEditor';
 
 import { WizardDialog, type WizardStep } from '@/components/shared/WizardDialog';
 import { Button } from '@/components/ui/button';
@@ -13,10 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDivisionCategories } from '@/features/division-categories/useDivisionCategories';
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
 import { handleMutationError } from '@/lib/error-utils';
+import { useTempUploadSession } from '@/lib/temp-upload-session';
 import { getUploadUrl } from '@/lib/upload-utils';
 import {
   BarChart,
@@ -55,9 +58,11 @@ type DivisionFormState = {
   slug: string;
   location: string;
   overview: string;
-  description: string[];
+  description: string;
   logo: string;
+  groupPhoto: string;
   isActive: boolean;
+  requiresMedicalTeam: boolean;
   serviceCategoryId: string;
   divisionCategoryId: string;
   contact: {
@@ -109,9 +114,11 @@ const INITIAL_FORM_STATE: DivisionFormState = {
   slug: '',
   location: '',
   overview: '',
-  description: [''],
+  description: '',
   logo: '',
+  groupPhoto: '',
   isActive: true,
+  requiresMedicalTeam: false,
   serviceCategoryId: '',
   divisionCategoryId: '',
   contact: {
@@ -138,6 +145,7 @@ export function CreateDivisionWizard({
   const [showContactFields, setShowContactFields] = useState(false);
   const [showStatsSection, setShowStatsSection] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const tempUploads = useTempUploadSession();
 
   const createMutation = useCreateDivision();
   const { data: serviceCategories } = useServiceCategories({ perPage: 100 });
@@ -211,9 +219,8 @@ export function CreateDivisionWizard({
         toast.error('Overview should be at least 12 characters.');
         return false;
       }
-      const hasDescription = formData.description.some((item) => item.trim().length > 0);
-      if (!hasDescription) {
-        toast.error('Add at least one detailed description paragraph.');
+      if (!formData.description.trim()) {
+        toast.error('Please provide detailed description.');
         return false;
       }
     }
@@ -224,6 +231,7 @@ export function CreateDivisionWizard({
   const onSubmit = () => {
     createMutation.mutate(formData, {
       onSuccess: () => {
+        tempUploads.clear();
         toast.success('Division created successfully');
         onOpenChange?.(false);
         resetWizard();
@@ -236,6 +244,9 @@ export function CreateDivisionWizard({
     <WizardDialog
       open={open}
       onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          void tempUploads.releaseAll({ silent: true });
+        }
         onOpenChange?.(nextOpen);
         if (!nextOpen) resetWizard();
       }}
@@ -369,6 +380,38 @@ export function CreateDivisionWizard({
             />
           </div>
 
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium text-slate-700">Active Status</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Make this division visible to the public
+                </p>
+              </div>
+              <Switch
+                checked={formData.isActive}
+                onCheckedChange={(value) =>
+                  setFormData((prev) => ({ ...prev, isActive: value }))
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
+              <div>
+                <p className="text-sm font-medium text-slate-700">Requires Medical Team</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enable to allow doctor management for this division
+                </p>
+              </div>
+              <Switch
+                checked={formData.requiresMedicalTeam}
+                onCheckedChange={(value) =>
+                  setFormData((prev) => ({ ...prev, requiresMedicalTeam: value }))
+                }
+              />
+            </div>
+          </div>
+
           <div className="rounded-xl border border-dashed p-6 bg-muted/5">
             <div className="mb-4 flex items-center justify-between gap-2">
               <div>
@@ -445,57 +488,18 @@ export function CreateDivisionWizard({
             />
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-base">Detailed Description Paragraphs</Label>
-                <p className="text-xs text-muted-foreground">Add multiple paragraphs to describe this division in detail.</p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: [...prev.description, ''],
-                  }))
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                Description
+              </Label>
+              <RichTextEditor
+                value={formData.description}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, description: value }))
                 }
-              >
-                <Plus className="mr-1 h-3 w-3" /> Add Paragraph
-              </Button>
-            </div>
-            <div className="space-y-4">
-              {formData.description.map((paragraph, index) => (
-                <div key={index} className="flex gap-4 items-start group">
-                  <div className="flex-1">
-                    <Textarea
-                      value={paragraph}
-                      onChange={(event) => {
-                        const next = [...formData.description];
-                        next[index] = event.target.value;
-                        setFormData((prev) => ({ ...prev, description: next }));
-                      }}
-                      rows={3}
-                      placeholder={`Paragraph ${index + 1}`}
-                    />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => {
-                      const next = formData.description.filter(
-                        (_, itemIndex) => itemIndex !== index
-                      );
-                      setFormData((prev) => ({
-                        ...prev,
-                        description: next.length ? next : [''],
-                      }));
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
+                placeholder="Write a detailed description of this division..."
+                minHeight={300}
+              />
             </div>
           </div>
         </div>
@@ -510,10 +514,28 @@ export function CreateDivisionWizard({
             </div>
             <FileUpload
               onUpload={divisionsApi.uploadDivisionFile}
+              onUploadedAsset={tempUploads.registerUpload}
               onSuccess={(path) =>
                 setFormData((prev) => ({ ...prev, logo: path }))
               }
               currentPath={formData.logo}
+            />
+          </div>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-base font-bold">Group Photo</Label>
+              <p className="text-xs text-muted-foreground">
+                Wide team or facility image used in division presentations.
+              </p>
+            </div>
+            <FileUpload
+              onUpload={divisionsApi.uploadDivisionFile}
+              onUploadedAsset={tempUploads.registerUpload}
+              onSuccess={(path) =>
+                setFormData((prev) => ({ ...prev, groupPhoto: path }))
+              }
+              currentPath={formData.groupPhoto}
+              label="Upload Group Photo"
             />
           </div>
           <div className="space-y-4 border-t pt-8">
@@ -541,6 +563,9 @@ export function CreateDivisionWizard({
                       size="icon"
                       className="h-8 w-8"
                       onClick={() => {
+                        void tempUploads.releaseUploadByPath(image.path, {
+                          silent: true,
+                        });
                         setFormData((prev) => ({
                           ...prev,
                           images: prev.images.filter((_, itemIndex) => itemIndex !== index),
@@ -555,15 +580,16 @@ export function CreateDivisionWizard({
               <div className="aspect-video">
                 <FileUpload
                   onUpload={divisionsApi.uploadDivisionFile}
+                  onUploadedAsset={tempUploads.registerUpload}
                   onSuccess={(path) => {
                     setFormData((prev) => ({
                       ...prev,
                       images: [...prev.images, { path, alt: '' }],
                     }));
                   }}
-                  multiple
-                  showPreview={false}
                   label="Add Image"
+                  currentPath={formData.images[formData.images.length - 1]?.path}
+                  showPreview
                 />
               </div>
             </div>
@@ -760,7 +786,11 @@ export function CreateDivisionWizard({
               />
               <ReviewItem
                 label="Description"
-                value={`${formData.description.filter((item) => item.trim()).length} paragraphs`}
+                value={formData.description.trim() ? 'Provided' : 'Missing'}
+              />
+              <ReviewItem
+                label="Medical Team Required"
+                value={formData.requiresMedicalTeam ? 'Yes' : 'No'}
               />
               <ReviewItem
                 label="Core Services"

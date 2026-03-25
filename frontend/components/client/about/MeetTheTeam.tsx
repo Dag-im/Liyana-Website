@@ -79,39 +79,42 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
     <section className="relative pt-10 pb-24 px-6 bg-white border-t border-slate-200 selection:bg-cyan-100 selection:text-cyan-900">
       <div className="relative max-w-7xl mx-auto">
         {/* Section Heading */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <SectionHeading
-            variant="large"
-            align="center"
-            weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
-          >
-            Meet Our Leadership
-          </SectionHeading>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Discover the dedicated executives and branch managers leading our
-            strategic initiatives.
-          </p>
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
+          <div className="max-w-2xl space-y-3">
+            <SectionHeading
+              variant="large"
+              align="left"
+              weight="bold"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            >
+              Meet Our Leadership
+            </SectionHeading>
+            <p className="text-lg text-slate-600 leading-relaxed">
+              Discover the dedicated executives and branch managers leading our
+              strategic initiatives.
+            </p>
+          </div>
+
+          <div className="w-full md:w-96 relative shrink-0">
+            <Select
+              value={activeSubsidiary}
+              onValueChange={(value) => setActiveSubsidiary(value)}
+            >
+              <SelectTrigger className="w-full px-6 py-5 bg-slate-50 border border-slate-200 text-slate-900 text-base font-semibold rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 focus:bg-white transition-all shadow-sm justify-between placeholder:text-slate-400">
+                <SelectValue placeholder="Filter by subsidiary" />
+              </SelectTrigger>
+              <SelectContent>
+                {subsidiaries.map((subsidiary) => (
+                  <SelectItem key={subsidiary} value={subsidiary}>
+                    {subsidiary}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Corporate Tabs Filter */}
-        <div className="flex justify-center mb-16 border-b border-slate-200 pb-6">
-          <Select
-            value={activeSubsidiary}
-            onValueChange={(value) => setActiveSubsidiary(value)}
-          >
-            <SelectTrigger className="w-64 border-slate-200 focus:ring-cyan-600">
-              <SelectValue placeholder="Filter by subsidiary" />
-            </SelectTrigger>
-            <SelectContent>
-              {subsidiaries.map((subsidiary) => (
-                <SelectItem key={subsidiary} value={subsidiary}>
-                  {subsidiary}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="mb-16 border-b border-slate-200" />
 
         {/* Team Grid */}
         <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

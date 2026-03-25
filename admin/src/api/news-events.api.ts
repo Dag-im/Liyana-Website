@@ -1,6 +1,7 @@
 import { apiRequest } from '@/lib/api-client'
 import type { PaginatedResponse } from '@/types/user.types'
 import type { NewsEvent, NewsEventStatus, NewsEventType } from '@/types/news-events.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 
 export type CreateNewsEventDto = {
   type: NewsEventType
@@ -41,11 +42,11 @@ const toQueryString = (params: Record<string, unknown>) => {
   return query ? `?${query}` : ''
 }
 
-export function uploadNewsEventFile(file: File): Promise<{ path: string }> {
+export function uploadNewsEventFile(file: File): Promise<UploadedAsset> {
   const formData = new FormData()
   formData.append('file', file)
 
-  return apiRequest<{ path: string }>('/news-events/upload', {
+  return apiRequest<UploadedAsset>('/news-events/upload', {
     method: 'POST',
     body: formData,
   })

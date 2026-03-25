@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,15 +9,18 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import multer from 'multer';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/types/user-role.enum';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { UploadsService } from '../../uploads/uploads.service';
 import { CreateTeamMemberDto } from './dto/create-team-member.dto';
 import { QueryTeamMemberDto } from './dto/query-team-member.dto';
 import { UpdateTeamMemberDto } from './dto/update-team-member.dto';
@@ -34,7 +38,10 @@ type AuthenticatedRequest = {
 @Controller('team')
 @UseGuards(ThrottlerGuard)
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {}
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly uploadsService: UploadsService,
+  ) {}
 
   @Post('upload')
   @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
@@ -42,8 +49,36 @@ export class TeamController {
   @ApiCookieAuth()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Upload member image' })
-  async uploadImage() {
-    return { message: 'Image upload endpoint' };
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async uploadImage(
+    @Req() req: AuthenticatedRequest & { file?: Express.Multer.File },
+    @Res({ passthrough: true }) res: any,
+  ) {
+    await new Promise<void>((resolve, reject) => {
+      multer(this.uploadsService.buildMulterOptions()).single('file')(
+        req as any,
+        res,
+        (err) => {
+          if (err) reject(err instanceof Error ? err : new Error(String(err)));
+          else resolve();
+        },
+      );
+    });
+
+    const file = req.file;
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    return this.uploadsService.createTempUpload(file.filename, req.user.sub);
   }
 
   @Get()

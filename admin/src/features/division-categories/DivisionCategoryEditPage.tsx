@@ -41,7 +41,7 @@ export default function DivisionCategoryEditPage() {
       { id: category.id, dto: formData },
       {
         onSuccess: () => navigate(returnTo),
-        onError: handleMutationError,
+        onError: (error) => handleMutationError(error, 'Failed to update category'),
       }
     )
   }

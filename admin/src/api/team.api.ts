@@ -1,11 +1,12 @@
 import { apiRequest } from '@/lib/api-client'
 import type { TeamMember } from '@/types/team.types'
+import type { UploadedAsset } from '@/types/uploads.types'
 import type { PaginatedResponse } from '@/types/user.types'
 
-export async function uploadTeamMemberImage(file: File): Promise<{ path: string }> {
+export async function uploadTeamMemberImage(file: File): Promise<UploadedAsset> {
   const formData = new FormData()
   formData.append('file', file)
-  return apiRequest<{ path: string }>('/team/upload', {
+  return apiRequest<UploadedAsset>('/team/upload', {
     method: 'POST',
     body: formData,
   })

@@ -25,6 +25,7 @@ import { useCreateTeamMember } from './useTeam'
 import { useDivisions } from '../divisions/useDivisions'
 import { uploadTeamMemberImage } from '@/api/team.api'
 import { InfoIcon } from 'lucide-react'
+import { useTempUploadSession } from '@/lib/temp-upload-session'
 
 type CreateTeamMemberDialogProps = {
   open: boolean
@@ -44,6 +45,7 @@ export default function CreateTeamMemberDialog({
   const [isCorporate, setIsCorporate] = useState(false)
   const [divisionId, setDivisionId] = useState('')
   const [sortOrder, setSortOrder] = useState('0')
+  const tempUploads = useTempUploadSession()
 
   const { data: divisionsData } = useDivisions({ perPage: 100, isActive: true })
   const divisions = divisionsData?.data || []
@@ -70,6 +72,7 @@ export default function CreateTeamMemberDialog({
       },
       {
         onSuccess: () => {
+          tempUploads.clear()
           onOpenChange(false)
           resetForm()
         },
@@ -188,6 +191,7 @@ export default function CreateTeamMemberDialog({
                 <FileUpload
                   onUpload={uploadTeamMemberImage}
                   onSuccess={setImage}
+                  onUploadedAsset={tempUploads.registerUpload}
                   currentPath={image}
                   label="Upload Member Photo"
                 />
@@ -217,6 +221,7 @@ export default function CreateTeamMemberDialog({
               type="button"
               variant="outline"
               onClick={() => {
+                void tempUploads.releaseAll({ silent: true })
                 onOpenChange(false)
                 resetForm()
               }}
@@ -243,6 +248,9 @@ export default function CreateTeamMemberDialog({
     <Dialog
       open={open}
       onOpenChange={(val) => {
+        if (!val) {
+          void tempUploads.releaseAll({ silent: true })
+        }
         onOpenChange(val)
         if (!val) resetForm()
       }}

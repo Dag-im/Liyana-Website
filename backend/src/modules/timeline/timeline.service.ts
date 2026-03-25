@@ -19,17 +19,24 @@ export class TimelineService {
   ) {}
 
   async create(createDto: CreateTimelineItemDto, performedBy: string) {
-    const item = this.timelineRepository.create(createDto);
-    const savedItem = await this.timelineRepository.save(item);
-
-    this.auditLogService.log(
-      AuditAction.TIMELINE_ITEM_CREATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      savedItem.id,
-      { title: savedItem.title },
-    );
+      createDto,
+      'timeline-item',
+      async () => {
+        const item = this.timelineRepository.create(createDto);
+        const savedItem = await this.timelineRepository.save(item);
 
-    return savedItem;
+        this.auditLogService.log(
+          AuditAction.TIMELINE_ITEM_CREATED,
+          performedBy,
+          savedItem.id,
+          { title: savedItem.title },
+        );
+
+        return savedItem;
+      },
+    );
   }
 
   async findAll(queryDto: QueryTimelineItemDto) {
@@ -89,23 +96,34 @@ export class TimelineService {
     updateDto: UpdateTimelineItemDto,
     performedBy: string,
   ) {
-    const item = await this.findOne(id);
-
-    if (updateDto.image && updateDto.image !== item.image && item.image) {
-      await this.uploadsService.delete(item.image);
-    }
-
-    Object.assign(item, updateDto);
-    const updatedItem = await this.timelineRepository.save(item);
-
-    this.auditLogService.log(
-      AuditAction.TIMELINE_ITEM_UPDATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      updatedItem.id,
-      { title: updatedItem.title },
-    );
+      updateDto,
+      'timeline-item',
+      async () => {
+        const item = await this.findOne(id);
+        const previousImage =
+          updateDto.image && updateDto.image !== item.image && item.image
+            ? item.image
+            : null;
 
-    return updatedItem;
+        Object.assign(item, updateDto);
+        const updatedItem = await this.timelineRepository.save(item);
+
+        if (previousImage) {
+          await this.uploadsService.delete(previousImage);
+        }
+
+        this.auditLogService.log(
+          AuditAction.TIMELINE_ITEM_UPDATED,
+          performedBy,
+          updatedItem.id,
+          { title: updatedItem.title },
+        );
+
+        return updatedItem;
+      },
+    );
   }
 
   async remove(id: string, performedBy: string) {

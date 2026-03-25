@@ -5,9 +5,7 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -26,9 +24,9 @@ import { UploadsService } from '../../../uploads/uploads.service';
 import { DoctorsService } from './doctors.service';
 import multer from 'multer';
 import { BadRequestException, Req, Res } from '@nestjs/common';
-import { ApiEnvelope } from '../../../common/types/api-envelope.type';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import type { Request, Response } from 'express';
 
 @ApiTags('Doctors')
 @Controller('divisions/:divisionId/doctors')
@@ -59,27 +57,30 @@ export class DoctorsController {
     description: 'No file uploaded or invalid file type.',
   })
   async uploadFile(
-    @Req() req: any,
-    @Res({ passthrough: true }) res: any,
-  ): Promise<ApiEnvelope<{ path: string }>> {
+    @Req() req: Request & { file?: Express.Multer.File; user: { sub: string } },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
     await new Promise<void>((resolve, reject) => {
       multer(this.uploadsService.buildMulterOptions()).single('file')(
         req,
         res,
         (err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) {
+            reject(err instanceof Error ? err : new Error('Upload failed'));
+            return;
+          }
+          resolve();
         },
       );
     });
-    const file = req.file as Express.Multer.File;
+    const file = req.file;
     if (!file) throw new BadRequestException('No file uploaded');
-    return { path: file.filename } as any;
+    return this.uploadsService.createTempUpload(file.filename, req.user.sub);
   }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @ApiCookieAuth()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Create a new doctor for a division' })
@@ -89,13 +90,20 @@ export class DoctorsController {
   create(
     @Param('divisionId') divisionId: string,
     @Body() createDto: CreateDoctorDto,
+    @Req() req: { user: { sub: string; role: UserRole; divisionId: string | null } },
   ) {
-    return this.doctorsService.create(divisionId, createDto);
+    return this.doctorsService.create(
+      divisionId,
+      createDto,
+      req.user.sub,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @ApiCookieAuth()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Update a doctor' })
@@ -106,20 +114,37 @@ export class DoctorsController {
     @Param('divisionId') divisionId: string,
     @Param('id') id: string,
     @Body() updateDto: UpdateDoctorDto,
+    @Req() req: { user: { sub: string; role: UserRole; divisionId: string | null } },
   ) {
-    return this.doctorsService.update(divisionId, id, updateDto);
+    return this.doctorsService.update(
+      divisionId,
+      id,
+      updateDto,
+      req.user.sub,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.DIVISION_MANAGER)
   @ApiCookieAuth()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Delete a doctor' })
   @ApiResponse({ status: 200, description: 'The doctor has been deleted.' })
   @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
   @ApiResponse({ status: 404, description: 'Doctor or Division not found.' })
-  remove(@Param('divisionId') divisionId: string, @Param('id') id: string) {
-    return this.doctorsService.remove(divisionId, id);
+  remove(
+    @Param('divisionId') divisionId: string,
+    @Param('id') id: string,
+    @Req() req: { user: { role: UserRole; divisionId: string | null } },
+  ) {
+    return this.doctorsService.remove(
+      divisionId,
+      id,
+      req.user.role,
+      req.user.divisionId,
+    );
   }
 }

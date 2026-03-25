@@ -31,18 +31,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!blog) return {};
 
     const imageUrl = getFileUrl(blog.image);
+    const authorName = blog.authorName?.trim() || 'Liyana Healthcare';
 
     return {
       title: blog.title,
       description: blog.excerpt,
-      authors: [{ name: blog.authorName }],
+      authors: [{ name: authorName }],
       openGraph: {
         title: `${blog.title} | Liyana Healthcare`,
         description: blog.excerpt,
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blog.slug}`,
         type: 'article',
         publishedTime: blog.publishedAt ?? undefined,
-        authors: [blog.authorName],
+        authors: [authorName],
         images: imageUrl ? [{ url: imageUrl, alt: blog.title }] : undefined,
       },
       alternates: {
@@ -87,7 +88,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
     title: blog.title,
     excerpt: blog.excerpt,
     slug: blog.slug,
-    authorName: blog.authorName,
+    authorName: blog.authorName?.trim() || 'Liyana Healthcare',
     publishedAt: blog.publishedAt,
     image: getFileUrl(blog.image) ?? blog.image,
     category: blog.category.name,

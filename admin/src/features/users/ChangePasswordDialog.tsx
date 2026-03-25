@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { useChangePassword } from '@/features/users/useUsers'
 import type { User } from '@/types/user.types'
 import { Button } from '@/components/ui/button'
+import { showErrorToast } from '@/lib/error-utils'
 import {
   Dialog,
   DialogContent,
@@ -57,9 +58,7 @@ export default function ChangePasswordDialog({ user }: ChangePasswordDialogProps
           queryClient.invalidateQueries({ queryKey: ['users'] })
           form.reset()
         },
-        onError: (error) => {
-          toast.error(error instanceof Error ? error.message : 'Failed to change password')
-        },
+        onError: (error) => showErrorToast(error, 'Failed to change password'),
       },
     )
   }

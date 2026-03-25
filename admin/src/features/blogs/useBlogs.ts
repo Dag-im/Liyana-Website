@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 
 import {
   createBlog,
@@ -41,9 +42,7 @@ export function useCreateBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog created successfully')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create blog'),
   })
 }
 
@@ -57,9 +56,7 @@ export function useUpdateBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog updated successfully')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update blog'),
   })
 }
 
@@ -72,9 +69,7 @@ export function useSubmitBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Submitted for review')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to submit blog'),
   })
 }
 
@@ -87,9 +82,7 @@ export function usePublishBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Published successfully')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to publish blog'),
   })
 }
 
@@ -102,9 +95,7 @@ export function useRejectBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog rejected')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to reject blog'),
   })
 }
 
@@ -117,9 +108,7 @@ export function useFeatureBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog featured')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to feature blog'),
   })
 }
 
@@ -132,9 +121,7 @@ export function useUnfeatureBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog unfeatured')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to unfeature blog'),
   })
 }
 
@@ -147,8 +134,6 @@ export function useDeleteBlog() {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       toast.success('Blog deleted')
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to delete blog'),
   })
 }

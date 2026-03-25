@@ -17,8 +17,8 @@ export type Blog = {
   featured: boolean;
   status: BlogStatus;
   authorId: string;
-  authorName: string;
-  authorRole: string;
+  authorName: string | null;
+  authorRole: string | null;
   categoryId: string;
   category: BlogCategory;
   publishedAt: string | null;

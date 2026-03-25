@@ -1,5 +1,6 @@
 import { divisionsApi } from '@/api/divisions.api';
 import { FileUpload } from '@/components/shared/FileUpload';
+import RichTextEditor from '@/components/shared/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,6 +23,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDivisionCategories } from '@/features/division-categories/useDivisionCategories';
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
+import { useTempUploadSession } from '@/lib/temp-upload-session';
 import { getUploadUrl } from '@/lib/upload-utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -31,7 +33,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, type FieldPath } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { useDivision, useUpdateDivision } from './useDivisions';
@@ -50,9 +52,11 @@ const divisionSchema = z.object({
   serviceCategoryId: z.string().min(1, 'Service category is required'),
   divisionCategoryId: z.string().min(1, 'Division category is required'),
   isActive: z.boolean().default(true),
+  requiresMedicalTeam: z.boolean().default(false),
   logo: z.string().optional(),
+  groupPhoto: z.string().optional(),
   overview: z.string().min(10, 'Overview must be at least 10 characters'),
-  description: z.array(z.string()).min(1, 'At least one paragraph is required'),
+  description: z.string().min(1, 'Description is required'),
   contact: z
     .object({
       phone: z.string().optional(),
@@ -85,7 +89,7 @@ const divisionSchema = z.object({
     .optional(),
 });
 
-type DivisionFormData = z.infer<typeof divisionSchema>;
+type DivisionFormData = z.input<typeof divisionSchema>;
 
 interface EditDivisionWizardProps {
   divisionId: string;
@@ -105,9 +109,10 @@ export function EditDivisionWizard({
   const updateMutation = useUpdateDivision(divisionId);
   const { data: serviceCategories } = useServiceCategories({ perPage: 100 });
   const { data: divisionCategories } = useDivisionCategories();
+  const tempUploads = useTempUploadSession();
 
   const form = useForm<DivisionFormData>({
-    resolver: zodResolver(divisionSchema) as any,
+    resolver: zodResolver(divisionSchema),
     defaultValues: {
       name: '',
       shortName: '',
@@ -115,9 +120,11 @@ export function EditDivisionWizard({
       serviceCategoryId: '',
       divisionCategoryId: '',
       isActive: true,
+      requiresMedicalTeam: false,
       logo: '',
+      groupPhoto: '',
       overview: '',
-      description: [''],
+      description: '',
       contact: {
         phone: '',
         email: '',
@@ -139,12 +146,11 @@ export function EditDivisionWizard({
         serviceCategoryId: division.serviceCategoryId,
         divisionCategoryId: division.divisionCategoryId,
         isActive: division.isActive,
+        requiresMedicalTeam: division.requiresMedicalTeam ?? false,
         logo: division.logo || '',
+        groupPhoto: division.groupPhoto || '',
         overview: division.overview,
-        description:
-          division.description && division.description.length > 0
-            ? division.description
-            : [''],
+        description: division.description ?? '',
         contact: {
           phone: division.contact?.phone || '',
           email: division.contact?.email || '',
@@ -152,23 +158,14 @@ export function EditDivisionWizard({
           googleMap: division.contact?.googleMap || '',
         },
         coreServices:
-          division.coreServices?.map((s: any) => ({ name: s.name })) || [],
+          division.coreServices?.map((s) => ({ name: s.name })) || [],
         stats:
-          division.stats?.map((s: any) => ({ label: s.label, value: s.value })) ||
+          division.stats?.map((s) => ({ label: s.label, value: s.value })) ||
           [],
-        images: division.images?.map((img: any) => ({ path: img.path })) || [],
+        images: division.images?.map((img) => ({ path: img.path })) || [],
       });
     }
   }, [division, form, open]);
-
-  const {
-    fields: descFields,
-    append: appendDesc,
-    remove: removeDesc,
-  } = useFieldArray({
-    control: form.control,
-    name: 'description' as any,
-  });
 
   const {
     fields: serviceFields,
@@ -198,7 +195,7 @@ export function EditDivisionWizard({
   });
 
   const handleNext = async () => {
-    const fieldsToValidate: any = {
+    const fieldsToValidate: Record<number, FieldPath<DivisionFormData>[]> = {
       1: ['name', 'shortName', 'serviceCategoryId', 'divisionCategoryId'],
       2: ['overview', 'description'],
       4: ['contact.email', 'contact.googleMap'],
@@ -219,6 +216,7 @@ export function EditDivisionWizard({
   const onSubmit = (values: DivisionFormData) => {
     updateMutation.mutate(values, {
       onSuccess: () => {
+        tempUploads.clear();
         toast.success('Division updated successfully!');
         onOpenChange?.(false);
         setStep(1);
@@ -230,6 +228,9 @@ export function EditDivisionWizard({
     <WizardDialog
       open={open}
       onOpenChange={(val) => {
+        if (!val) {
+          void tempUploads.releaseAll({ silent: true });
+        }
         onOpenChange?.(val);
         if (!val) setStep(1);
       }}
@@ -396,7 +397,26 @@ export function EditDivisionWizard({
                     name="isActive"
                     render={({ field }) => (
                       <Switch
-                        checked={field.value}
+                        checked={Boolean(field.value)}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/30">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Requires Medical Team</FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Enable to allow doctor management for this division
+                    </p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="requiresMedicalTeam"
+                    render={({ field }) => (
+                      <Switch
+                        checked={Boolean(field.value)}
                         onCheckedChange={field.onChange}
                       />
                     )}
@@ -425,53 +445,24 @@ export function EditDivisionWizard({
                   )}
                 />
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <FormLabel className="text-lg font-semibold">Detailed Description</FormLabel>
-                    <Button
-                      onClick={() => appendDesc('')}
-                      size="sm"
-                      type="button"
-                      variant="outline"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Paragraph
-                    </Button>
-                  </div>
-                  <div className="space-y-4">
-                    {descFields.map((field, index) => (
-                      <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={`description.${index}` as any}
-                        render={({ field: inputField }) => (
-                          <FormItem>
-                            <div className="flex gap-2">
-                              <FormControl>
-                                <Textarea
-                                  {...inputField}
-                                  className="flex-1"
-                                  placeholder={`Paragraph ${index + 1}`}
-                                  rows={3}
-                                />
-                              </FormControl>
-                              <Button
-                                onClick={() => removeDesc(index)}
-                                size="icon"
-                                type="button"
-                                variant="ghost"
-                                disabled={descFields.length === 1}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <RichTextEditor
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          placeholder="Write a detailed description of this division..."
+                          minHeight={300}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             )}
 
@@ -487,7 +478,28 @@ export function EditDivisionWizard({
                         <FileUpload
                           currentPath={field.value}
                           onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
                           onUpload={divisionsApi.uploadDivisionFile}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="groupPhoto"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold">Group Photo</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          currentPath={field.value}
+                          onSuccess={field.onChange}
+                          onUploadedAsset={tempUploads.registerUpload}
+                          onUpload={divisionsApi.uploadDivisionFile}
+                          label="Upload Group Photo"
                         />
                       </FormControl>
                       <FormMessage />
@@ -510,7 +522,12 @@ export function EditDivisionWizard({
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <Button
-                            onClick={() => removeImage(index)}
+                            onClick={() => {
+                              void tempUploads.releaseUploadByPath(field.path, {
+                                silent: true,
+                              });
+                              removeImage(index);
+                            }}
                             size="icon"
                             type="button"
                             variant="destructive"
@@ -523,10 +540,11 @@ export function EditDivisionWizard({
                     <div className="aspect-video">
                       <FileUpload
                         label="Add Image"
-                        multiple
                         onSuccess={(path) => appendImage({ path })}
+                        onUploadedAsset={tempUploads.registerUpload}
                         onUpload={divisionsApi.uploadDivisionFile}
-                        showPreview={false}
+                        currentPath={imageFields[imageFields.length - 1]?.path}
+                        showPreview
                       />
                     </div>
                   </div>

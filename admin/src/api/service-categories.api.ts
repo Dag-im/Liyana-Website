@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api-client';
 import type { ServiceCategory } from '@/types/services.types';
+import type { UploadedAsset } from '@/types/uploads.types';
 import type { PaginatedResponse } from '@/types/user.types';
 
 export type GetServiceCategoriesParams = {
@@ -11,12 +12,9 @@ export const serviceCategoriesApi = {
   uploadServiceCategoryFile: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiRequest<{ path: string }>('/service-categories/upload', {
+    return apiRequest<UploadedAsset>('/service-categories/upload', {
       method: 'POST',
       body: formData,
-      // Note: Content-Type: application/json in api-client.ts might conflict with FormData.
-      // We pass an empty headers object to hope it doesn't break fetch's auto-boundary.
-      // If it fails, api-client.ts might need a small adjustment.
       headers: {},
     });
   },

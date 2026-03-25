@@ -1,6 +1,6 @@
 'use server';
 
-import { getNewsEvents } from '@/lib/api/news-events.api';
+import { apiRequest } from '@/lib/api-client';
 import type { NewsEvent } from '@/types/news-events.types';
 
 export async function filterNewsEvents(params: {
@@ -8,30 +8,29 @@ export async function filterNewsEvents(params: {
   search?: string;
 }): Promise<NewsEvent[]> {
   try {
-    const result = await getNewsEvents({
-      perPage: 200,
-      type: params.type,
-      page: 1,
-    });
+    const query = new URLSearchParams();
+    query.set('status', 'PUBLISHED');
+    query.set('page', '1');
+    query.set('perPage', '200');
 
-    const query = params.search?.trim().toLowerCase();
-    if (!query) {
-      return result.data;
+    if (params.type) {
+      query.set('type', params.type);
     }
 
-    return result.data.filter((item) => {
-      const searchableText = [
-        item.title,
-        item.summary,
-        item.location ?? '',
-        item.type,
-        item.date,
-      ]
-        .join(' ')
-        .toLowerCase();
+    if (params.search?.trim()) {
+      query.set('search', params.search.trim());
+    }
 
-      return searchableText.includes(query);
+    const result = await apiRequest<{
+      data: NewsEvent[];
+      total: number;
+      page: number;
+      perPage: number;
+    }>(`/news-events?${query.toString()}`, {
+      cache: 'no-store',
     });
+
+    return result.data;
   } catch {
     return [];
   }

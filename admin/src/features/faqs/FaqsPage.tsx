@@ -24,7 +24,7 @@ function truncate(text: string, max: number) {
 }
 
 export default function FaqsPage() {
-  const { page, perPage, setPage, resetPage } = usePagination()
+  const { page, perPage, setPage, resetPage, setPerPage } = usePagination()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
 
@@ -180,6 +180,7 @@ export default function FaqsPage() {
           perPage={perPage}
           total={faqsQuery.data?.total ?? 0}
           onPageChange={setPage}
+          onPerPageChange={setPerPage}
         />
       </div>
 

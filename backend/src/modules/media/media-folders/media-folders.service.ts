@@ -115,15 +115,27 @@ export class MediaFoldersService {
     dto: CreateMediaFolderDto,
     performedBy: string,
   ): Promise<MediaFolder> {
-    await this.tagsService.findOne(dto.tagId);
+    return this.uploadsService.withEntityUploads(
+      performedBy,
+      dto,
+      'media-folder',
+      async () => {
+        await this.tagsService.findOne(dto.tagId);
 
-    const folder = this.folderRepo.create(dto);
-    const saved = await this.folderRepo.save(folder);
+        const folder = this.folderRepo.create(dto);
+        const saved = await this.folderRepo.save(folder);
 
-    this.auditLog.log(AuditAction.MEDIA_FOLDER_CREATED, performedBy, saved.id, {
-      name: saved.name,
-    });
-    return saved;
+        this.auditLog.log(
+          AuditAction.MEDIA_FOLDER_CREATED,
+          performedBy,
+          saved.id,
+          {
+            name: saved.name,
+          },
+        );
+        return saved;
+      },
+    );
   }
 
   async update(
@@ -131,28 +143,40 @@ export class MediaFoldersService {
     dto: UpdateMediaFolderDto,
     performedBy: string,
   ): Promise<MediaFolder> {
-    const folder = await this.findOne(id);
-
-    if (dto.tagId) {
-      await this.tagsService.findOne(dto.tagId);
-    }
-
-    if (dto.coverImage && dto.coverImage !== folder.coverImage) {
-      await this.uploadsService.delete(folder.coverImage);
-    }
-
-    Object.assign(folder, dto);
-    const updated = await this.folderRepo.save(folder);
-
-    this.auditLog.log(
-      AuditAction.MEDIA_FOLDER_UPDATED,
+    return this.uploadsService.withEntityUploads(
       performedBy,
-      updated.id,
-      {
-        changes: dto,
+      dto,
+      'media-folder',
+      async () => {
+        const folder = await this.findOne(id);
+
+        if (dto.tagId) {
+          await this.tagsService.findOne(dto.tagId);
+        }
+
+        const previousCoverImage =
+          dto.coverImage && dto.coverImage !== folder.coverImage
+            ? folder.coverImage
+            : null;
+
+        Object.assign(folder, dto);
+        const updated = await this.folderRepo.save(folder);
+
+        if (previousCoverImage) {
+          await this.uploadsService.delete(previousCoverImage);
+        }
+
+        this.auditLog.log(
+          AuditAction.MEDIA_FOLDER_UPDATED,
+          performedBy,
+          updated.id,
+          {
+            changes: dto,
+          },
+        );
+        return updated;
       },
     );
-    return updated;
   }
 
   async remove(id: string, performedBy: string): Promise<void> {

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { showErrorToast } from '@/lib/error-utils'
 import {
   getMediaTags,
   createMediaTag,
@@ -23,9 +24,7 @@ export function useCreateMediaTag() {
       queryClient.invalidateQueries({ queryKey: ['media-tags'] })
       toast.success('Media tag created')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create media tag')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to create media tag'),
   })
 }
 
@@ -38,9 +37,7 @@ export function useUpdateMediaTag() {
       queryClient.invalidateQueries({ queryKey: ['media-tags'] })
       toast.success('Media tag updated')
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update media tag')
-    },
+    onError: (error: unknown) => showErrorToast(error, 'Failed to update media tag'),
   })
 }
 
@@ -53,10 +50,10 @@ export function useDeleteMediaTag() {
       toast.success('Media tag deleted')
     },
     onError: (error: any) => {
-      if (error.status === 409) {
+      if (error?.status === 409) {
         toast.error('Cannot delete: folders are assigned to this tag')
       } else {
-        toast.error(error.message || 'Failed to delete media tag')
+        showErrorToast(error, 'Failed to delete media tag')
       }
     },
   })

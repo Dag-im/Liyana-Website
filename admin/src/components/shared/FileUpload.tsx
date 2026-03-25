@@ -1,13 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { showErrorToast } from '@/lib/error-utils';
 import { FileIcon, Loader2, Upload, X } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { FileImage } from '@/components/shared/FileImage';
+import { deleteTempUpload } from '@/api/uploads.api';
+import type { UploadedAsset } from '@/types/uploads.types';
 
 type FileUploadProps = {
-  onUpload: (file: File) => Promise<{ path: string }>;
+  onUpload: (file: File) => Promise<UploadedAsset>;
   onSuccess: (path: string) => void;
+  onUploadedAsset?: (asset: UploadedAsset) => void;
+  onAssetRemoved?: (asset: UploadedAsset) => void;
   accept?: string;
   maxSizeMB?: number;
   label?: string;
@@ -24,6 +29,8 @@ type FileUploadProps = {
 export function FileUpload({
   onUpload,
   onSuccess,
+  onUploadedAsset,
+  onAssetRemoved,
   accept = 'image/*',
   maxSizeMB = 5,
   label = 'Click to upload or drag and drop',
@@ -36,11 +43,30 @@ export function FileUpload({
   const [preview, setPreview] = useState<string | null>(
     shouldShowPreview && currentPath ? currentPath : null
   );
+  const [currentUpload, setCurrentUpload] = useState<UploadedAsset | null>(null);
+  const uploadedAssetsRef = useRef(new Map<string, UploadedAsset>());
 
   React.useEffect(() => {
     if (!shouldShowPreview) return;
     setPreview(currentPath || null);
   }, [currentPath, shouldShowPreview]);
+
+  React.useEffect(() => {
+    if (!currentPath) {
+      setCurrentUpload(null);
+    }
+  }, [currentPath]);
+
+  React.useEffect(() => {
+    return () => {
+      const assets = [...uploadedAssetsRef.current.values()];
+      uploadedAssetsRef.current.clear();
+
+      assets.forEach((asset) => {
+        void deleteTempUpload(asset.id).catch(() => undefined);
+      });
+    };
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
@@ -53,7 +79,14 @@ export function FileUpload({
       setIsUploading(true);
       try {
         const result = await onUpload(file);
+        const previousUpload = currentUpload;
+
         onSuccess(result.path);
+        onUploadedAsset?.(result);
+        uploadedAssetsRef.current.set(result.id, result);
+        if (shouldShowPreview) {
+          setCurrentUpload(result);
+        }
 
         if (file.type.startsWith('image/')) {
           if (shouldShowPreview) {
@@ -63,14 +96,32 @@ export function FileUpload({
           setPreview(null);
         }
 
+        if (previousUpload && previousUpload.id !== result.id) {
+          try {
+            await deleteTempUpload(previousUpload.id);
+            uploadedAssetsRef.current.delete(previousUpload.id);
+            onAssetRemoved?.(previousUpload);
+          } catch {
+            // Ignore cleanup failures here; expiry-based cleanup is the fallback.
+          }
+        }
+
         toast.success('File uploaded successfully');
-      } catch (error: any) {
-        toast.error(error.message || 'Upload failed');
+      } catch (error) {
+        showErrorToast(error, 'Upload failed');
       } finally {
         setIsUploading(false);
       }
     },
-    [maxSizeMB, onUpload, onSuccess, shouldShowPreview]
+    [
+      currentUpload,
+      maxSizeMB,
+      onAssetRemoved,
+      onUpload,
+      onSuccess,
+      onUploadedAsset,
+      shouldShowPreview,
+    ]
   );
 
   const onDrop = useCallback(
@@ -97,7 +148,20 @@ export function FileUpload({
     }
   };
 
-  const removeFile = () => {
+  const removeFile = async () => {
+    const uploadToRemove = currentUpload;
+
+    if (uploadToRemove) {
+      try {
+        await deleteTempUpload(uploadToRemove.id);
+        uploadedAssetsRef.current.delete(uploadToRemove.id);
+        onAssetRemoved?.(uploadToRemove);
+      } catch {
+        // The file may already be attached or already gone. Clear the field anyway.
+      }
+    }
+
+    setCurrentUpload(null);
     setPreview(null);
     onSuccess('');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -138,7 +202,9 @@ export function FileUpload({
               variant="destructive"
               size="icon"
               className="absolute top-2 right-2 h-7 w-7"
-              onClick={removeFile}
+              onClick={() => {
+                void removeFile();
+              }}
             >
               <X className="h-4 w-4" />
             </Button>
