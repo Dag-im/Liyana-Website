@@ -1,6 +1,5 @@
-import { Loader2 } from 'lucide-react'
-
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type LoadingSpinnerProps = {
   fullPage?: boolean
@@ -16,13 +15,17 @@ export default function LoadingSpinner({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-2 py-8 text-muted-foreground',
+        'flex flex-col items-center justify-center gap-3 py-8 text-slate-500',
         fullPage && 'min-h-[60vh]',
         className,
       )}
     >
-      <Loader2 className="h-5 w-5 animate-spin" />
-      <p className="text-xs">{text}</p>
+      <div className="w-full max-w-sm space-y-3">
+        <Skeleton className="h-3 w-2/3" />
+        <Skeleton className="h-3 w-5/6" />
+        <Skeleton className="h-3 w-1/2" />
+      </div>
+      <p className="text-xs uppercase tracking-[0.2em]">{text}</p>
     </div>
   )
 }

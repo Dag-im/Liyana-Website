@@ -1,15 +1,15 @@
-import { Badge } from '@/components/ui/badge'
+import StatusPill from '@/components/system/StatusPill'
 import type { BlogStatus } from '@/types/blogs.types'
 
 export default function BlogStatusBadge({ status }: { status: BlogStatus }) {
   switch (status) {
     case 'PUBLISHED':
-      return <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
+      return <StatusPill label="Published" tone="emerald" />
     case 'PENDING_REVIEW':
-      return <Badge className="bg-amber-100 text-amber-700">Pending Review</Badge>
+      return <StatusPill label="Pending Review" tone="amber" />
     case 'REJECTED':
-      return <Badge className="bg-red-100 text-red-700">Rejected</Badge>
+      return <StatusPill label="Rejected" tone="red" />
     default:
-      return <Badge variant="secondary" className="bg-muted text-muted-foreground">Draft</Badge>
+      return <StatusPill label="Draft" tone="slate" />
   }
 }

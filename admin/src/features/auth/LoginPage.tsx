@@ -64,18 +64,18 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--color-brand-cyan)_18%,transparent),transparent_40%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--color-brand-purple)_14%,transparent),transparent_36%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--color-brand-red)_8%,transparent),transparent_42%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--color-brand-cyan)_7%,transparent),transparent_40%)]" />
 
-      <Card className="relative w-full max-w-4xl border-border/80 bg-card/95 shadow-xl backdrop-blur">
+      <Card className="relative w-full max-w-4xl border-border/80 bg-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur">
         <div className="grid items-stretch lg:grid-cols-[1.05fr_1fr]">
-          <div className="hidden border-r border-border/80 bg-muted/25 p-10 lg:block">
-            <div className="mb-6 inline-flex h-11 w-11 items-center justify-center rounded-xl brand-gradient text-white shadow-sm">
+          <div className="hidden border-r border-border/80 bg-white/70 p-10 lg:block">
+            <div className="mb-6 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
               Liyana Admin Console
             </h1>
-            <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+            <p className="mt-3 max-w-sm text-sm text-slate-500">
               Secure operational workspace for content, bookings, and system
               administration.
             </p>

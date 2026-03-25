@@ -6,13 +6,13 @@ import ErrorState from '@/components/shared/ErrorState';
 import Pagination from '@/components/shared/Pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import AppTable from '@/components/system/AppTable';
 
 type Column<T> = {
   header: string;
@@ -69,7 +69,7 @@ export default function DataTable<T extends { id?: string }>({
 
   if (activeLoading) {
     return (
-      <Table>
+      <AppTable>
         <TableHeader>
           <TableRow>
             {columns.map((column, i) => (
@@ -80,19 +80,19 @@ export default function DataTable<T extends { id?: string }>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <TableRow key={index}>
-              {columns.map((column, i) => (
-                <TableCell
-                  key={column.id || column.accessorKey?.toString() || i}
-                >
-                  <Skeleton className="h-5 w-full" />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                {columns.map((column, i) => (
+                  <TableCell
+                    key={column.id || column.accessorKey?.toString() || i}
+                  >
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+      </AppTable>
     );
   }
 
@@ -102,14 +102,14 @@ export default function DataTable<T extends { id?: string }>({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
         <div className="max-h-140 overflow-auto">
-          <Table className={className}>
+          <AppTable className={className}>
             <TableHeader>
-              <TableRow className="bg-muted/35 hover:bg-muted/35">
+              <TableRow className="bg-slate-50 hover:bg-slate-50">
                 {columns.map((column, i) => (
                   <TableHead
-                    className="h-11 text-xs font-semibold uppercase tracking-[0.06em] text-muted-foreground"
+                    className="h-11 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400"
                     key={column.id || column.accessorKey?.toString() || i}
                   >
                     {column.header}
@@ -129,13 +129,13 @@ export default function DataTable<T extends { id?: string }>({
                   <Fragment key={rowId}>
                     <TableRow
                       className={
-                        onRowClick ? 'cursor-pointer hover:bg-accent/40' : ''
+                        onRowClick ? 'cursor-pointer hover:bg-slate-50' : ''
                       }
                       onClick={() => onRowClick?.(row)}
                     >
                       {columns.map((column, i) => (
                         <TableCell
-                          className="py-3"
+                          className="py-3.5"
                           key={column.id || column.accessorKey?.toString() || i}
                         >
                           {column.cell
@@ -153,7 +153,7 @@ export default function DataTable<T extends { id?: string }>({
                     {isExpanded && renderExpanded ? (
                       <TableRow>
                         <TableCell
-                          className="bg-muted/30 py-4"
+                          className="bg-slate-50 py-4"
                           colSpan={columns.length}
                         >
                           {renderExpanded(row)}
@@ -164,7 +164,7 @@ export default function DataTable<T extends { id?: string }>({
                 );
               })}
             </TableBody>
-          </Table>
+          </AppTable>
         </div>
       </div>
       {pagination && (

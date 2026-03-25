@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge'
+import StatusPill from '@/components/system/StatusPill'
 import type { NewsEventStatus } from '@/types/news-events.types'
 
 type Props = {
@@ -7,8 +7,8 @@ type Props = {
 
 export default function NewsEventStatusBadge({ status }: Props) {
   if (status === 'PUBLISHED') {
-    return <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
+    return <StatusPill label="Published" tone="emerald" />
   }
 
-  return <Badge variant="secondary" className="bg-muted text-muted-foreground">Draft</Badge>
+  return <StatusPill label="Draft" tone="slate" />
 }

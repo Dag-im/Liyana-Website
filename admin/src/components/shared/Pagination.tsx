@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/system/AppButton'
 
 type PaginationProps = {
   page: number
@@ -21,16 +21,16 @@ export default function Pagination({
   const pageSizeOptions = [10, 20, 50, 100]
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/80 bg-muted/20 px-3 py-2.5">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
       <div className="flex items-center gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-slate-500">
           Showing {start}-{end} of {total} results
         </p>
         {onPerPageChange && (
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
             Per page
             <select
-              className="h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring"
+              className="h-9 rounded-xl border border-border/80 bg-white px-3 text-xs text-slate-700 outline-none focus-visible:shadow-[0_0_0_3px_rgba(0,155,217,0.2)]"
               onChange={(e) => {
                 const value = Number(e.target.value)
                 onPerPageChange(value)
@@ -48,15 +48,15 @@ export default function Pagination({
         )}
       </div>
       <div className="flex items-center gap-2">
-        <Button disabled={page <= 1} onClick={() => onPageChange(page - 1)} size="sm" variant="outline">
+        <AppButton disabled={page <= 1} onClick={() => onPageChange(page - 1)} size="sm" variant="outline">
           Previous
-        </Button>
-        <span className="min-w-14 text-center text-xs font-medium text-muted-foreground">
+        </AppButton>
+        <span className="min-w-14 text-center text-xs font-medium text-slate-500">
           {page} / {maxPage}
         </span>
-        <Button disabled={page >= maxPage} onClick={() => onPageChange(page + 1)} size="sm" variant="outline">
+        <AppButton disabled={page >= maxPage} onClick={() => onPageChange(page + 1)} size="sm" variant="outline">
           Next
-        </Button>
+        </AppButton>
       </div>
     </div>
   )

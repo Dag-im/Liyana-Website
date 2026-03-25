@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import StatusPill from '@/components/system/StatusPill';
 import type { BookingStatus } from '@/types/booking.types';
 
 type StatusBadgeProps =
@@ -9,17 +9,18 @@ type StatusBadgeProps =
 export function StatusBadge(props: StatusBadgeProps) {
   if (props.type === 'active') {
     return (
-      <Badge variant={props.isActive ? 'default' : 'secondary'}>
-        {props.isActive ? (props.activeText ?? 'Active') : (props.inactiveText ?? 'Inactive')}
-      </Badge>
+      <StatusPill
+        label={
+          props.isActive ? (props.activeText ?? 'Active') : (props.inactiveText ?? 'Inactive')
+        }
+        tone={props.isActive ? 'emerald' : 'slate'}
+      />
     )
   }
 
   if (props.type === 'read') {
     return (
-      <Badge variant={props.isRead ? 'secondary' : 'default'}>
-        {props.isRead ? 'Read' : 'Unread'}
-      </Badge>
+      <StatusPill label={props.isRead ? 'Read' : 'Unread'} tone={props.isRead ? 'slate' : 'blue'} />
     )
   }
 
@@ -29,12 +30,12 @@ export function StatusBadge(props: StatusBadgeProps) {
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   switch (status) {
     case 'PENDING':
-      return <Badge className="border-0 bg-amber-500 text-white hover:bg-amber-600">Pending</Badge>
+      return <StatusPill label="Pending" tone="amber" />
     case 'CONFIRMED':
-      return <Badge className="border-0 bg-emerald-600 text-white hover:bg-emerald-700">Confirmed</Badge>
+      return <StatusPill label="Confirmed" tone="emerald" />
     case 'CANCELLED':
-      return <Badge variant="secondary">Cancelled</Badge>
+      return <StatusPill label="Cancelled" tone="red" />
     default:
-      return <Badge variant="outline">{status}</Badge>
+      return <StatusPill label={status} tone="slate" />
   }
 }

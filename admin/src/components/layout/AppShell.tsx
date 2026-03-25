@@ -8,6 +8,7 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
   Settings,
   Stethoscope,
   Users,
@@ -17,9 +18,11 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { logout } from '@/api/auth.api';
 import NotificationBell from '@/components/layout/NotificationBell';
+import AppInput from '@/components/system/AppInput';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/features/auth/useAuth';
@@ -153,10 +156,10 @@ export default function AppShell() {
 
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground">
-      <div className="brand-gradient fixed left-0 right-0 top-0 z-50 h-1" />
+      <div className="fixed left-0 right-0 top-0 z-50 h-px bg-slate-200/80" />
 
-      <header className="z-40 h-16 shrink-0 border-b border-border/80 bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-400 items-center justify-between gap-3 px-4 md:px-6">
+      <header className="z-40 h-16 shrink-0 border-b border-border/80 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto grid h-16 max-w-400 grid-cols-[auto_1fr_auto] items-center gap-4 px-4 md:px-6">
           <div className="flex min-w-0 items-center gap-2">
             <Button
               aria-label="Toggle navigation menu"
@@ -182,17 +185,28 @@ export default function AppShell() {
             </Button>
             <Separator className="hidden h-5 md:block" orientation="vertical" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">
+              <p className="truncate text-sm font-semibold text-slate-900">
                 {currentRoute?.label ?? 'Liyana Admin'}
               </p>
-              <p className="hidden truncate text-xs text-muted-foreground sm:block">
+              <p className="hidden truncate text-xs text-slate-500 sm:block">
                 Operational control panel
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-muted-foreground lg:inline">
+          <div className="hidden justify-center px-4 md:flex">
+            <div className="relative w-full max-w-md">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <AppInput
+                className="pl-9"
+                placeholder="Command palette"
+                type="search"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <span className="hidden text-sm text-slate-500 lg:inline">
               {user?.email}
             </span>
             <NotificationBell />
@@ -213,19 +227,21 @@ export default function AppShell() {
       <div className="mx-auto grid h-[calc(100vh-4rem)] max-w-400 min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[auto_1fr]">
         <aside
           className={cn(
-            'hidden h-full min-h-0 border-r border-border/80 bg-sidebar/70 p-3 backdrop-blur md:block',
-            isSidebarCollapsed ? 'w-22' : 'w-70'
+            'group/sidebar hidden h-full min-h-0 border-r border-border/60 bg-white/60 p-3 backdrop-blur-md transition-all duration-300 md:block',
+            isSidebarCollapsed ? 'w-20 hover:w-64' : 'w-72'
           )}
+          data-collapsed={isSidebarCollapsed}
         >
-          <div className="flex h-full min-h-0 flex-col rounded-xl border border-border/80 bg-card/90 p-2 shadow-sm">
-            {!isSidebarCollapsed ? (
-              <Link
-                className="block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight"
-                to="/"
-              >
-                Liyana Admin
-              </Link>
-            ) : null}
+          <div className="flex h-full min-h-0 flex-col rounded-2xl border border-border/70 bg-white/80 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+            <Link
+              className={cn(
+                'block shrink-0 rounded-xl px-3 py-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity',
+                isSidebarCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : 'opacity-100'
+              )}
+              to="/"
+            >
+              Liyana Admin
+            </Link>
 
             <div className="custom-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
               <nav
@@ -267,9 +283,9 @@ export default function AppShell() {
               onClick={() => setIsMobileNavOpen(false)}
               type="button"
             />
-            <aside className="absolute left-0 top-0 flex h-full w-[84vw] max-w-sm min-h-0 flex-col border-r border-border bg-background p-4">
+            <aside className="absolute left-0 top-0 flex h-full w-[84vw] max-w-sm min-h-0 flex-col border-r border-border/70 bg-white/90 p-4 backdrop-blur-md">
               <Link
-                className="mb-4 block shrink-0 text-base font-semibold tracking-tight"
+                className="mb-4 block shrink-0 text-base font-semibold tracking-tight text-slate-900"
                 onClick={() => setIsMobileNavOpen(false)}
                 to="/"
               >
@@ -303,9 +319,19 @@ export default function AppShell() {
           </div>
         ) : null}
 
-        <main className="custom-scrollbar min-h-0 min-w-0 overflow-y-auto px-4 py-5 md:px-8 md:py-7">
-          <div className="mx-auto w-full max-w-290 pb-10">
-            <Outlet />
+        <main className="custom-scrollbar min-h-0 min-w-0 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
+          <div className="mx-auto w-full max-w-290 pb-12">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>
@@ -330,11 +356,14 @@ function NavSection({
 
   return (
     <div className="space-y-1">
-      {!collapsed ? (
-        <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
-          {title}
-        </p>
-      ) : null}
+      <p
+        className={cn(
+          'px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 transition-opacity',
+          collapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : 'opacity-100'
+        )}
+      >
+        {title}
+      </p>
       {routes.map((route) => {
         const Icon = route.icon;
 
@@ -343,10 +372,10 @@ function NavSection({
             <NavLink
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm transition-colors',
+                  'group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm transition-all',
                   isActive
-                    ? 'border-primary/20 bg-primary/10 font-medium text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:border-border hover:bg-accent/60 hover:text-foreground',
+                    ? 'border-slate-200/80 bg-white text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]'
+                    : 'text-slate-500 hover:border-slate-200/60 hover:bg-white/80 hover:text-slate-900',
                   collapsed && 'justify-center px-2.5'
                 )
               }
@@ -354,10 +383,15 @@ function NavSection({
               onClick={onNavigate}
               to={route.path}
             >
-              <Icon className="h-4 w-4 shrink-0" />
-              {!collapsed ? (
-                <span className="truncate">{route.label}</span>
-              ) : null}
+              <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+              <span
+                className={cn(
+                  'truncate transition-opacity',
+                  collapsed ? 'hidden group-hover/sidebar:inline' : 'inline'
+                )}
+              >
+                {route.label}
+              </span>
             </NavLink>
 
             {route.children?.length && !collapsed ? (
@@ -369,10 +403,10 @@ function NavSection({
                       key={child.path}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-colors',
+                          'flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors',
                           isActive
-                            ? 'bg-accent font-medium text-foreground'
-                            : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
+                            ? 'bg-slate-100 font-medium text-slate-900'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                         )
                       }
                       onClick={onNavigate}
