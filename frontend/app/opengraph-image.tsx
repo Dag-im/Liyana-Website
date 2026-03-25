@@ -54,7 +54,7 @@ export default function OGImage() {
             position: 'absolute',
             bottom: '40px',
             fontSize: '18px',
-            color: '#0ea5e9',
+            color: '#009ad6',
             fontWeight: '600',
           }}
         >

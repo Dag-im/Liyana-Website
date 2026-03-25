@@ -2,25 +2,19 @@
 
 import BackendImage from '@/components/shared/BackendImage';
 import RichTextViewer from '@/components/shared/RichTextViewer';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Award,
-  Check,
-  Clock,
-  Globe,
-  MapPin,
-  Phone,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
 import type { Division as SharedDivision } from '@/types/services.types';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Check, Clock, Globe, MapPin, Phone } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 type Division = Omit<SharedDivision, 'contact'> & {
   contact: NonNullable<SharedDivision['contact']>;
   type: string;
 };
 
-// ---------- SUB-COMPONENTS ----------
+const ACCENT = '#009ad6';
+const ACCENT_MID = '#0880b9';
+const ACCENT_DARK = '#01649c';
 
 const SectionTitle = ({
   children,
@@ -31,55 +25,61 @@ const SectionTitle = ({
 }) => (
   <div className="mb-12">
     {subtitle && (
-      <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+      <span
+        className="block font-semibold text-[11px] uppercase tracking-[0.18em] mb-3"
+        style={{ color: ACCENT_MID }}
+      >
         {subtitle}
       </span>
     )}
     <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
       {children}
     </h2>
-    <div className="h-[2px] w-10 bg-cyan-600 mt-5 rounded-full" />
+    <div
+      className="h-[2px] w-10 mt-5 rounded-full"
+      style={{ backgroundColor: ACCENT_MID }}
+    />
   </div>
 );
-
-// Booking wizard moved to components/client/services/BookingWizard.tsx
-
-// ---------- PAGE COMPONENT ----------
 
 export default function DivisionDetailPageClient({
   division,
 }: {
   division: Division;
 }) {
-
-  // Logic
   const divisionType = division.type || division.divisionCategory?.name || '';
   const normalizedDivisionType = divisionType.toLowerCase();
-  const isHealthcare = normalizedDivisionType.includes('health');
   const isEdu = normalizedDivisionType.includes('education');
   const contact = division.contact;
 
-  // --- HERO SLIDER LOGIC ---
+  const heroImages = useMemo(() => {
+    const images = division.images.map((image) => image.path).filter(Boolean);
+    if (images.length > 0) {
+      return images;
+    }
+    if (division.groupPhoto) {
+      return [division.groupPhoto];
+    }
+    if (division.logo) {
+      return [division.logo];
+    }
+    return ['/images/logo.png'];
+  }, [division.groupPhoto, division.images, division.logo]);
+
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
-    if (division.images.length > 1) {
+    if (heroImages.length > 1) {
       const interval = setInterval(() => {
-        setCurrentHeroIndex((prev) => (prev + 1) % division.images.length);
+        setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [division.images.length]);
+  }, [heroImages.length]);
 
   return (
-    <div className="bg-white min-h-screen font-sans text-slate-900 selection:bg-cyan-100 selection:text-cyan-900">
-      {/* Booking temporarily disabled — will be wired in booking integration
-      <BookingWizard division={division} />
-      */}
-
-      {/* 1. IMMERSIVE HERO */}
+    <div className="bg-white min-h-screen font-sans text-slate-900 selection:bg-[#cceffa] selection:text-[#014f7a]">
       <div className="relative h-[90vh] w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-20">
-        {/* Background Image Slider */}
         <div className="absolute inset-0 bg-slate-900">
           <AnimatePresence mode="popLayout">
             <motion.div
@@ -91,7 +91,7 @@ export default function DivisionDetailPageClient({
               className="absolute inset-0"
             >
               <BackendImage
-                src={division.images[currentHeroIndex].path}
+                src={heroImages[currentHeroIndex]}
                 alt={`${division.name} Hero ${currentHeroIndex + 1}`}
                 fill
                 className="object-cover opacity-70"
@@ -99,23 +99,21 @@ export default function DivisionDetailPageClient({
               />
             </motion.div>
           </AnimatePresence>
-          {/* Refined gradient overlays for a darker, more corporate look */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/65 to-slate-900/20 z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-900/20 z-10" />
+
+          <div className="absolute inset-0 bg-gradient-to-b from-[#014f7a]/60 via-[#014f7a]/40 to-slate-950 lg:hidden" />
+
+          {/* Desktop Gradient: Horizontal fade (Left Dark -> Right Clear) */}
+          <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#014f7a]/40 via-[#014f7a]/70 to-transparent" />
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-20 max-w-7xl w-full mx-auto px-6 grid lg:grid-cols-12 gap-12 items-end">
-          {/* Text Area */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="lg:col-span-8 space-y-6"
           >
-            {/* Logo + Identity Bar */}
             <div className="flex items-center gap-4">
-              {/* Division Logo */}
               <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md overflow-hidden p-2 shrink-0">
                 {division.logo ? (
                   <BackendImage
@@ -137,12 +135,19 @@ export default function DivisionDetailPageClient({
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="px-3 py-1 bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-[11px] font-bold uppercase tracking-widest rounded">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span
+                  className="px-3 py-1 border text-[11px] font-bold uppercase tracking-widest rounded"
+                  style={{
+                    backgroundColor: 'rgba(0, 155, 217, 0.14)',
+                    borderColor: 'rgba(0, 155, 217, 0.28)',
+                    color: '#b8e6f7',
+                  }}
+                >
                   {division.type} Division
                 </span>
                 <span className="hidden sm:flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-widest">
-                  <MapPin size={11} className="text-cyan-400" />
+                  <MapPin size={11} style={{ color: ACCENT }} />
                   {division.location}
                 </span>
               </div>
@@ -156,19 +161,14 @@ export default function DivisionDetailPageClient({
               {division.overview}
             </p>
 
-            {/* Slim location pill on mobile */}
             <p className="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-widest sm:hidden">
-              <MapPin size={11} className="text-cyan-400" />
+              <MapPin size={11} style={{ color: ACCENT }} />
               {division.location}
             </p>
 
             <div className="pt-2 flex flex-wrap gap-3">
-              {/* PRIMARY CTA: Only for Healthcare */}
-              {/* Booking temporarily disabled — will be wired in booking integration */}
-
-              {/* SECONDARY CTA: Phone */}
               <a
-                href={`tel:${division.contact.phone}`}
+                href={`tel:${division.contact.phone ?? ''}`}
                 className="px-6 py-3 bg-white/8 border border-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/15 transition-all flex items-center gap-2 backdrop-blur-md"
               >
                 <Phone size={15} />
@@ -177,16 +177,14 @@ export default function DivisionDetailPageClient({
             </div>
           </motion.div>
 
-          {/* Glass Stats Card (Desktop Only) */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             className="hidden lg:block lg:col-span-4"
           >
-            {division.stats && (
+            {division.stats && division.stats.length > 0 && (
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl space-y-7 shadow-2xl">
-                {/* Logo inside stats card */}
                 <div className="flex items-center gap-3 pb-5 border-b border-white/10">
                   <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden p-1.5">
                     {division.logo ? (
@@ -226,7 +224,10 @@ export default function DivisionDetailPageClient({
                     <p className="text-3xl font-semibold text-white mb-1 tracking-tight">
                       {stat.value}
                     </p>
-                    <p className="text-[11px] text-cyan-400 font-semibold uppercase tracking-widest">
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-widest"
+                      style={{ color: ACCENT }}
+                    >
                       {stat.label}
                     </p>
                   </div>
@@ -241,10 +242,9 @@ export default function DivisionDetailPageClient({
           </motion.div>
         </div>
 
-        {/* Hero image dots indicator */}
-        {division.images.length > 1 && (
+        {heroImages.length > 1 && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-            {division.images.map((_, i) => (
+            {heroImages.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentHeroIndex(i)}
@@ -260,10 +260,8 @@ export default function DivisionDetailPageClient({
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-20 space-y-28">
-        {/* 2. ABOUT US SECTION */}
         <section className="grid md:grid-cols-2 gap-16 items-center">
           <div>
-            {/* Logo + Name lockup above section title */}
             <div className="flex items-center gap-3 mb-8 pb-6 border-b border-slate-100">
               <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden p-2 shrink-0">
                 {division.logo ? (
@@ -275,7 +273,10 @@ export default function DivisionDetailPageClient({
                     className="object-contain w-full h-full"
                   />
                 ) : (
-                  <span className="text-cyan-700 font-bold text-xs tracking-wide">
+                  <span
+                    className="font-bold text-xs tracking-wide"
+                    style={{ color: ACCENT_DARK }}
+                  >
                     {division.shortName
                       .split(/[\s-]+/)
                       .map((w) => w[0])
@@ -299,28 +300,16 @@ export default function DivisionDetailPageClient({
               Who We Are <br /> & What We Do
             </SectionTitle>
             {division.description && (
-              <RichTextViewer content={division.description} className="text-[16px] font-normal leading-relaxed" />
+              <RichTextViewer
+                content={division.description}
+                className="text-[16px] font-normal leading-relaxed"
+              />
             )}
-
-            <div className="mt-8 flex gap-3">
-              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200 shadow-sm shadow-slate-900/5 rounded-lg text-sm font-medium text-slate-700">
-                <Globe size={16} className="text-cyan-600" />
-                International Standards
-              </div>
-              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200 shadow-sm shadow-slate-900/5 rounded-lg text-sm font-medium text-slate-700">
-                <Award size={16} className="text-cyan-600" />
-                Certified Care
-              </div>
-            </div>
           </div>
 
           <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl shadow-slate-900/8 border border-slate-100">
             <BackendImage
-              src={
-                division.images[0]?.path ||
-                division.images[1]?.path ||
-                division.images[2]?.path
-              }
+              src={heroImages[0]}
               alt="Interior"
               fill
               className="object-cover"
@@ -329,17 +318,24 @@ export default function DivisionDetailPageClient({
           </div>
         </section>
 
-        {/* 3. SERVICES GRID */}
         <section className="bg-slate-50 -mx-6 px-6 py-20 md:rounded-2xl border border-slate-100">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+              <span
+                className="block font-semibold text-[11px] uppercase tracking-[0.18em] mb-3"
+                style={{ color: ACCENT_MID }}
+              >
                 Capabilities
               </span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
-                {isHealthcare ? 'Clinical Specialties' : 'What we Offer'}
+                {normalizedDivisionType.includes('health')
+                  ? 'Clinical Specialties'
+                  : 'What we Offer'}
               </h2>
-              <div className="h-[2px] w-10 bg-cyan-600 mt-5 mx-auto rounded-full" />
+              <div
+                className="h-[2px] w-10 mt-5 mx-auto rounded-full"
+                style={{ backgroundColor: ACCENT_MID }}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -348,7 +344,10 @@ export default function DivisionDetailPageClient({
                   key={i}
                   className="bg-white p-7 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:shadow-slate-900/5 hover:-translate-y-0.5 transition-all duration-300 group"
                 >
-                  <div className="w-10 h-10 bg-slate-50 border border-slate-200 text-cyan-600 rounded-full flex items-center justify-center mb-5 group-hover:bg-cyan-600 group-hover:text-white group-hover:border-cyan-600 transition-colors">
+                  <div
+                    className="w-10 h-10 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mb-5 transition-colors"
+                    style={{ color: ACCENT_MID }}
+                  >
                     <Check size={18} />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900 mb-2">
@@ -364,50 +363,81 @@ export default function DivisionDetailPageClient({
           </div>
         </section>
 
-        {/* 4. TEAM (CONDITIONAL) */}
-        {!isEdu && division.requiresMedicalTeam && division.doctors && (
-          <section>
-            <div className="flex justify-between items-end mb-10">
-              <SectionTitle subtitle="Experts">
-                Meet Our Specialists
-              </SectionTitle>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-              {division.doctors.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="group relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200 aspect-[3/4]"
-                >
-                  <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
-                    <BackendImage
-                      src={doc.image || '/images/logo.png'}
-                      alt={doc.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-6 text-white w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-cyan-400 text-[11px] font-bold uppercase tracking-widest mb-1.5">
-                      {doc.specialty}
-                    </p>
-                    <h4 className="text-xl font-semibold mb-3">{doc.name}</h4>
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-300 border-t border-white/20 pt-3 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                      <Clock size={13} />
-                      {doc.availability}
+        {!isEdu &&
+          division.requiresMedicalTeam &&
+          division.doctors &&
+          division.doctors.length > 0 && (
+            <section>
+              <div className="flex justify-between items-end mb-10">
+                <SectionTitle subtitle="Experts">
+                  Meet Our Specialists
+                </SectionTitle>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                {division.doctors.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="group relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200 aspect-[3/4]"
+                  >
+                    <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+                      <BackendImage
+                        src={doc.image || '/images/logo.png'}
+                        alt={doc.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-6 text-white w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                      <p
+                        className="text-[11px] font-bold uppercase tracking-widest mb-1.5"
+                        style={{ color: ACCENT }}
+                      >
+                        {doc.specialty}
+                      </p>
+                      <h4 className="text-xl font-semibold mb-3">{doc.name}</h4>
+                      <div className="flex items-center gap-2 text-xs font-medium text-slate-300 border-t border-white/20 pt-3 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                        <Clock size={13} />
+                        {doc.availability}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </section>
+          )}
+
+        {division.groupPhoto && (
+          <section>
+            <div className="mb-10">
+              <SectionTitle subtitle="Team Overview">
+                The Faces of {division.shortName}
+              </SectionTitle>
+            </div>
+            <div className="relative h-[400px] md:h-[500px] w-full rounded-2xl overflow-hidden shadow-xl shadow-slate-900/8 border border-slate-100 group">
+              <BackendImage
+                src={division.groupPhoto}
+                alt={`${division.shortName} Group Photo`}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3 tracking-tight">
+                  Committed to Excellence
+                </h3>
+                <p className="text-slate-300 max-w-2xl text-sm md:text-base leading-relaxed">
+                  Our dedicated team of professionals works collaboratively to
+                  deliver the highest standard of service.
+                </p>
+              </div>
             </div>
           </section>
         )}
 
-        {/* 5. CONTACT / FOOTER MICROSITE */}
         <section className="relative rounded-2xl overflow-hidden bg-slate-900 text-white border border-slate-800 shadow-xl shadow-slate-900/10">
           <div className="grid lg:grid-cols-2">
             <div className="p-10 md:p-16 lg:p-20 space-y-10">
-              {/* Contact section logo lockup */}
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden p-2.5 shrink-0">
                   {division.logo ? (
@@ -442,20 +472,19 @@ export default function DivisionDetailPageClient({
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <MapPin className="text-cyan-400" size={16} />
+                    <MapPin style={{ color: ACCENT }} size={16} />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
                       Address
                     </p>
-                    <p className="text-base font-medium">
-                      {contact.address}
-                    </p>
+                    <p className="text-base font-medium">{contact.address}</p>
                     <a
                       href={contact.googleMap ?? '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 mt-2 text-cyan-400 text-sm font-semibold hover:text-white transition-colors"
+                      className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold hover:text-white transition-colors"
+                      style={{ color: ACCENT }}
                     >
                       Open in Google Maps <ArrowRight size={13} />
                     </a>
@@ -467,7 +496,7 @@ export default function DivisionDetailPageClient({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Phone className="text-cyan-400" size={15} />
+                      <Phone style={{ color: ACCENT }} size={15} />
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
@@ -475,7 +504,8 @@ export default function DivisionDetailPageClient({
                       </p>
                       <a
                         href={`tel:${contact.phone ?? ''}`}
-                        className="text-sm font-medium hover:text-cyan-400 transition-colors"
+                        className="text-sm font-medium transition-colors"
+                        style={{ color: 'white' }}
                       >
                         {contact.phone}
                       </a>
@@ -483,7 +513,7 @@ export default function DivisionDetailPageClient({
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Globe className="text-cyan-400" size={15} />
+                      <Globe style={{ color: ACCENT }} size={15} />
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1.5">
@@ -491,7 +521,8 @@ export default function DivisionDetailPageClient({
                       </p>
                       <a
                         href={`mailto:${contact.email ?? ''}`}
-                        className="text-sm font-medium hover:text-cyan-400 transition-colors"
+                        className="text-sm font-medium transition-colors"
+                        style={{ color: 'white' }}
                       >
                         {contact.email}
                       </a>
@@ -499,15 +530,11 @@ export default function DivisionDetailPageClient({
                   </div>
                 </div>
               </div>
-
-              {/* FOOTER CTA */}
-              {/* Booking temporarily disabled — will be wired in booking integration */}
             </div>
 
-            {/* Map Visual */}
             <div className="relative h-80 lg:h-auto bg-slate-800 group overflow-hidden border-l border-slate-800">
               <BackendImage
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"
+                src={division.groupPhoto || heroImages[0]}
                 alt="Map"
                 fill
                 className="object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
@@ -518,7 +545,10 @@ export default function DivisionDetailPageClient({
                 rel="noopener noreferrer"
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-4 rounded-full hover:bg-cyan-600 hover:border-cyan-600 transition-all cursor-pointer group-hover:scale-110 shadow-xl">
+                <div
+                  className="bg-slate-900/60 backdrop-blur-md border border-white/10 p-4 rounded-full transition-all cursor-pointer group-hover:scale-110 shadow-xl"
+                  style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)' }}
+                >
                   <MapPin size={26} className="text-white" />
                 </div>
               </a>
@@ -527,10 +557,8 @@ export default function DivisionDetailPageClient({
         </section>
       </main>
 
-      {/* Division Footer */}
       <footer className="py-8 border-t border-slate-100 bg-white">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between flex-wrap gap-4">
-          {/* Logo + name */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden p-1.5">
               {division.logo ? (
@@ -542,7 +570,10 @@ export default function DivisionDetailPageClient({
                   className="object-contain w-full h-full"
                 />
               ) : (
-                <span className="text-cyan-700 font-bold text-[10px]">
+                <span
+                  className="font-bold text-[10px]"
+                  style={{ color: ACCENT_DARK }}
+                >
                   {division.shortName
                     .split(/[\s-]+/)
                     .map((w) => w[0])

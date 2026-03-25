@@ -52,7 +52,7 @@ export function NewsDetail({
       <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-8 fade-in">
         <Link
           href="/news-events"
-          className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-cyan-700 font-semibold transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-[#01649c] font-semibold transition-colors"
         >
           <ArrowLeft size={16} /> Back to Newsroom
         </Link>
@@ -121,7 +121,7 @@ export function NewsDetail({
         {/* Right Column: Sidebar */}
         <aside className="lg:col-span-4 space-y-10 fade-in">
           {/* Key Highlights Box */}
-          <div className="bg-slate-50 border-t-4 border-cyan-600 p-8 shadow-sm">
+          <div className="bg-slate-50 border-t-4 border-[#0880b9] p-8 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 mb-6">
               Executive Summary
             </h3>
@@ -131,7 +131,7 @@ export function NewsDetail({
                   key={i}
                   className="flex gap-3 text-sm text-slate-700 leading-relaxed"
                 >
-                  <span className="min-w-[6px] h-[6px] rounded-full bg-cyan-500 mt-2" />
+                  <span className="min-w-[6px] h-[6px] rounded-full bg-[#33bde9] mt-2" />
                   {point}
                 </li>
               ))}
@@ -143,7 +143,7 @@ export function NewsDetail({
             <button
               onClick={handleShare}
               aria-label="Share article"
-              className="p-2 border border-slate-200 text-slate-600 hover:bg-cyan-600 hover:text-white hover:border-cyan-600 transition-all rounded-sm"
+              className="p-2 border border-slate-200 text-slate-600 hover:bg-[#0880b9] hover:text-white hover:border-[#0880b9] transition-all rounded-sm"
             >
               <Share2 size={20} />
             </button>
@@ -158,7 +158,7 @@ export function NewsDetail({
             </p>
             <a
               href="mailto:press@company.com"
-              className="text-sm font-bold text-cyan-400 hover:underline"
+              className="text-sm font-bold text-[#009ad6] hover:underline"
             >
               press@company.com
             </a>

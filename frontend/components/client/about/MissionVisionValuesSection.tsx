@@ -110,7 +110,7 @@ export default function MissionVisionValuesSection({
   return (
     <section
       ref={sectionRef}
-      className="relative pt-10 pb-24 px-6 bg-white selection:bg-cyan-100 selection:text-cyan-900 border-t border-slate-200"
+      className="relative pt-10 pb-24 px-6 bg-white selection:bg-[#cceffa] selection:text-[#014f7a] border-t border-slate-200"
     >
       <div className="relative max-w-7xl mx-auto">
         {/* Section Heading */}
@@ -119,7 +119,7 @@ export default function MissionVisionValuesSection({
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-cyan-500 to-cyan-700 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-[#0880b9] via-[#33bde9] to-[#01649c] mb-6"
           >
             Our Mission, Vision & Values
           </SectionHeading>
@@ -150,7 +150,7 @@ export default function MissionVisionValuesSection({
               <div className="shrink-0 p-4 bg-white border border-slate-200 shadow-sm rounded-sm">
                 {(() => {
                   const Icon = getCmsIcon(item.icon);
-                  return <Icon className="text-cyan-700" size={32} />;
+                  return <Icon className="text-[#01649c]" size={32} />;
                 })()}
               </div>
               <div>
@@ -180,10 +180,10 @@ export default function MissionVisionValuesSection({
                 key={idx}
                 className="gsap-value-card bg-white border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow group"
               >
-                <div className="mb-6 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm group-hover:bg-cyan-50 group-hover:border-cyan-100 transition-colors">
+                <div className="mb-6 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm group-hover:bg-[#e6f7fc] group-hover:border-[#cceffa] transition-colors">
                   {(() => {
                     const Icon = getCmsIcon(value.icon);
-                    return <Icon className="text-cyan-700" size={24} />;
+                    return <Icon className="text-[#01649c]" size={24} />;
                   })()}
                 </div>
                 <h4 className="text-xl font-bold text-slate-900 mb-3">

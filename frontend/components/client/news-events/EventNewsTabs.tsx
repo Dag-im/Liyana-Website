@@ -56,7 +56,7 @@ export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
               variant="large"
               align="left"
               weight="bold"
-              className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
             >
               Latest Insights
             </SectionHeading>
@@ -78,12 +78,12 @@ export function EventNewsTabs({ items = [] }: EventNewsTabsProps) {
                 className={`
                   pb-4 text-sm font-bold uppercase tracking-wider transition-all relative
                   ${(tab === 'news' && !hasNews) || (tab === 'event' && !hasEvents) ? 'text-slate-300 cursor-not-allowed' : ''}
-                  ${activeTab === tab ? 'text-cyan-700' : 'text-slate-400 hover:text-slate-600'}
+                  ${activeTab === tab ? 'text-[#01649c]' : 'text-slate-400 hover:text-slate-600'}
                 `}
               >
                 {tab === 'news' ? `Company News` : `Upcoming Events`}
                 {activeTab === tab && (
-                  <span className="absolute bottom-0 left-0 w-full h-[3px] bg-cyan-600" />
+                  <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#0880b9]" />
                 )}
               </button>
             ))}

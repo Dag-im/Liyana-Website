@@ -35,7 +35,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
   }, [awards]);
 
   return (
-    <section className="pt-10 pb-24 px-6 bg-white selection:bg-cyan-100 selection:text-cyan-900">
+    <section className="pt-10 pb-24 px-6 bg-white selection:bg-[#cceffa] selection:text-[#014f7a]">
       <div className="container mx-auto max-w-7xl">
         {/* Section Header */}
         <div className="mb-16 text-center max-w-3xl mx-auto">
@@ -43,7 +43,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
           >
             Awards & Recognition
           </SectionHeading>
@@ -76,12 +76,12 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
 
               {/* Content Bottom Half */}
               <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-cyan-700 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[#01649c] transition-colors duration-300">
                   {award.title}
                 </h3>
                 <p className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">
                   {award.organization}{' '}
-                  <span className="text-cyan-600 mx-1">•</span> {award.year}
+                  <span className="text-[#0880b9] mx-1">•</span> {award.year}
                 </p>
 
                 <div className="h-[1px] w-full bg-slate-100 mb-4" />
@@ -92,7 +92,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
 
                 <button
                   onClick={() => setSelectedAward(award)}
-                  className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+                  className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-[#01649c] hover:text-[#014f7a] uppercase tracking-wider transition-colors"
                 >
                   <AwardIcon className="w-4 h-4" />
                   View Certificate
@@ -120,7 +120,7 @@ export default function AwardsSection({ awards = [] }: AwardsSectionProps) {
                   </h3>
                   <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">
                     {selectedAward.organization}{' '}
-                    <span className="text-cyan-600 mx-1">•</span>{' '}
+                    <span className="text-[#0880b9] mx-1">•</span>{' '}
                     {selectedAward.year}
                   </p>
                 </div>

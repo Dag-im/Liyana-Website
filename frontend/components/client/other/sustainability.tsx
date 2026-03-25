@@ -25,39 +25,39 @@ if (typeof window !== 'undefined') {
 const sustainabilityInterventions = [
   {
     text: 'Proactively responding to existing and evolving societal healthcare needs through the delivery of rare and highly demanded services and products.',
-    icon: <Stethoscope className="w-7 h-7 text-cyan-600" />,
+    icon: <Stethoscope className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Locally availing advanced healthcare services that often are the reasons citizens travel lengthy distances as far as overseas for.',
-    icon: <Globe className="w-7 h-7 text-cyan-600" />,
+    icon: <Globe className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Exercising economy-of-scale and value chain optimization through integration of services and products to enable the delivery of services and products at affordable fees.',
-    icon: <Wrench className="w-7 h-7 text-cyan-600" />,
+    icon: <Wrench className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Upholding partnership business model and taking the lead to engage actors in the healthcare value chain to help render services and products to the wider national and regional public at affordable fees.',
-    icon: <Handshake className="w-7 h-7 text-cyan-600" />,
+    icon: <Handshake className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Ensuring healthcare quality through the implementation of national and global operational quality standards as well as fostering the training of competent healthcare workforce.',
-    icon: <Award className="w-7 h-7 text-cyan-600" />,
+    icon: <Award className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Creating job opportunities for a growing number of citizens.',
-    icon: <Briefcase className="w-7 h-7 text-cyan-600" />,
+    icon: <Briefcase className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Providing technical, financial, and material assistance for the public good during regular times and crises such as the COVID pandemic.',
-    icon: <Heart className="w-7 h-7 text-cyan-600" />,
+    icon: <Heart className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Delivering services free of charge and at subsidized rates for economically disadvantaged segments of communities.',
-    icon: <Users className="w-7 h-7 text-cyan-600" />,
+    icon: <Users className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     text: 'Demonstrating the utmost compliance to regulatory and statutory standards.',
-    icon: <Scale className="w-7 h-7 text-cyan-600" />,
+    icon: <Scale className="w-7 h-7 text-[#0880b9]" />,
   },
 ];
 
@@ -202,7 +202,7 @@ export default function Sustainability() {
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
           >
             Sustainability at LHC
           </SectionHeading>
@@ -259,7 +259,7 @@ export default function Sustainability() {
 
         {/* Image Gallery */}
         <div ref={galleryRef} className="">
-          <h2 className="text-4xl font-semibold text-cyan-800 text-center mb-12">
+          <h2 className="text-4xl font-semibold text-[#014f7a] text-center mb-12">
             Our Commitment in Action
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

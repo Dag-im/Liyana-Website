@@ -20,7 +20,7 @@ const StatusLabel = ({ relation }: { relation: NetworkRelation }) => (
   <span
     className={`text-[9px] font-bold px-2 py-0.5 border rounded-none uppercase tracking-wider whitespace-nowrap ${
       relation.label === 'Controlled'
-        ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
+        ? 'bg-[#e6f7fc] border-[#99def5] text-[#01649c]'
         : 'bg-slate-50 border-slate-200 text-slate-600'
     }`}
   >
@@ -88,25 +88,25 @@ export default function LiyanaCorporateNetwork({
           onClick={() => toggle(e.id)}
           className={`group relative border transition-all duration-200 cursor-pointer rounded-none ${
             isExpanded
-              ? 'border-cyan-600 shadow-md ring-1 ring-cyan-600/5'
+              ? 'border-[#0880b9] shadow-md ring-1 ring-[#0880b9]/5'
               : 'border-slate-200 hover:border-slate-300'
-          } ${isMatch ? 'bg-cyan-50/30' : 'bg-white'}`}
+          } ${isMatch ? 'bg-[#e6f7fc]/30' : 'bg-white'}`}
         >
           {/* Main Card Header - Height increased via p-5 and min-h-[80px] */}
           <div className="p-5 flex flex-col xl:flex-row xl:items-center justify-between gap-4 min-h-[80px]">
             <div className="flex items-center gap-4 min-w-0">
               {!isSearchMode && (
                 <ChevronRight
-                  className={`transition-transform duration-200 shrink-0 ${isExpanded ? 'rotate-90 text-cyan-600' : 'text-slate-400'}`}
+                  className={`transition-transform duration-200 shrink-0 ${isExpanded ? 'rotate-90 text-[#0880b9]' : 'text-slate-400'}`}
                   size={16}
                 />
               )}
               <div
-                className={`p-3 rounded-none shrink-0 ${isExpanded ? 'bg-cyan-100' : 'bg-slate-50'}`}
+                className={`p-3 rounded-none shrink-0 ${isExpanded ? 'bg-[#cceffa]' : 'bg-slate-50'}`}
               >
                 <Icon
                   size={20}
-                  className={isExpanded ? 'text-cyan-700' : 'text-slate-500'}
+                  className={isExpanded ? 'text-[#01649c]' : 'text-slate-500'}
                 />
               </div>
               <div className="flex flex-col min-w-0">
@@ -136,11 +136,11 @@ export default function LiyanaCorporateNetwork({
                 </p>
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-[10px] font-bold text-cyan-600 uppercase tracking-widest">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-[#0880b9] uppercase tracking-widest">
                   <Target size={12} /> Strategic Value
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-cyan-600 mt-0.5 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-[#0880b9] mt-0.5 shrink-0" />
                   <p className="text-[14px] text-slate-700 leading-relaxed font-semibold italic">
                     {e.insight}
                   </p>
@@ -149,7 +149,7 @@ export default function LiyanaCorporateNetwork({
             </div>
           )}
           <div
-            className={`absolute bottom-0 left-0 h-1 bg-cyan-600 transition-all duration-300 ${isExpanded ? 'w-full' : 'w-0'}`}
+            className={`absolute bottom-0 left-0 h-1 bg-[#0880b9] transition-all duration-300 ${isExpanded ? 'w-full' : 'w-0'}`}
           />
         </div>
         {!isSearchMode &&
@@ -160,14 +160,14 @@ export default function LiyanaCorporateNetwork({
   };
 
   return (
-    <section className="py-20 bg-white selection:bg-cyan-100 selection:text-cyan-900">
+    <section className="py-20 bg-white selection:bg-[#cceffa] selection:text-[#014f7a]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col items-center mb-16">
           <SectionHeading
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6 text-center"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6 text-center"
           >
             Liyana Corporate Network
           </SectionHeading>
@@ -188,7 +188,7 @@ export default function LiyanaCorporateNetwork({
               placeholder="Search by entity name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 py-4 pl-12 pr-6 text-base font-semibold focus:outline-none focus:ring-0 focus:border-cyan-600 transition-all rounded-none"
+              className="w-full bg-slate-50 border border-slate-200 py-4 pl-12 pr-6 text-base font-semibold focus:outline-none focus:ring-0 focus:border-[#0880b9] transition-all rounded-none"
             />
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function LiyanaCorporateNetwork({
           <div className="flex justify-end mb-6">
             <button
               onClick={() => setExpanded(new Set())}
-              className="text-[10px] font-bold text-slate-400 hover:text-cyan-600 uppercase tracking-widest transition-colors"
+              className="text-[10px] font-bold text-slate-400 hover:text-[#0880b9] uppercase tracking-widest transition-colors"
             >
               [ Collapse All Hierarchies ]
             </button>
@@ -237,7 +237,7 @@ export default function LiyanaCorporateNetwork({
               Network Version
             </span>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-cyan-600" />
+              <div className="w-2 h-2 bg-[#0880b9]" />
               <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter">
                 {meta?.version ?? `Core.v.${new Date().getFullYear()}`}
               </span>

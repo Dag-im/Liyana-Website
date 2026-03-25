@@ -43,7 +43,7 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
       </div>
 
       <div className="p-6 md:p-8 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-cyan-700 transition-colors line-clamp-2">
+        <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-[#01649c] transition-colors line-clamp-2">
           {folder.name}
         </h3>
 
@@ -89,7 +89,7 @@ export const MediaItemCard = ({ item }: { item: MediaItem }) => {
         {isVideo && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10 group-hover:bg-slate-900/20 transition-colors">
             <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-              <Play className="w-5 h-5 text-cyan-700 ml-1 fill-current" />
+              <Play className="w-5 h-5 text-[#01649c] ml-1 fill-current" />
             </div>
           </div>
         )}
@@ -102,7 +102,7 @@ export const MediaItemCard = ({ item }: { item: MediaItem }) => {
       </div>
 
       <div className="p-4 bg-white">
-        <p className="text-sm font-bold text-slate-800 line-clamp-2 group-hover:text-cyan-700 transition-colors leading-tight">
+        <p className="text-sm font-bold text-slate-800 line-clamp-2 group-hover:text-[#01649c] transition-colors leading-tight">
           {item.title}
         </p>
       </div>

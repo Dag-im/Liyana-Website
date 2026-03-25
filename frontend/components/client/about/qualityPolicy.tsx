@@ -70,7 +70,7 @@ export default function QualityPolicyShowcase({
   }, [activeLang]);
 
   return (
-    <section className="bg-slate-50 pt-10 pb-24 px-6 border-b border-slate-200 selection:bg-cyan-100 selection:text-cyan-900">
+    <section className="bg-slate-50 pt-10 pb-24 px-6 border-b border-slate-200 selection:bg-[#cceffa] selection:text-[#014f7a]">
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-16">
@@ -78,7 +78,7 @@ export default function QualityPolicyShowcase({
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
           >
             Quality Policy
           </SectionHeading>
@@ -96,7 +96,7 @@ export default function QualityPolicyShowcase({
                 onClick={() => setActiveLang(p.lang)}
                 className={`flex items-center gap-2 px-6 py-3 border border-slate-200 text-sm font-bold tracking-wide uppercase transition-all duration-300 rounded-sm ${
                   activeLang === p.lang
-                    ? 'bg-cyan-700 text-white border-cyan-700 shadow-md'
+                    ? 'bg-[#01649c] text-white border-[#01649c] shadow-md'
                     : 'bg-white text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -116,10 +116,10 @@ export default function QualityPolicyShowcase({
             {currentPolicy?.goals.map((goal, i) => (
               <div
                 key={i}
-                className="policy-item flex items-start gap-4 p-6 bg-slate-50 border border-slate-100 hover:border-cyan-200 transition-colors duration-300 rounded-sm"
+                className="policy-item flex items-start gap-4 p-6 bg-slate-50 border border-slate-100 hover:border-[#99def5] transition-colors duration-300 rounded-sm"
               >
                 <div className="shrink-0 mt-1">
-                  <CheckCircle2 className="text-cyan-600 w-5 h-5" />
+                  <CheckCircle2 className="text-[#0880b9] w-5 h-5" />
                 </div>
                 <p className="text-slate-700 leading-relaxed text-sm md:text-base">
                   {goal}

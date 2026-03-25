@@ -56,7 +56,7 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
         </p>
         <button
           onClick={() => setSubmitted(false)}
-          className="mt-6 text-sm font-medium text-cyan-600 hover:text-cyan-700"
+          className="mt-6 text-sm font-medium text-[#0880b9] hover:text-[#01649c]"
         >
           Submit another testimonial
         </button>
@@ -93,7 +93,7 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
                 type="text"
                 id="name"
                 name="name"
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#33bde9] focus:border-transparent transition-shadow text-sm text-slate-800"
                 placeholder="e.g. Jane Doe"
               />
             </div>
@@ -110,7 +110,7 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
                 type="text"
                 id="role"
                 name="role"
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#33bde9] focus:border-transparent transition-shadow text-sm text-slate-800"
                 placeholder="e.g. Clinical Director"
               />
             </div>
@@ -128,7 +128,7 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
               type="text"
               id="company"
               name="company"
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800"
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#33bde9] focus:border-transparent transition-shadow text-sm text-slate-800"
               placeholder="e.g. Liyana Healthcare"
             />
           </div>
@@ -145,7 +145,7 @@ export function TestimonialForm({ onSubmit }: TestimonialFormProps) {
               id="message"
               name="message"
               rows={4}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow text-sm text-slate-800 resize-none"
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#33bde9] focus:border-transparent transition-shadow text-sm text-slate-800 resize-none"
               placeholder="Share the details of your experience..."
             />
           </div>

@@ -42,14 +42,14 @@ export default function WhoWeAreLuxury({
   return (
     <section
       ref={sectionRef}
-      className="relative w-full px-6 pt-8 pb-24 md:pb-32 bg-white selection:bg-cyan-100 selection:text-cyan-900 border-b border-slate-200"
+      className="relative w-full px-6 pt-8 pb-24 md:pb-32 bg-white selection:bg-[#cceffa] selection:text-[#014f7a] border-b border-slate-200"
     >
       <div className="relative max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
         {/* LEFT: Text */}
         <div className="flex-1 text-left z-10 w-full">
           <div className="gsap-who-we-are flex items-center gap-4 mb-8">
-            <div className="h-[2px] w-12 bg-cyan-600" />
-            <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+            <div className="h-[2px] w-12 bg-[#0880b9]" />
+            <span className="text-[#01649c] font-bold uppercase tracking-widest text-sm">
               Corporate Identity
             </span>
           </div>

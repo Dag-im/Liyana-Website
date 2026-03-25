@@ -1,4 +1,5 @@
 import { divisionsApi } from '@/api/divisions.api';
+import { FileImage } from '@/components/shared/FileImage';
 import { FileUpload } from '@/components/shared/FileUpload';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 
@@ -18,9 +19,8 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDivisionCategories } from '@/features/division-categories/useDivisionCategories';
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
-import { handleMutationError } from '@/lib/error-utils';
+import { handleMutationError, showErrorToast } from '@/lib/error-utils';
 import { useTempUploadSession } from '@/lib/temp-upload-session';
-import { getUploadUrl } from '@/lib/upload-utils';
 import {
   BarChart,
   CheckSquare,
@@ -130,6 +130,7 @@ const INITIAL_FORM_STATE: DivisionFormState = {
   coreServices: [],
   stats: [],
 };
+const MAX_GALLERY_IMAGES = 5;
 
 export function CreateDivisionWizard({
   open,
@@ -145,6 +146,7 @@ export function CreateDivisionWizard({
   const [showContactFields, setShowContactFields] = useState(false);
   const [showStatsSection, setShowStatsSection] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [isReplacingGalleryIndex, setIsReplacingGalleryIndex] = useState<number | null>(null);
   const tempUploads = useTempUploadSession();
 
   const createMutation = useCreateDivision();
@@ -238,6 +240,34 @@ export function CreateDivisionWizard({
       },
       onError: handleMutationError,
     });
+  };
+
+  const replaceGalleryImage = async (index: number, file: File) => {
+    if (!file) return;
+
+    setIsReplacingGalleryIndex(index);
+    const previousPath = formData.images[index]?.path ?? '';
+    try {
+      const uploaded = await divisionsApi.uploadDivisionFile(file);
+      tempUploads.registerUpload(uploaded);
+
+      setFormData((prev) => {
+        const nextImages = [...prev.images];
+        const previous = nextImages[index];
+        nextImages[index] = { ...(previous ?? { alt: '' }), path: uploaded.path };
+        return { ...prev, images: nextImages };
+      });
+
+      if (previousPath && previousPath !== uploaded.path) {
+        void tempUploads.releaseUploadByPath(previousPath, { silent: true });
+      }
+
+      toast.success('Gallery image replaced');
+    } catch (error) {
+      showErrorToast(error, 'Failed to replace gallery image');
+    } finally {
+      setIsReplacingGalleryIndex(null);
+    }
   };
 
   return (
@@ -553,11 +583,39 @@ export function CreateDivisionWizard({
                   key={`${image.path}-${index}`}
                   className="relative aspect-video overflow-hidden rounded-xl border-2 group shadow-sm"
                 >
-                  <img
-                    src={getUploadUrl(image.path)}
+                  <FileImage
+                    path={image.path}
+                    alt={`Gallery ${index + 1}`}
                     className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    fallback={
+                      <div className="h-full w-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                        Preview unavailable
+                      </div>
+                    }
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <input
+                      id={`create-division-replace-${index}`}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => {
+                        const selected = event.target.files?.[0];
+                        if (selected) {
+                          void replaceGalleryImage(index, selected);
+                        }
+                        event.target.value = '';
+                      }}
+                    />
+                    <Button asChild variant="secondary" size="sm" disabled={isReplacingGalleryIndex === index}>
+                      <label htmlFor={`create-division-replace-${index}`}>
+                        {isReplacingGalleryIndex === index ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Replace'
+                        )}
+                      </label>
+                    </Button>
                     <Button
                       variant="destructive"
                       size="icon"
@@ -577,22 +635,29 @@ export function CreateDivisionWizard({
                   </div>
                 </div>
               ))}
-              <div className="aspect-video">
-                <FileUpload
-                  onUpload={divisionsApi.uploadDivisionFile}
-                  onUploadedAsset={tempUploads.registerUpload}
-                  onSuccess={(path) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      images: [...prev.images, { path, alt: '' }],
-                    }));
-                  }}
-                  label="Add Image"
-                  currentPath={formData.images[formData.images.length - 1]?.path}
-                  showPreview
-                />
-              </div>
+              {formData.images.length < MAX_GALLERY_IMAGES ? (
+                <div className="aspect-video">
+                  <FileUpload
+                    onUpload={divisionsApi.uploadDivisionFile}
+                    onUploadedAsset={tempUploads.registerUpload}
+                    onSuccess={(path) => {
+                      setFormData((prev) => {
+                        if (prev.images.length >= MAX_GALLERY_IMAGES) return prev;
+                        return {
+                          ...prev,
+                          images: [...prev.images, { path, alt: '' }],
+                        };
+                      });
+                    }}
+                    label="Add Image"
+                    showPreview={false}
+                  />
+                </div>
+              ) : null}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {formData.images.length}/{MAX_GALLERY_IMAGES} images
+            </p>
           </div>
         </div>
       ) : null}

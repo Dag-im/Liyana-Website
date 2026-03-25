@@ -79,7 +79,7 @@ export default async function OGImage({
             />
             <div
               style={{
-                background: type === 'event' ? '#0891b2' : '#0e7490',
+                background: type === 'event' ? '#0880b9' : '#0e7490',
                 color: 'white',
                 fontSize: '14px',
                 fontWeight: '700',
@@ -94,7 +94,7 @@ export default async function OGImage({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {date && <div style={{ fontSize: '16px', color: '#0ea5e9' }}>{date}</div>}
+            {date && <div style={{ fontSize: '16px', color: '#009ad6' }}>{date}</div>}
             <div
               style={{
                 fontSize: '48px',
@@ -121,7 +121,7 @@ export default async function OGImage({
           <div
             style={{
               fontSize: '16px',
-              color: '#0ea5e9',
+              color: '#009ad6',
               fontWeight: '600',
             }}
           >

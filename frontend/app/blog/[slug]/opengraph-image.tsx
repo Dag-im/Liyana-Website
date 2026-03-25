@@ -94,7 +94,7 @@ export default async function OGImage({
             {category && (
               <div
                 style={{
-                  background: '#0891b2',
+                  background: '#0880b9',
                   color: 'white',
                   fontSize: '14px',
                   fontWeight: '700',
@@ -163,7 +163,7 @@ export default async function OGImage({
               )}
             </div>
             {publishedAt && (
-              <div style={{ fontSize: '14px', color: '#0ea5e9' }}>
+              <div style={{ fontSize: '14px', color: '#009ad6' }}>
                 {publishedAt}
               </div>
             )}

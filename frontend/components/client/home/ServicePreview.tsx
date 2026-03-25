@@ -51,7 +51,7 @@ export default function LiyanaSummary({
   return (
     <section
       ref={containerRef}
-      className="px-6 pb-24 border-b border-slate-200 selection:bg-cyan-100 selection:text-cyan-900"
+      className="px-6 pb-24 border-b border-slate-200 selection:bg-[#cceffa] selection:text-[#014f7a]"
     >
       {/* HEADER SECTION */}
       <div className="max-w-7xl mx-auto mb-16 flex flex-col items-center">
@@ -59,7 +59,7 @@ export default function LiyanaSummary({
           variant="large"
           align="center"
           weight="bold"
-          className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+          className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
         >
           Products & Services
         </SectionHeading>
@@ -82,7 +82,7 @@ export default function LiyanaSummary({
               {/* Header: Icon & Title */}
               <div className="mb-6">
                 <div className="mb-5 inline-flex p-3 bg-slate-50 border border-slate-100 rounded-sm">
-                  <Icon className="h-8 w-8 text-cyan-700" />
+                  <Icon className="h-8 w-8 text-[#01649c]" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 leading-snug">
                   {item.title}
@@ -90,7 +90,7 @@ export default function LiyanaSummary({
               </div>
 
             {/* Accent Divider */}
-            <div className="h-[2px] w-12 bg-cyan-600 mb-6" />
+            <div className="h-[2px] w-12 bg-[#0880b9] mb-6" />
 
             {/* Attributes */}
             <ul className="space-y-3 mb-8 flex-grow">
@@ -99,7 +99,7 @@ export default function LiyanaSummary({
                   key={i}
                   className="flex items-start gap-3 text-slate-600 text-sm leading-relaxed"
                 >
-                  <CheckCircle2 className="h-4 w-4 text-cyan-600 mt-0.5 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-[#0880b9] mt-0.5 shrink-0" />
                   <span>{attr}</span>
                 </li>
               ))}
@@ -115,7 +115,7 @@ export default function LiyanaSummary({
                   <Link
                     key={i}
                     href={`/services/${div.slug}`}
-                    className="px-3 py-1.5 text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-sm hover:bg-cyan-700 hover:text-white hover:border-cyan-700 transition-colors"
+                    className="px-3 py-1.5 text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-sm hover:bg-[#01649c] hover:text-white hover:border-[#01649c] transition-colors"
                   >
                     {div.name}
                   </Link>
@@ -124,7 +124,7 @@ export default function LiyanaSummary({
             </div>
 
               {/* Hover Accent Line */}
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-cyan-600 group-hover:w-full transition-all duration-500 ease-in-out" />
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#0880b9] group-hover:w-full transition-all duration-500 ease-in-out" />
             </div>
           );
         })}

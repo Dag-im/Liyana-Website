@@ -50,7 +50,7 @@ export function EventDetail({
       {/* Corporate Header - Solid Color or Minimal Image */}
       <div className="bg-slate-900 pt-20 pb-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <span className="animate-up inline-block px-3 py-1 mb-6 bg-cyan-900/50 border border-cyan-700/50 text-cyan-400 text-xs font-bold uppercase tracking-widest rounded-sm">
+          <span className="animate-up inline-block px-3 py-1 mb-6 bg-[#014f7a]/50 border border-[#01649c]/50 text-[#009ad6] text-xs font-bold uppercase tracking-widest rounded-sm">
             Corporate Event
           </span>
           <h1 className="animate-up text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-4xl">
@@ -121,7 +121,7 @@ export function EventDetail({
                 </h3>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <Calendar className="text-cyan-600 mt-1" size={20} />
+                    <Calendar className="text-[#0880b9] mt-1" size={20} />
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase">
                         Date
@@ -131,7 +131,7 @@ export function EventDetail({
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <MapPin className="text-cyan-600 mt-1" size={20} />
+                    <MapPin className="text-[#0880b9] mt-1" size={20} />
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase">
                         Location
@@ -144,7 +144,7 @@ export function EventDetail({
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-cyan-700 hover:bg-cyan-800 text-white font-bold uppercase tracking-wider text-sm transition-colors shadow-md">
+              <button className="w-full py-4 bg-[#01649c] hover:bg-[#014f7a] text-white font-bold uppercase tracking-wider text-sm transition-colors shadow-md">
                 Register Now
               </button>
 
@@ -152,7 +152,7 @@ export function EventDetail({
                 <button
                   onClick={handleShare}
                   aria-label="Share event"
-                  className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-cyan-600 hover:text-white transition-colors border border-slate-200 hover:border-transparent"
+                  className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-[#0880b9] hover:text-white transition-colors border border-slate-200 hover:border-transparent"
                 >
                   <Share2 size={16} />
                 </button>

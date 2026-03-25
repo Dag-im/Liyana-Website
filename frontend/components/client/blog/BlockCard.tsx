@@ -58,11 +58,11 @@ export default function BlogCard({ post }: BlogCardProps) {
       <div className="p-8 flex flex-col flex-grow">
         <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
           <span>{formatBlogDate(post)}</span>
-          <span className="text-cyan-600">{post.readTime}</span>
+          <span className="text-[#0880b9]">{post.readTime}</span>
         </div>
 
         <Link href={`/blog/${post.slug}`}>
-          <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-cyan-700 transition-colors duration-300 line-clamp-2">
+          <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-[#01649c] transition-colors duration-300 line-clamp-2">
             {post.title}
           </h3>
         </Link>
@@ -84,7 +84,7 @@ export default function BlogCard({ post }: BlogCardProps) {
 
           <Link
             href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-1 text-sm font-bold text-cyan-700 uppercase tracking-wider group-hover:text-cyan-800 transition-colors shrink-0"
+            className="inline-flex items-center gap-1 text-sm font-bold text-[#01649c] uppercase tracking-wider group-hover:text-[#014f7a] transition-colors shrink-0"
           >
             Read{' '}
             <ArrowRight

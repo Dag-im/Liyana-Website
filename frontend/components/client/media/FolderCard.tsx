@@ -24,7 +24,7 @@ export const FolderCard = ({ folder }: { folder: MediaFolder }) => {
       className="
         block group rounded-xl overflow-hidden border border-gray-200 bg-white
         shadow-md hover:shadow-2xl transition-all duration-300
-        focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2
+        focus:outline-none focus:ring-2 focus:ring-[#33bde9] focus:ring-offset-2
       "
     >
       <div className="relative h-48 w-full">

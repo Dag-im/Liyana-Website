@@ -67,7 +67,7 @@ export default function AwardsClient({
             <div className="flex justify-center mt-12">
               <button
                 onClick={handleLoadMore}
-                className="px-8 py-3 border border-cyan-600 text-cyan-600 font-bold uppercase tracking-wider text-sm hover:bg-cyan-600 hover:text-white transition-colors"
+                className="px-8 py-3 border border-[#0880b9] text-[#0880b9] font-bold uppercase tracking-wider text-sm hover:bg-[#0880b9] hover:text-white transition-colors"
               >
                 Load More
               </button>

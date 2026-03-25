@@ -1,4 +1,5 @@
 import { divisionsApi } from '@/api/divisions.api';
+import { FileImage } from '@/components/shared/FileImage';
 import { FileUpload } from '@/components/shared/FileUpload';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDivisionCategories } from '@/features/division-categories/useDivisionCategories';
 import { useServiceCategories } from '@/features/service-categories/useServiceCategories';
 import { useTempUploadSession } from '@/lib/temp-upload-session';
-import { getUploadUrl } from '@/lib/upload-utils';
+import { showErrorToast } from '@/lib/error-utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Loader2,
@@ -44,6 +45,7 @@ const STEPS = [
   { id: 3, title: 'Media', description: 'Logo and Gallery' },
   { id: 4, title: 'Contact & Extra', description: 'Phone, Services' },
 ];
+const MAX_GALLERY_IMAGES = 5;
 
 const divisionSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -105,6 +107,7 @@ export function EditDivisionWizard({
   inline = false,
 }: EditDivisionWizardProps) {
   const [step, setStep] = useState(1);
+  const [isReplacingGalleryIndex, setIsReplacingGalleryIndex] = useState<number | null>(null);
   const { data: division, isLoading: isFetching } = useDivision(divisionId);
   const updateMutation = useUpdateDivision(divisionId);
   const { data: serviceCategories } = useServiceCategories({ perPage: 100 });
@@ -189,6 +192,7 @@ export function EditDivisionWizard({
     fields: imageFields,
     append: appendImage,
     remove: removeImage,
+    update: updateImage,
   } = useFieldArray({
     control: form.control,
     name: 'images',
@@ -222,6 +226,28 @@ export function EditDivisionWizard({
         setStep(1);
       },
     });
+  };
+
+  const replaceGalleryImage = async (index: number, file: File) => {
+    if (!file) return;
+
+    setIsReplacingGalleryIndex(index);
+    const previousPath = form.getValues(`images.${index}.path`) ?? '';
+    try {
+      const uploaded = await divisionsApi.uploadDivisionFile(file);
+      tempUploads.registerUpload(uploaded);
+      updateImage(index, { path: uploaded.path });
+
+      if (previousPath && previousPath !== uploaded.path) {
+        void tempUploads.releaseUploadByPath(previousPath, { silent: true });
+      }
+
+      toast.success('Gallery image replaced');
+    } catch (error) {
+      showErrorToast(error, 'Failed to replace gallery image');
+    } finally {
+      setIsReplacingGalleryIndex(null);
+    }
   };
 
   return (
@@ -515,12 +541,39 @@ export function EditDivisionWizard({
                         className="relative aspect-video rounded-lg border overflow-hidden group"
                         key={field.id}
                       >
-                        <img
-                          alt={`Gallery ${index}`}
+                        <FileImage
+                          path={field.path}
+                          alt={`Gallery ${index + 1}`}
                           className="h-full w-full object-cover"
-                          src={getUploadUrl(field.path)}
+                          fallback={
+                            <div className="h-full w-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                              Preview unavailable
+                            </div>
+                          }
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
+                          <input
+                            id={`edit-division-replace-${index}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(event) => {
+                              const selected = event.target.files?.[0];
+                              if (selected) {
+                                void replaceGalleryImage(index, selected);
+                              }
+                              event.target.value = '';
+                            }}
+                          />
+                          <Button asChild variant="secondary" size="sm" disabled={isReplacingGalleryIndex === index}>
+                            <label htmlFor={`edit-division-replace-${index}`}>
+                              {isReplacingGalleryIndex === index ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                'Replace'
+                              )}
+                            </label>
+                          </Button>
                           <Button
                             onClick={() => {
                               void tempUploads.releaseUploadByPath(field.path, {
@@ -537,17 +590,24 @@ export function EditDivisionWizard({
                         </div>
                       </div>
                     ))}
-                    <div className="aspect-video">
-                      <FileUpload
-                        label="Add Image"
-                        onSuccess={(path) => appendImage({ path })}
-                        onUploadedAsset={tempUploads.registerUpload}
-                        onUpload={divisionsApi.uploadDivisionFile}
-                        currentPath={imageFields[imageFields.length - 1]?.path}
-                        showPreview
-                      />
-                    </div>
+                    {imageFields.length < MAX_GALLERY_IMAGES ? (
+                      <div className="aspect-video">
+                        <FileUpload
+                          label="Add Image"
+                          onSuccess={(path) => {
+                            if (imageFields.length >= MAX_GALLERY_IMAGES) return;
+                            appendImage({ path });
+                          }}
+                          onUploadedAsset={tempUploads.registerUpload}
+                          onUpload={divisionsApi.uploadDivisionFile}
+                          showPreview={false}
+                        />
+                      </div>
+                    ) : null}
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    {imageFields.length}/{MAX_GALLERY_IMAGES} images
+                  </p>
                 </div>
               </div>
             )}

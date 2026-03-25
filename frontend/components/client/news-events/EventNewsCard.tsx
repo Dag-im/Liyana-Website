@@ -47,7 +47,7 @@ export function EventNewsCard({
 
       <div className="flex flex-grow flex-col p-8">
         <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-slate-100 pb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
-          <span className="inline-flex items-center gap-1.5 text-cyan-700">
+          <span className="inline-flex items-center gap-1.5 text-[#01649c]">
             <Calendar size={14} />
             {formatDisplayDate(date)}
           </span>
@@ -60,7 +60,7 @@ export function EventNewsCard({
         </div>
 
         <Link href={`/news-events/${id}`}>
-          <h3 className="mb-3 line-clamp-2 text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-cyan-700">
+          <h3 className="mb-3 line-clamp-2 text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-[#01649c]">
             {title}
           </h3>
         </Link>
@@ -71,7 +71,7 @@ export function EventNewsCard({
 
         <Link
           href={`/news-events/${id}`}
-          className="mt-auto inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-cyan-700 transition-colors duration-300 hover:text-cyan-800"
+          className="mt-auto inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-[#01649c] transition-colors duration-300 hover:text-[#014f7a]"
         >
           Read More <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
         </Link>

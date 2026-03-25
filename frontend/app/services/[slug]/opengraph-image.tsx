@@ -105,7 +105,7 @@ export default async function OGImage({ params }: OGProps) {
             position: 'absolute',
             bottom: '32px',
             fontSize: '16px',
-            color: '#0ea5e9',
+            color: '#009ad6',
             fontWeight: '600',
           }}
         >

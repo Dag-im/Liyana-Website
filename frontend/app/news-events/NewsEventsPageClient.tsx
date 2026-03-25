@@ -17,8 +17,8 @@ export default function NewsEventsPageClient({
         <div className="max-w-7xl mx-auto">
           {/* Identity Strip */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-[2px] w-12 bg-cyan-600" />
-            <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+            <div className="h-[2px] w-12 bg-[#0880b9]" />
+            <span className="text-[#01649c] font-bold uppercase tracking-widest text-sm">
               Newsroom
             </span>
           </div>
@@ -28,7 +28,7 @@ export default function NewsEventsPageClient({
             variant="large"
             align="left"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-[#01649c] via-[#33bde9] to-[#0880b9] mb-6"
           >
             News & Events
           </SectionHeading>

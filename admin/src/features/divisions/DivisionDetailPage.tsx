@@ -169,6 +169,29 @@ export default function DivisionDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {division.groupPhoto ? (
+                    <div className="mb-4">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Group Photo
+                      </p>
+                      <div className="aspect-video rounded-xl overflow-hidden bg-muted border">
+                        <FileImage
+                          path={division.groupPhoto}
+                          alt={`${division.name} Group Photo`}
+                          className="w-full h-full object-cover"
+                          fallback={
+                            <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                              Group photo preview unavailable
+                            </div>
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Gallery Images
+                  </p>
                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                      {division.images.map((img) => (
                        <div key={img.id} className="aspect-square rounded-xl overflow-hidden bg-muted border hover:border-primary/50 transition-colors group relative">

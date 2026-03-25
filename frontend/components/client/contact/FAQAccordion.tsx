@@ -59,7 +59,7 @@ export function FAQAccordion({ groups = DEFAULT_FAQ_GROUPS }: FAQAccordionProps)
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+          <span className="block text-[#0880b9] font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
             {FAQ_DATA.subtitle}
           </span>
           <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 mb-4">
@@ -81,7 +81,7 @@ export function FAQAccordion({ groups = DEFAULT_FAQ_GROUPS }: FAQAccordionProps)
           <Accordion type="single" collapsible className="space-y-0">
             {groups.map((group, groupIndex) => (
               <div key={groupIndex} className="mb-8">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-600 mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-[#0880b9] mb-4">
                   {group.category}
                 </h3>
                 {group.faqs.map((faq, faqIndex) => (
@@ -92,7 +92,7 @@ export function FAQAccordion({ groups = DEFAULT_FAQ_GROUPS }: FAQAccordionProps)
                       faqIndex === group.faqs.length - 1 ? 'border-b-0' : ''
                     }`}
                   >
-                    <AccordionTrigger className="py-6 text-left text-base font-semibold text-slate-900 hover:text-cyan-600 transition-colors no-underline hover:no-underline">
+                    <AccordionTrigger className="py-6 text-left text-base font-semibold text-slate-900 hover:text-[#0880b9] transition-colors no-underline hover:no-underline">
                       {faq.question}
                     </AccordionTrigger>
                     <AccordionContent className="pb-6 text-slate-500 text-sm leading-relaxed pr-12">

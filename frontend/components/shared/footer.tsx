@@ -31,7 +31,7 @@ export default function Footer({ description }: FooterProps) {
   return (
     <footer className="relative z-10 bg-gradient-to-b from-[#0a192f] to-[#05101e] text-gray-300">
       {/* Brand Gradient Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-cyan-500" />
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-[#33bde9]" />
 
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
@@ -57,7 +57,7 @@ export default function Footer({ description }: FooterProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 hover:border-white/20 transition-all group w-fit"
             >
               Get in Touch
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-cyan-500" />
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-[#33bde9]" />
             </Link>
           </div>
 
@@ -99,15 +99,15 @@ export default function Footer({ description }: FooterProps) {
             <div className="pt-4 border-t border-gray-800/50">
               <ul className="space-y-3 text-sm text-gray-400">
                 <li className="flex items-start gap-3">
-                  <MapPin size={18} className="text-cyan-500 shrink-0 mt-0.5" />
+                  <MapPin size={18} className="text-[#33bde9] shrink-0 mt-0.5" />
                   <span>Addis Ababa, Ethiopia</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Phone size={18} className="text-cyan-500 shrink-0" />
+                  <Phone size={18} className="text-[#33bde9] shrink-0" />
                   <span>+251 912 345 678</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Mail size={18} className="text-cyan-500 shrink-0" />
+                  <Mail size={18} className="text-[#33bde9] shrink-0" />
                   <span>info@liyanahealthcare.com</span>
                 </li>
               </ul>
@@ -148,7 +148,7 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
         href={href}
         className="group flex items-center text-gray-400 hover:text-white transition-colors duration-300"
       >
-        <span className="w-0 overflow-hidden group-hover:w-2 group-hover:mr-2 transition-all duration-300 text-cyan-500">•</span>
+        <span className="w-0 overflow-hidden group-hover:w-2 group-hover:mr-2 transition-all duration-300 text-[#33bde9]">•</span>
         <span className="group-hover:translate-x-1 transition-transform duration-300">
           {children}
         </span>
@@ -164,7 +164,7 @@ function SocialIcon({ href, icon, label }: { href: string; icon: React.ReactNode
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-cyan-500/50 transition-all duration-300"
+      className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-[#33bde9]/50 transition-all duration-300"
     >
       {icon}
     </Link>

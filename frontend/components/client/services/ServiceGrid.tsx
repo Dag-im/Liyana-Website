@@ -68,7 +68,7 @@ export default function LiyanaShowcase({
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full bg-white text-slate-900 selection:bg-cyan-100 selection:text-cyan-900 overflow-hidden"
+      className="relative min-h-screen w-full bg-white text-slate-900 selection:bg-[#cceffa] selection:text-[#014f7a] overflow-hidden"
     >
       {/* HEADER SECTION */}
       <section className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 pb-20 pt-8">
@@ -77,7 +77,7 @@ export default function LiyanaShowcase({
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
           >
             Products & Services
           </SectionHeading>
@@ -103,8 +103,8 @@ export default function LiyanaShowcase({
             <div className="gsap-fade mb-12 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
               <div className="md:w-2/3">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="h-[2px] w-12 bg-cyan-600" />
-                  <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+                  <div className="h-[2px] w-12 bg-[#0880b9]" />
+                  <span className="text-[#01649c] font-bold uppercase tracking-widest text-sm">
                     Sector Overview
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export default function LiyanaShowcase({
                         className="flex items-start gap-3 text-sm text-slate-700"
                       >
                         <CheckCircle2
-                          className="text-cyan-600 shrink-0 mt-0.5"
+                          className="text-[#0880b9] shrink-0 mt-0.5"
                           size={16}
                         />
                           <span className="leading-snug">{attr}</span>
@@ -160,7 +160,7 @@ export default function LiyanaShowcase({
                     {/* Location Badge */}
                     {d.location && (
                       <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider shadow-sm">
-                        <MapPin size={12} className="text-cyan-600" />
+                        <MapPin size={12} className="text-[#0880b9]" />
                         {d.location}
                       </div>
                     )}
@@ -168,7 +168,7 @@ export default function LiyanaShowcase({
 
                   {/* Card Content */}
                   <div className="flex flex-col flex-grow p-8">
-                    <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-cyan-700 transition-colors">
+                    <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-[#01649c] transition-colors">
                       {d.name}
                     </h3>
 
@@ -188,7 +188,7 @@ export default function LiyanaShowcase({
                               key={i}
                               className="flex items-start gap-2 text-sm text-slate-700"
                             >
-                              <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 shrink-0 mt-2" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#0880b9] shrink-0 mt-2" />
                               <span className="leading-snug">{service.name}</span>
                             </li>
                           ))}
@@ -207,7 +207,7 @@ export default function LiyanaShowcase({
                     <div className="pt-6 border-t border-slate-100 mt-auto">
                       <Link
                         href={`/services/${d.slug}`}
-                        className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-[#01649c] hover:text-[#014f7a] uppercase tracking-wider transition-colors"
                       >
                         Explore Division
                         <ArrowRight
@@ -219,7 +219,7 @@ export default function LiyanaShowcase({
                   </div>
 
                   {/* Decorative Bottom Line */}
-                  <div className="h-1 w-full bg-slate-100 group-hover:bg-cyan-600 transition-colors duration-500" />
+                  <div className="h-1 w-full bg-slate-100 group-hover:bg-[#0880b9] transition-colors duration-500" />
                 </article>
               ))}
             </div>

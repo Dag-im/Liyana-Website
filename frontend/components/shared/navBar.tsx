@@ -123,14 +123,14 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
         )}
       >
         {/* Top Brand Stripe */}
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-cyan-500" />
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-[#33bde9]" />
 
         {/* Main Header Container */}
         <div className="mx-auto flex items-center justify-between px-6 lg:px-12 max-w-[1600px] w-full h-full">
           {/* 1. LOGO */}
           <Link
             href="/"
-            className="flex items-center gap-2 relative z-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded"
+            className="flex items-center gap-2 relative z-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#0880b9] rounded"
           >
             <Image
               src="/images/logo.png"
@@ -163,10 +163,10 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                     <Link
                       href={item.href}
                       className={cn(
-                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
+                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[#0880b9] rounded px-1',
                         isActive
-                          ? 'text-cyan-600'
-                          : 'text-slate-700 hover:text-cyan-600'
+                          ? 'text-[#0880b9]'
+                          : 'text-slate-700 hover:text-[#0880b9]'
                       )}
                     >
                       {item.label}
@@ -177,8 +177,8 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                           className={cn(
                             'transition-transform duration-300',
                             isActive
-                              ? 'rotate-180 text-cyan-600'
-                              : 'text-slate-400 group-hover:text-cyan-600'
+                              ? 'rotate-180 text-[#0880b9]'
+                              : 'text-slate-400 group-hover:text-[#0880b9]'
                           )}
                         />
                       )}
@@ -186,10 +186,10 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                   ) : (
                     <button
                       className={cn(
-                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 rounded px-1',
+                        'flex items-center gap-1.5 text-xs font-medium tracking-wide transition-colors duration-200 bg-transparent border-none p-0 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#0880b9] rounded px-1',
                         isActive
-                          ? 'text-cyan-600'
-                          : 'text-slate-700 hover:text-cyan-600'
+                          ? 'text-[#0880b9]'
+                          : 'text-slate-700 hover:text-[#0880b9]'
                       )}
                     >
                       {item.label}
@@ -200,8 +200,8 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                           className={cn(
                             'transition-transform duration-300',
                             isActive
-                              ? 'rotate-180 text-cyan-600'
-                              : 'text-slate-400 group-hover:text-cyan-600'
+                              ? 'rotate-180 text-[#0880b9]'
+                              : 'text-slate-400 group-hover:text-[#0880b9]'
                           )}
                         />
                       )}
@@ -238,7 +238,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                                     <Link
                                       key={subItem.label}
                                       href={subItem.href}
-                                      className="text-sm font-medium text-slate-600 hover:text-cyan-600 transition-colors duration-200 py-1.5 inline-block w-full"
+                                      className="text-sm font-medium text-slate-600 hover:text-[#0880b9] transition-colors duration-200 py-1.5 inline-block w-full"
                                       onClick={() =>
                                         setActiveDesktopDropdown(null)
                                       }
@@ -254,7 +254,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                             {isSimpleDropdownItem(sub) && (
                               <Link
                                 href={sub.href}
-                                className="block px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-cyan-600 transition-colors border-b border-slate-50 last:border-b-0"
+                                className="block px-6 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-[#0880b9] transition-colors border-b border-slate-50 last:border-b-0"
                                 onClick={() => setActiveDesktopDropdown(null)}
                               >
                                 {sub.label}
@@ -274,7 +274,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                             </span>
                             <Link
                               href="/services"
-                              className="text-sm font-semibold text-cyan-600 hover:text-[#7f3aaf] transition-colors"
+                              className="text-sm font-semibold text-[#0880b9] hover:text-[#7f3aaf] transition-colors"
                             >
                               View All Services &rarr;
                             </Link>
@@ -355,7 +355,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                           size={18}
                           className={cn(
                             'text-slate-400 transition-transform duration-300',
-                            isExpanded && 'rotate-180 text-cyan-600'
+                            isExpanded && 'rotate-180 text-[#0880b9]'
                           )}
                         />
                       )}
@@ -378,7 +378,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                                 <Link
                                   key={subItem.label}
                                   href={subItem.href}
-                                  className="text-sm text-slate-600 font-medium py-2 hover:text-cyan-600 transition-colors"
+                                  className="text-sm text-slate-600 font-medium py-2 hover:text-[#0880b9] transition-colors"
                                   onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                   {subItem.label}
@@ -391,7 +391,7 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
                         {isSimpleDropdownItem(sub) && (
                           <Link
                             href={sub.href}
-                            className="block text-sm text-slate-600 font-medium py-2.5 border-l-2 border-slate-100 pl-4 hover:text-cyan-600 transition-colors"
+                            className="block text-sm text-slate-600 font-medium py-2.5 border-l-2 border-slate-100 pl-4 hover:text-[#0880b9] transition-colors"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             {sub.label}

@@ -97,13 +97,10 @@ export default function RichTextEditor({
   );
   const canRemoveLink = editor?.isActive('link');
 
-  const applyHexColor = () => {
+  const applyColor = (value: string) => {
     if (!editor) return;
-    const normalized = textColor.trim();
-    if (!/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)) {
-      return;
-    }
-    editor.chain().focus().setColor(normalized).run();
+    setTextColor(value);
+    editor.chain().focus().setColor(value).run();
   };
 
   return (
@@ -268,27 +265,28 @@ export default function RichTextEditor({
           <Separator className="h-6" orientation="vertical" />
           <div className="flex items-center gap-2">
             <Palette className="h-4 w-4 text-muted-foreground" />
-            <Input
-              value={textColor}
-              onChange={(event) => setTextColor(event.target.value)}
-              placeholder="#0ea5e9"
-              className="h-8 w-28"
-            />
+            <label className="inline-flex items-center gap-2 h-8 rounded-md border px-2 bg-background cursor-pointer">
+              <span
+                className="h-4 w-4 rounded border"
+                style={{ backgroundColor: textColor }}
+              />
+              <input
+                type="color"
+                value={textColor}
+                onChange={(event) => applyColor(event.target.value)}
+                className="h-5 w-6 cursor-pointer border-0 bg-transparent p-0"
+                aria-label="Pick text color"
+              />
+            </label>
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="h-8"
-              onClick={applyHexColor}
-            >
-              Apply
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={() => editor?.chain().focus().unsetColor().run()}
+              onClick={() => {
+                editor?.chain().focus().unsetColor().run();
+                setTextColor('#0f172a');
+              }}
             >
               Reset
             </Button>

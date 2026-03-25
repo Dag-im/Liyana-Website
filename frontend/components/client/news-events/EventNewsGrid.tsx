@@ -87,8 +87,8 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
       <div className="mx-auto max-w-7xl px-6 pt-16 lg:px-8">
         <header className="mb-12 border-b border-slate-200 pb-6">
           <div className="mb-6 flex items-center gap-4">
-            <div className="h-[2px] w-12 bg-cyan-600" />
-            <span className="text-sm font-bold uppercase tracking-widest text-cyan-700">
+            <div className="h-[2px] w-12 bg-[#0880b9]" />
+            <span className="text-sm font-bold uppercase tracking-widest text-[#01649c]">
               Newsroom
             </span>
           </div>
@@ -99,7 +99,7 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
                 variant="large"
                 align="left"
                 weight="bold"
-                className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-cyan-500 to-cyan-600 mb-6"
+                className="text-transparent bg-clip-text bg-gradient-to-r from-[#01649c] via-[#33bde9] to-[#0880b9] mb-6"
               >
                 {' '}
                 News & Events
@@ -120,7 +120,7 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="Search archive..."
-                className="w-full pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 focus:bg-white transition-all placeholder:text-slate-400 shadow-sm"
+                className="w-full pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-[#0880b9] focus:ring-1 focus:ring-[#0880b9] focus:bg-white transition-all placeholder:text-slate-400 shadow-sm"
               />
               {searchInput ? (
                 <button
@@ -140,13 +140,13 @@ export function EventNewsPageGrid({ items = [] }: EventNewsGridProps) {
                 onClick={() => setActiveTab(tab)}
                 className={`relative pb-3 text-xs font-bold uppercase tracking-wider transition-colors ${
                   activeTab === tab
-                    ? 'text-cyan-700'
+                    ? 'text-[#01649c]'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
                 {tab === 'news' ? 'News' : 'Events'}
                 {activeTab === tab ? (
-                  <span className="absolute bottom-0 left-0 h-[2px] w-full bg-cyan-600" />
+                  <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#0880b9]" />
                 ) : null}
               </button>
             ))}

@@ -51,20 +51,20 @@ const Timeline = ({
   const getCategoryIcon = (category?: string | null) => {
     switch (category) {
       case 'achievement':
-        return <Award className="w-5 h-5 text-cyan-600" />;
+        return <Award className="w-5 h-5 text-[#0880b9]" />;
       case 'expansion':
-        return <MapPin className="w-5 h-5 text-cyan-600" />;
+        return <MapPin className="w-5 h-5 text-[#0880b9]" />;
       case 'innovation':
-        return <Lightbulb className="w-5 h-5 text-cyan-600" />;
+        return <Lightbulb className="w-5 h-5 text-[#0880b9]" />;
       default:
-        return <Calendar className="w-5 h-5 text-cyan-600" />;
+        return <Calendar className="w-5 h-5 text-[#0880b9]" />;
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-slate-50 py-24 selection:bg-cyan-100 selection:text-cyan-900 ${className}`}
+      className={`w-full bg-slate-50 py-24 selection:bg-[#cceffa] selection:text-[#014f7a] ${className}`}
     >
       {/* Header */}
       <div className="max-w-4xl mx-auto px-6 mb-20 text-center">
@@ -73,7 +73,7 @@ const Timeline = ({
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6 text-center"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6 text-center"
           >
             {title}
           </SectionHeading>
@@ -100,7 +100,7 @@ const Timeline = ({
                 className={`timeline-item relative flex flex-col md:flex-row items-start md:justify-between w-full group`}
               >
                 {/* Center Node (Dot) */}
-                <div className="absolute left-[31px] md:left-[50%] md:-translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-full z-10 group-hover:bg-cyan-600 group-hover:scale-125 transition-all duration-300 mt-1.5 md:mt-0 md:top-[28px]" />
+                <div className="absolute left-[31px] md:left-[50%] md:-translate-x-1/2 w-4 h-4 bg-white border-2 border-[#0880b9] rounded-full z-10 group-hover:bg-[#0880b9] group-hover:scale-125 transition-all duration-300 mt-1.5 md:mt-0 md:top-[28px]" />
 
                 {/* Left Content (or mobile right) */}
                 <div
@@ -111,7 +111,7 @@ const Timeline = ({
                       <h3 className="text-3xl font-bold text-slate-900 mb-2">
                         {item.year}
                       </h3>
-                      <div className="flex items-center justify-end gap-2 text-cyan-700 font-bold uppercase tracking-wider text-sm mb-4">
+                      <div className="flex items-center justify-end gap-2 text-[#01649c] font-bold uppercase tracking-wider text-sm mb-4">
                         {item.category || 'Milestone'}
                         {getCategoryIcon(item.category)}
                       </div>
@@ -128,7 +128,7 @@ const Timeline = ({
                     <h3 className="text-3xl font-bold text-slate-900 mb-2">
                       {item.year}
                     </h3>
-                    <div className="flex items-center gap-2 text-cyan-700 font-bold uppercase tracking-wider text-sm mb-4">
+                    <div className="flex items-center gap-2 text-[#01649c] font-bold uppercase tracking-wider text-sm mb-4">
                       {getCategoryIcon(item.category)}
                       {item.category || 'Milestone'}
                     </div>

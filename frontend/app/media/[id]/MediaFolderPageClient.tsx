@@ -52,14 +52,14 @@ export default function MediaFolderPage({ folder }: { folder: MediaFolder }) {
   return (
     <main
       ref={containerRef}
-      className="min-h-screen bg-slate-50 selection:bg-cyan-100 selection:text-cyan-900 pb-24"
+      className="min-h-screen bg-slate-50 selection:bg-[#cceffa] selection:text-[#014f7a] pb-24"
     >
       {/* Top Navigation */}
       <div className="border-b border-slate-200 bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link
             href="/media"
-            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-cyan-700 uppercase tracking-wider transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#01649c] uppercase tracking-wider transition-colors"
           >
             <ArrowLeft size={16} /> Back to Library
           </Link>
@@ -82,12 +82,12 @@ export default function MediaFolderPage({ folder }: { folder: MediaFolder }) {
 
             <div className="gsap-header-el flex flex-wrap items-center gap-6 text-sm font-bold text-slate-500 uppercase tracking-wider">
               <div className="flex items-center gap-2">
-                <ImageIcon size={16} className="text-cyan-600" /> {imageCount}{' '}
+                <ImageIcon size={16} className="text-[#0880b9]" /> {imageCount}{' '}
                 Images
               </div>
               <div className="w-px h-6 bg-slate-200" />
               <div className="flex items-center gap-2">
-                <Video size={16} className="text-cyan-600" /> {videoCount}{' '}
+                <Video size={16} className="text-[#0880b9]" /> {videoCount}{' '}
                 Videos
               </div>
               <div className="w-px h-6 bg-slate-200" />

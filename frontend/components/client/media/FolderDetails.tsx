@@ -13,7 +13,7 @@ export const FolderDetails = ({ folder }: { folder: MediaFolder }) => {
       <div className="flex items-center gap-4 mb-8">
         <Link
           href="/media"
-          className="inline-flex items-center text-cyan-600 hover:text-cyan-800 transition-colors font-semibold"
+          className="inline-flex items-center text-[#0880b9] hover:text-[#014f7a] transition-colors font-semibold"
         >
           <ChevronLeft className="w-5 h-5 mr-1" />
           Back to Library

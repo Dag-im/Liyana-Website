@@ -89,7 +89,7 @@ export default async function OGImage({ params }: Props) {
               {tagName && (
                 <div
                   style={{
-                    background: '#0891b2',
+                    background: '#0880b9',
                     color: 'white',
                     fontSize: '13px',
                     fontWeight: '700',
@@ -154,7 +154,7 @@ export default async function OGImage({ params }: Props) {
           <div
             style={{
               fontSize: '16px',
-              color: '#0ea5e9',
+              color: '#009ad6',
               fontWeight: '600',
             }}
           >

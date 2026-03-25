@@ -76,7 +76,7 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
   }, [activeSubsidiary]);
 
   return (
-    <section className="relative pt-10 pb-24 px-6 bg-white border-t border-slate-200 selection:bg-cyan-100 selection:text-cyan-900">
+    <section className="relative pt-10 pb-24 px-6 bg-white border-t border-slate-200 selection:bg-[#cceffa] selection:text-[#014f7a]">
       <div className="relative max-w-7xl mx-auto">
         {/* Section Heading */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
@@ -85,7 +85,7 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
               variant="large"
               align="left"
               weight="bold"
-              className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
             >
               Meet Our Leadership
             </SectionHeading>
@@ -100,7 +100,7 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
               value={activeSubsidiary}
               onValueChange={(value) => setActiveSubsidiary(value)}
             >
-              <SelectTrigger className="w-full px-6 py-5 bg-slate-50 border border-slate-200 text-slate-900 text-base font-semibold rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 focus:bg-white transition-all shadow-sm justify-between placeholder:text-slate-400">
+              <SelectTrigger className="w-full px-6 py-5 bg-slate-50 border border-slate-200 text-slate-900 text-base font-semibold rounded-sm focus:outline-none focus:border-[#0880b9] focus:ring-1 focus:ring-[#0880b9] focus:bg-white transition-all shadow-sm justify-between placeholder:text-slate-400">
                 <SelectValue placeholder="Filter by subsidiary" />
               </SelectTrigger>
               <SelectContent>
@@ -152,10 +152,10 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
 
               {/* Content */}
               <div className="p-8 flex-grow flex flex-col">
-                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-cyan-700 transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-[#01649c] transition-colors">
                   {member.name}
                 </h3>
-                <p className="text-sm font-bold text-cyan-600 uppercase tracking-wider mb-4">
+                <p className="text-sm font-bold text-[#0880b9] uppercase tracking-wider mb-4">
                   {member.position}
                 </p>
                 <div className="h-[1px] w-12 bg-slate-200 mb-4" />
@@ -212,11 +212,11 @@ export default function MeetTheTeam({ members = [] }: MeetTheTeamProps) {
               <h2 className="text-3xl font-bold text-slate-900 mb-2">
                 {selectedMember.name}
               </h2>
-              <p className="text-cyan-700 font-bold uppercase tracking-wider text-sm mb-6">
+              <p className="text-[#01649c] font-bold uppercase tracking-wider text-sm mb-6">
                 {selectedMember.position}
               </p>
 
-              <div className="h-[2px] w-12 bg-cyan-600 mb-6" />
+              <div className="h-[2px] w-12 bg-[#0880b9] mb-6" />
 
               <p className="text-slate-600 leading-relaxed flex-grow">
                 {selectedMember.bio}

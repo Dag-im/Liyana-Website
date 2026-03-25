@@ -162,14 +162,14 @@ export default function BlogListClient({
   const hasMore = blogs.length < total;
 
   return (
-    <main className="min-h-screen bg-white selection:bg-cyan-100 selection:text-cyan-900 pb-24">
+    <main className="min-h-screen bg-white selection:bg-[#cceffa] selection:text-[#014f7a] pb-24">
       {/* Page Header */}
       <header className="bg-white border-b border-slate-200 pt-14 pb-16 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="max-w-2xl">
             <div className="flex items-center gap-4 mb-6">
-              <div className="h-[2px] w-12 bg-cyan-600" />
-              <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+              <div className="h-[2px] w-12 bg-[#0880b9]" />
+              <span className="text-[#01649c] font-bold uppercase tracking-widest text-sm">
                 Corporate Insights
               </span>
             </div>
@@ -177,7 +177,7 @@ export default function BlogListClient({
               variant="large"
               align="left"
               weight="bold"
-              className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-700 via-cyan-500 to-cyan-600 mb-6"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-[#01649c] via-[#33bde9] to-[#0880b9] mb-6"
             >
               Insights & Perspectives
             </SectionHeading>
@@ -198,7 +198,7 @@ export default function BlogListClient({
               placeholder="Search articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 focus:bg-white transition-all placeholder:text-slate-400 shadow-sm"
+              className="w-full pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-sm focus:outline-none focus:border-[#0880b9] focus:ring-1 focus:ring-[#0880b9] focus:bg-white transition-all placeholder:text-slate-400 shadow-sm"
             />
             {searchQuery && (
               <button
@@ -244,7 +244,7 @@ export default function BlogListClient({
                 </div>
 
                 <Link href={`/blog/${featuredBlog.slug}`}>
-                  <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 group-hover:text-cyan-700 transition-colors tracking-tight leading-tight">
+                  <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 group-hover:text-[#01649c] transition-colors tracking-tight leading-tight">
                     {featuredBlog.title}
                   </h2>
                 </Link>
@@ -269,7 +269,7 @@ export default function BlogListClient({
                   </div>
                   <Link
                     href={`/blog/${featuredBlog.slug}`}
-                    className="w-12 h-12 flex items-center justify-center bg-slate-50 group-hover:bg-cyan-600 text-slate-400 group-hover:text-white rounded-sm transition-colors duration-300"
+                    className="w-12 h-12 flex items-center justify-center bg-slate-50 group-hover:bg-[#0880b9] text-slate-400 group-hover:text-white rounded-sm transition-colors duration-300"
                   >
                     <ArrowRight size={20} />
                   </Link>
@@ -293,7 +293,7 @@ export default function BlogListClient({
                 aria-controls="blog-category-combobox-list"
                 className={`inline-flex w-[260px] items-center justify-between px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors duration-300 border-b-2 -mb-[1px] md:-mb-[2px] whitespace-nowrap ${
                   activeCategory
-                    ? 'border-cyan-600 text-cyan-700'
+                    ? 'border-[#0880b9] text-[#01649c]'
                     : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
                 }`}
               >
@@ -321,13 +321,13 @@ export default function BlogListClient({
                     }}
                     className={`flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-xs font-bold uppercase tracking-wider transition-colors ${
                       activeCategory === category.id
-                        ? 'bg-slate-100 text-cyan-700'
+                        ? 'bg-slate-100 text-[#01649c]'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
                     <span>{category.name}</span>
                     {activeCategory === category.id ? (
-                      <Check className="h-4 w-4 text-cyan-700" />
+                      <Check className="h-4 w-4 text-[#01649c]" />
                     ) : null}
                   </button>
                 ))}
@@ -379,7 +379,7 @@ export default function BlogListClient({
               <div className="flex justify-center mt-12">
                 <button
                   onClick={handleLoadMore}
-                  className="px-8 py-3 border border-cyan-600 text-cyan-600 font-bold uppercase tracking-wider text-sm hover:bg-cyan-600 hover:text-white transition-colors"
+                  className="px-8 py-3 border border-[#0880b9] text-[#0880b9] font-bold uppercase tracking-wider text-sm hover:bg-[#0880b9] hover:text-white transition-colors"
                 >
                   Load More
                 </button>

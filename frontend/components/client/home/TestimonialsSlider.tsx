@@ -52,7 +52,7 @@ export function TestimonialSlider({
           variant="large"
           align="left"
           weight="bold"
-          className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-cyan-700 to-cyan-900 mb-6"
+          className="text-transparent bg-clip-text bg-gradient-to-r from-[#33bde9] via-[#01649c] to-[#014f7a] mb-6"
         >
           What Our Clients Say
         </SectionHeading>

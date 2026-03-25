@@ -24,7 +24,7 @@ export default function Error({
         </p>
         <button
           onClick={reset}
-          className="px-6 py-3 bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition-colors"
+          className="px-6 py-3 bg-[#0880b9] text-white font-semibold hover:bg-[#01649c] transition-colors"
         >
           Try again
         </button>

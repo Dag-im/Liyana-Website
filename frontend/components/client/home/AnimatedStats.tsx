@@ -104,12 +104,12 @@ export default function AnimatedStats({
   return (
     <section
       ref={containerRef}
-      className={`relative w-full py-24 bg-white border-y border-slate-200 selection:bg-cyan-100 selection:text-cyan-900 ${className}`}
+      className={`relative w-full py-24 bg-white border-y border-slate-200 selection:bg-[#cceffa] selection:text-[#014f7a] ${className}`}
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center gap-4 mb-12">
-          <div className="h-[2px] w-12 bg-cyan-600" />
-          <span className="text-cyan-700 font-bold uppercase tracking-widest text-sm">
+          <div className="h-[2px] w-12 bg-[#0880b9]" />
+          <span className="text-[#01649c] font-bold uppercase tracking-widest text-sm">
             Impact & Scale
           </span>
         </div>

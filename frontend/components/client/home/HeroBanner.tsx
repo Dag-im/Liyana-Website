@@ -65,7 +65,7 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
   }
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center bg-cyan-950 overflow-hidden -top-32">
+    <section className="relative w-full min-h-screen flex flex-col justify-center bg-[#014f7a] overflow-hidden -top-32">
       {/* 1. FULL WIDTH BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
@@ -87,13 +87,13 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
             />
 
             {/* Mobile Gradient: Heavier at bottom for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-800/60 via-cyan-800/40 to-slate-950 lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#014f7a]/60 via-[#014f7a]/40 to-slate-950 lg:hidden" />
 
             {/* Desktop Gradient: Horizontal fade (Left Dark -> Right Clear) */}
-            <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-cyan-800 via-cyan-800/70 to-transparent" />
+            <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#014f7a]/40 via-[#014f7a]/70 to-transparent" />
 
             {/* Universal Overlay for consistency */}
-            <div className="absolute inset-0 bg-cyan-950/30 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-[#014f7a]/30 mix-blend-multiply" />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -107,8 +107,8 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="h-[2px] w-8 lg:w-12 bg-cyan-500" />
-            <span className="text-cyan-400 text-md font-bold uppercase tracking-[0.2em]">
+            <div className="h-[2px] w-8 lg:w-12 bg-[#009ad6]" />
+            <span className="text-[#009ad6] text-lg font-bold uppercase tracking-[0.2em]">
               Hearts + Minds for Healthcare
             </span>
           </motion.div>
@@ -135,17 +135,17 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
             transition={{ delay: 0.2 }}
             className="space-y-6"
           >
-            <p className="text-lg lg:text-xl text-cyan-50/80 font-light leading-relaxed max-w-xl border-l-2 border-cyan-500/30 pl-4 lg:pl-6">
+            <p className="text-lg lg:text-xl text-[#33bde9] font-light leading-relaxed max-w-xl border-l-2 border-[#009ad6]/30 pl-4 lg:pl-6">
               {currentCategory.tagline}
             </p>
           </motion.div>
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Link
               href="/services"
-              className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border border-transparent font-bold uppercase text-[11px] tracking-[0.2em] text-slate-900 overflow-hidden rounded-sm transition-all duration-500 hover:border-cyan-500/30 hover:shadow-[0_8px_30px_-4px_rgba(6,182,212,0.3)]"
+              className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border border-transparent font-bold uppercase text-[11px] tracking-[0.2em] text-slate-900 overflow-hidden rounded-sm transition-all duration-500 hover:border-[#009ad6]/30 hover:shadow-[0_8px_30px_-4px_rgba(0,154,214,0.3)]"
             >
               {/* 1. Sweeping Background Slide */}
-              <span className="absolute inset-0 w-full h-full -translate-x-full bg-cyan-600 group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+              <span className="absolute inset-0 w-full h-full -translate-x-full bg-[#0880b9] group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
 
               {/* 2. Button Text */}
               <span className="relative z-10 group-hover:text-white transition-colors duration-300 delay-75">
@@ -158,7 +158,7 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
                 <ArrowRight
                   size={16}
                   strokeWidth={2.5}
-                  className="absolute text-cyan-600 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-x-[150%] group-hover:opacity-0"
+                  className="absolute text-[#0880b9] transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-x-[150%] group-hover:opacity-0"
                 />
 
                 {/* Arrow that slides in from the left */}
@@ -226,14 +226,14 @@ export default function CorporateHero({ categories = [] }: HeroBannerProps) {
                     // Note: Changed `gap` on container to `mb` on items for flawless percentage translation math
                     className={`group relative flex items-center justify-between p-4 lg:p-6 mb-1 lg:mb-2 text-left transition-all duration-300 border-l-[3px] ${
                       isActive
-                        ? 'border-cyan-500 bg-white/5'
+                        ? 'border-[#33bde9] bg-white/5'
                         : 'border-white/10 hover:bg-white/5 hover:border-white/30'
                     }`}
                   >
                     <div className="flex flex-col">
                       <span
                         className={`text-[10px] font-bold uppercase tracking-widest mb-1 transition-colors ${
-                          isActive ? 'text-cyan-400' : 'text-slate-500'
+                          isActive ? 'text-[#009ad6]' : 'text-slate-500'
                         }`}
                       >
                         {/* Ensure index is formatted as 01, 02, etc. */}

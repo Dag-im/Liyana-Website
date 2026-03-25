@@ -24,7 +24,7 @@ const csrFocusAreas = [
   {
     title: 'Patient Safety & Quality',
     desc: 'We uphold the highest global clinical standards, ensuring every patient receives safe, effective, and compassionate care.',
-    icon: <ShieldCheck className="w-7 h-7 text-cyan-700" />,
+    icon: <ShieldCheck className="w-7 h-7 text-[#01649c]" />,
   },
   {
     title: 'Health Equity & Inclusion',
@@ -44,7 +44,7 @@ const csrFocusAreas = [
   {
     title: 'Innovation for Better Health',
     desc: 'Investing in medical technologies, digital solutions, and research to transform patient outcomes nationwide.',
-    icon: <Sparkles className="w-7 h-7 text-cyan-600" />,
+    icon: <Sparkles className="w-7 h-7 text-[#0880b9]" />,
   },
   {
     title: 'Global Health Collaboration',
@@ -174,7 +174,7 @@ export default function CorporateCSRModern() {
   return (
     <section
       ref={sectionRef}
-      className="py-32 px-6 bg-gradient-to-br from-gray-50 via-blue-50/70 to-cyan-50/70 relative overflow-hidden"
+      className="py-32 px-6 bg-gradient-to-br from-gray-50 via-blue-50/70 to-[#e6f7fc]/70 relative overflow-hidden"
     >
       <div className="container mx-auto max-w-7xl relative">
         {/* Header */}
@@ -183,7 +183,7 @@ export default function CorporateCSRModern() {
             variant="large"
             align="center"
             weight="bold"
-            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-cyan-500 to-cyan-600 mb-6"
+            className="text-transparent bg-clip-text bg-gradient-to-r from-gray-800 via-[#33bde9] to-[#0880b9] mb-6"
           >
             Our Corporate Responsibility
           </SectionHeading>
@@ -215,7 +215,7 @@ export default function CorporateCSRModern() {
               >
                 <CardContent className="p-7">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 rounded-full bg-cyan-50">
+                    <div className="p-3 rounded-full bg-[#e6f7fc]">
                       {item.icon}
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900">
@@ -236,7 +236,7 @@ export default function CorporateCSRModern() {
 
         {/* Gallery */}
         <div ref={galleryRef}>
-          <h2 className="text-4xl font-semibold text-cyan-800 text-center mb-14">
+          <h2 className="text-4xl font-semibold text-[#014f7a] text-center mb-14">
             Impact in Action
           </h2>
 

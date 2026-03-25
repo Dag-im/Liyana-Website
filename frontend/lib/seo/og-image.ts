@@ -8,6 +8,6 @@ export const OG_IMAGE_CONFIG = {
   height: 630,
   logoUrl: `${SITE_URL}/images/logo.png`,
   siteName: SITE_NAME,
-  brandColor: '#0891b2',
+  brandColor: '#0880b9',
   backgroundColor: '#0f172a',
 };

@@ -60,7 +60,7 @@ function ContactForm({
   return (
     <div className="bg-white border border-slate-200  shadow-sm overflow-hidden flex flex-col h-full relative">
       {/* Brand Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-cyan-500" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#d62839] via-[#7f3aaf] to-[#33bde9]" />
 
       <div className="p-8 md:p-10 flex-1 flex flex-col">
         <div className="mb-8">
@@ -103,7 +103,7 @@ function ContactForm({
                       placeholder={field.placeholder}
                       required={field.required}
                       onChange={(e) => handleChange(field.id, e.target.value)}
-                      className="h-32 resize-none rounded-lg bg-slate-50 border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
+                      className="h-32 resize-none rounded-lg bg-slate-50 border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#0880b9] focus:ring-1 focus:ring-[#0880b9] transition-colors shadow-none"
                     />
                   ) : (
                     <Input
@@ -112,7 +112,7 @@ function ContactForm({
                       placeholder={field.placeholder}
                       required={field.required}
                       onChange={(e) => handleChange(field.id, e.target.value)}
-                      className="h-12 rounded-lg bg-slate-50 border-slate-200 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 transition-colors shadow-none"
+                      className="h-12 rounded-lg bg-slate-50 border-slate-200 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-[#0880b9] focus:ring-1 focus:ring-[#0880b9] transition-colors shadow-none"
                     />
                   )}
                 </div>
@@ -122,7 +122,7 @@ function ContactForm({
             <Button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full h-12 mt-6 text-sm font-semibold rounded-xs bg-cyan-600 hover:bg-cyan-700 text-white shadow-none transition-colors flex items-center justify-center gap-2 group"
+              className="w-full h-12 mt-6 text-sm font-semibold rounded-xs bg-[#0880b9] hover:bg-[#01649c] text-white shadow-none transition-colors flex items-center justify-center gap-2 group"
             >
               {status === 'submitting' ? 'Transmitting...' : buttonText}
               {status === 'idle' && (
@@ -183,17 +183,17 @@ export default function ContactSection({
   faqGroups = DEFAULT_FAQ_GROUPS,
 }: ContactSectionProps) {
   return (
-    <div className="pb-12 bg-white selection:bg-cyan-100 selection:text-cyan-900">
+    <div className="pb-12 bg-white selection:bg-[#cceffa] selection:text-[#014f7a]">
       <section className="max-w-7xl mx-auto px-6 py-16">
         {/* Header */}
         <div className="mb-12 max-w-2xl">
-          <span className="block text-cyan-600 font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
+          <span className="block text-[#0880b9] font-semibold text-[11px] uppercase tracking-[0.18em] mb-3">
             Get in Touch
           </span>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">
             Contact Liyana Healthcare
           </h1>
-          <div className="h-[2px] w-10 bg-cyan-600 mt-5 rounded-full" />
+          <div className="h-[2px] w-10 bg-[#0880b9] mt-5 rounded-full" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -250,7 +250,7 @@ export default function ContactSection({
               {/* HQ Address */}
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
-                  <MapPin className="text-cyan-600" size={18} />
+                  <MapPin className="text-[#0880b9]" size={18} />
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1.5">
@@ -268,7 +268,7 @@ export default function ContactSection({
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
-                    <Phone className="text-cyan-600" size={16} />
+                    <Phone className="text-[#0880b9]" size={16} />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">
@@ -276,7 +276,7 @@ export default function ContactSection({
                     </p>
                     <a
                       href="tel:+251911000000"
-                      className="text-sm font-medium text-slate-900 hover:text-cyan-600 transition-colors"
+                      className="text-sm font-medium text-slate-900 hover:text-[#0880b9] transition-colors"
                     >
                       +251 911 000 000
                     </a>
@@ -285,7 +285,7 @@ export default function ContactSection({
 
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
-                    <Globe className="text-cyan-600" size={16} />
+                    <Globe className="text-[#0880b9]" size={16} />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">
@@ -293,7 +293,7 @@ export default function ContactSection({
                     </p>
                     <a
                       href="mailto:contact@liyanahc.com"
-                      className="text-sm font-medium text-slate-900 hover:text-cyan-600 transition-colors"
+                      className="text-sm font-medium text-slate-900 hover:text-[#0880b9] transition-colors"
                     >
                       contact@liyanahc.com
                     </a>

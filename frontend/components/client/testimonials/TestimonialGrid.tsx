@@ -93,7 +93,7 @@ export function TestimonialGrid({
             <button
               onClick={handleLoadMore}
               disabled={isPending}
-              className="px-8 py-3 border border-cyan-600 text-cyan-600 font-bold uppercase tracking-wider text-sm hover:bg-cyan-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 border border-[#0880b9] text-[#0880b9] font-bold uppercase tracking-wider text-sm hover:bg-[#0880b9] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? 'Loading...' : 'Load More'}
             </button>

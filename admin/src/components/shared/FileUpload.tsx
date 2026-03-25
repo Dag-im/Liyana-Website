@@ -43,28 +43,38 @@ export function FileUpload({
   const [preview, setPreview] = useState<string | null>(
     shouldShowPreview && currentPath ? currentPath : null
   );
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [currentUpload, setCurrentUpload] = useState<UploadedAsset | null>(null);
   const uploadedAssetsRef = useRef(new Map<string, UploadedAsset>());
+  const localPreviewRef = useRef<string | null>(null);
+
+  const replaceLocalPreview = useCallback((nextUrl: string | null) => {
+    if (localPreviewRef.current) {
+      URL.revokeObjectURL(localPreviewRef.current);
+    }
+    localPreviewRef.current = nextUrl;
+    setLocalPreviewUrl(nextUrl);
+  }, []);
 
   React.useEffect(() => {
     if (!shouldShowPreview) return;
+    if (localPreviewRef.current) return;
     setPreview(currentPath || null);
   }, [currentPath, shouldShowPreview]);
 
   React.useEffect(() => {
     if (!currentPath) {
       setCurrentUpload(null);
+      replaceLocalPreview(null);
     }
-  }, [currentPath]);
+  }, [currentPath, replaceLocalPreview]);
 
   React.useEffect(() => {
     return () => {
-      const assets = [...uploadedAssetsRef.current.values()];
-      uploadedAssetsRef.current.clear();
-
-      assets.forEach((asset) => {
-        void deleteTempUpload(asset.id).catch(() => undefined);
-      });
+      if (localPreviewRef.current) {
+        URL.revokeObjectURL(localPreviewRef.current);
+        localPreviewRef.current = null;
+      }
     };
   }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,6 +84,10 @@ export function FileUpload({
       if (maxSizeMB && file.size > maxSizeMB * 1024 * 1024) {
         toast.error(`File size exceeds ${maxSizeMB}MB limit`);
         return;
+      }
+
+      if (shouldShowPreview && file.type.startsWith('image/')) {
+        replaceLocalPreview(URL.createObjectURL(file));
       }
 
       setIsUploading(true);
@@ -120,6 +134,7 @@ export function FileUpload({
       onUpload,
       onSuccess,
       onUploadedAsset,
+      replaceLocalPreview,
       shouldShowPreview,
     ]
   );
@@ -162,10 +177,13 @@ export function FileUpload({
     }
 
     setCurrentUpload(null);
+    replaceLocalPreview(null);
     setPreview(null);
     onSuccess('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const previewSource = localPreviewUrl || preview;
 
   return (
     <div className="space-y-2">
@@ -185,11 +203,11 @@ export function FileUpload({
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <span className="text-sm font-medium">Uploading...</span>
           </div>
-        ) : shouldShowPreview && preview ? (
+        ) : shouldShowPreview && previewSource ? (
           <div className="relative w-full h-full p-4 flex flex-col items-center justify-center">
-            {preview ? (
+            {previewSource ? (
               <FileImage
-                path={preview}
+                path={previewSource}
                 alt="Preview"
                 className="max-h-30 rounded object-contain mb-2"
                 fallback={<FileIcon className="w-12 h-12 text-muted-foreground mb-2" />}
@@ -209,7 +227,7 @@ export function FileUpload({
               <X className="h-4 w-4" />
             </Button>
             <span className="text-xs text-muted-foreground truncate max-w-50">
-              {preview.split('/').pop()}
+              {(currentPath || previewSource).split('/').pop()}
             </span>
           </div>
         ) : (

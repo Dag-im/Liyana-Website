@@ -83,13 +83,13 @@ export default function BlogPostPageClient({
   }, [post.id]);
 
   return (
-    <main className="min-h-screen bg-white selection:bg-cyan-100 selection:text-cyan-900 pt-5 pb-24">
+    <main className="min-h-screen bg-white selection:bg-[#cceffa] selection:text-[#014f7a] pt-5 pb-24">
       {/* Top Navigation */}
       <div className="border-b border-slate-200 bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-cyan-700 uppercase tracking-wider transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#01649c] uppercase tracking-wider transition-colors"
           >
             <ArrowLeft size={16} /> Back to Insights
           </Link>
@@ -119,12 +119,12 @@ export default function BlogPostPageClient({
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-cyan-600" />{' '}
+              <Calendar size={16} className="text-[#0880b9]" />{' '}
               {formatBlogDate(post.publishedAt ?? post.createdAt)}
             </div>
             <div className="w-px h-8 bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-2">
-              <Clock size={16} className="text-cyan-600" /> {post.readTime}
+              <Clock size={16} className="text-[#0880b9]" /> {post.readTime}
             </div>
           </div>
         </header>
@@ -149,7 +149,7 @@ export default function BlogPostPageClient({
             <button
               onClick={handleShare}
               aria-label="Share article"
-              className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-cyan-600 hover:text-white transition-colors border border-slate-200 hover:border-transparent"
+              className="w-10 h-10 flex items-center justify-center rounded-sm bg-slate-50 text-slate-500 hover:bg-[#0880b9] hover:text-white transition-colors border border-slate-200 hover:border-transparent"
             >
               <Share2 size={18} />
             </button>
@@ -157,7 +157,7 @@ export default function BlogPostPageClient({
 
           {/* Main Content Body */}
           <div className="gsap-article-element flex-1 min-w-0">
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-medium mb-12 border-l-4 border-cyan-600 pl-6">
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-medium mb-12 border-l-4 border-[#0880b9] pl-6">
               {post.excerpt}
             </p>
 
@@ -165,8 +165,8 @@ export default function BlogPostPageClient({
               className="prose prose-slate prose-lg md:prose-xl max-w-none
                 prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-slate-900
                 prose-p:leading-relaxed prose-p:text-slate-700
-                prose-a:text-cyan-700 prose-a:no-underline hover:prose-a:underline
-                prose-blockquote:border-l-4 prose-blockquote:border-cyan-600 prose-blockquote:bg-slate-50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:text-slate-700 prose-blockquote:font-medium prose-blockquote:not-italic"
+                prose-a:text-[#01649c] prose-a:no-underline hover:prose-a:underline
+                prose-blockquote:border-l-4 prose-blockquote:border-[#0880b9] prose-blockquote:bg-slate-50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:text-slate-700 prose-blockquote:font-medium prose-blockquote:not-italic"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
@@ -181,7 +181,7 @@ export default function BlogPostPageClient({
           </h3>
           <Link
             href="/blog"
-            className="hidden md:inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+            className="hidden md:inline-flex items-center gap-2 text-sm font-bold text-[#01649c] hover:text-[#014f7a] uppercase tracking-wider transition-colors"
           >
             View All <ArrowRight size={16} />
           </Link>
@@ -196,7 +196,7 @@ export default function BlogPostPageClient({
         <div className="mt-10 text-center md:hidden">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 uppercase tracking-wider transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#01649c] hover:text-[#014f7a] uppercase tracking-wider transition-colors"
           >
             View All Articles <ArrowRight size={16} />
           </Link>
