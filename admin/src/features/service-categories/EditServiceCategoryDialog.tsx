@@ -202,7 +202,7 @@ export function EditServiceCategoryDialog({
                     {attributes.map((attr, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md text-sm group"
+                        className="flex items-center gap-1 px-2 py-1 bg-muted rounded-xl text-sm group"
                       >
                         {attr}
                         <button

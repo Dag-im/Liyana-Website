@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -17,18 +18,25 @@ export default function RejectBlogDialog({
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState('')
   const rejectMutation = useRejectBlog()
+  const triggerAriaLabel = label === 'Reject' ? 'Reject blog post' : label
 
   if (disabled) {
     return (
-      <Button variant="destructive" disabled>
-        {label}
+      <Button size="icon" variant="destructive" disabled aria-label={triggerAriaLabel}>
+        <XCircle className="h-4 w-4" />
       </Button>
     )
   }
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger render={<Button variant="destructive">{label}</Button>} />
+      <DialogTrigger
+        render={
+          <Button size="icon" variant="destructive" aria-label={triggerAriaLabel}>
+            <XCircle className="h-4 w-4" />
+          </Button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Reject Blog Post</DialogTitle>
@@ -49,8 +57,10 @@ export default function RejectBlogDialog({
                 { onSuccess: () => { setOpen(false); setReason('') } }
               )
             }
+            size="icon"
+            aria-label="Reject blog post"
           >
-            Reject Blog
+            <XCircle className="h-4 w-4" />
           </Button>
         </DialogFooter>
       </DialogContent>

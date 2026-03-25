@@ -2,8 +2,8 @@ import { Edit, Eye, Trash2 } from 'lucide-react'
 import DataTable from '@/components/shared/DataTable'
 import type { TeamMember } from '@/types/team.types'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { FileImage } from '@/components/shared/FileImage'
+import IconButton from '@/components/system/IconButton'
 
 type TeamListViewProps = {
   members: TeamMember[]
@@ -93,21 +93,26 @@ export function TeamListView({ members, isLoading, onEdit, onDelete, onView }: T
       header: 'Actions',
       id: 'actions',
       cell: ({ row }: { row: { original: TeamMember } }) => (
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => onView(row.original)}>
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => onEdit(row.original)}>
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive"
+        <div className="flex items-center gap-2 justify-end">
+          <IconButton
+            tooltip="View"
+            ariaLabel="View team member"
+            onClick={() => onView(row.original)}
+            icon={<Eye />}
+          />
+          <IconButton
+            tooltip="Edit"
+            ariaLabel="Edit team member"
+            onClick={() => onEdit(row.original)}
+            icon={<Edit />}
+          />
+          <IconButton
+            tooltip="Delete"
+            ariaLabel="Delete team member"
             onClick={() => onDelete(row.original)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            icon={<Trash2 />}
+            destructive
+          />
         </div>
       ),
     },

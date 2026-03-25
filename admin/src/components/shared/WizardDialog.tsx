@@ -88,8 +88,8 @@ export function WizardDialog({
                   <div 
                     className={cn(
                       "relative flex h-10 w-10 items-center justify-center rounded-xl border-2 transition-all duration-300",
-                      isCompleted && "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20",
-                      isActive && "border-primary text-primary shadow-lg shadow-primary/10 ring-4 ring-primary/10 scale-110",
+                      isCompleted && "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/10",
+                      isActive && "border-primary text-primary shadow-sm shadow-primary/10 ring-4 ring-primary/10 scale-110",
                       !isCompleted && !isActive && "border-muted bg-background text-muted-foreground group-hover:border-muted-foreground/30"
                     )}
                   >
@@ -163,7 +163,7 @@ export function WizardDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={cn(
-          "flex max-h-[94vh] w-[96vw] max-w-[1440px] flex-col overflow-hidden p-0 gap-0 border-none shadow-2xl",
+          "flex max-h-[94vh] w-[96vw] max-w-[1440px] flex-col overflow-hidden p-0 gap-0 border-none shadow-sm",
           className
         )}
       >

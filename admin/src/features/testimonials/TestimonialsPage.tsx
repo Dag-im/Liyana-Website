@@ -285,7 +285,7 @@ export default function TestimonialsPage() {
       </div>
 
       {/* Data Table */}
-      <div className="rounded-md border bg-white">
+      <div className="rounded-xl border bg-white">
         <DataTable
           columns={columns}
           data={testimonialsQuery.data?.data ?? []}

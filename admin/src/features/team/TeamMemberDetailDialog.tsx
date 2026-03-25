@@ -4,11 +4,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { FileImage } from '@/components/shared/FileImage'
 import type { TeamMember } from '@/types/team.types'
 import { Edit, Trash2, Calendar, User, Building2, Eye, EyeOff } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import IconButton from '@/components/system/IconButton'
 
 type TeamMemberDetailDialogProps = {
   member: TeamMember
@@ -39,7 +39,7 @@ export default function TeamMemberDetailDialog({
         <div className="grid md:grid-cols-5 h-full">
           {/* Left Column - Image & Quick Info */}
           <div className="md:col-span-2 bg-slate-50 p-6 flex flex-col items-center border-r">
-            <div className="h-48 w-48 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-white mb-6">
+            <div className="h-48 w-48 rounded-xl overflow-hidden border-4 border-white shadow-sm bg-white mb-6">
               <FileImage
                 path={member.image}
                 alt={member.name}
@@ -56,12 +56,12 @@ export default function TeamMemberDetailDialog({
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Affiliation</p>
                 {member.isCorporate ? (
-                  <div className="flex items-center gap-2 text-sm font-medium text-cyan-700 bg-cyan-50 px-3 py-2 rounded-lg border border-cyan-100">
+                  <div className="flex items-center gap-2 text-sm font-medium text-cyan-700 bg-cyan-50 px-3 py-2 rounded-xl border border-cyan-100">
                     <Building2 className="h-4 w-4" />
                     Corporate Headquarters
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-sm font-medium text-slate-700 bg-white px-3 py-2 rounded-lg border shadow-sm">
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-700 bg-white px-3 py-2 rounded-xl border shadow-sm">
                     <Building2 className="h-4 w-4" />
                     {member.division?.name || 'No Division'}
                   </div>
@@ -71,12 +71,12 @@ export default function TeamMemberDetailDialog({
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</p>
                 {isHidden ? (
-                  <div className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+                  <div className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
                     <EyeOff className="h-4 w-4" />
                     Hidden from Public
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 px-3 py-2 rounded-xl border border-green-200">
                     <Eye className="h-4 w-4" />
                     Publicly Visible
                   </div>
@@ -85,7 +85,7 @@ export default function TeamMemberDetailDialog({
               
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Display Rank</p>
-                <div className="flex items-center gap-2 text-sm font-mono bg-white px-3 py-2 rounded-lg border shadow-sm">
+                <div className="flex items-center gap-2 text-sm font-mono bg-white px-3 py-2 rounded-xl border shadow-sm">
                   #{member.sortOrder}
                 </div>
               </div>
@@ -128,12 +128,19 @@ export default function TeamMemberDetailDialog({
             </div>
 
             <div className="mt-8 flex items-center justify-end gap-3 pt-6 border-t">
-              <Button variant="outline" onClick={() => onEdit(member)}>
-                <Edit className="h-4 w-4 mr-2" /> Edit Profile
-              </Button>
-              <Button variant="destructive" className="bg-red-500 hover:bg-red-600" onClick={() => onDelete(member)}>
-                <Trash2 className="h-4 w-4 mr-2" /> Delete
-              </Button>
+              <IconButton
+                tooltip="Edit Profile"
+                ariaLabel="Edit team member profile"
+                onClick={() => onEdit(member)}
+                icon={<Edit />}
+              />
+              <IconButton
+                tooltip="Delete"
+                ariaLabel="Delete team member"
+                onClick={() => onDelete(member)}
+                icon={<Trash2 />}
+                destructive
+              />
             </div>
           </div>
         </div>

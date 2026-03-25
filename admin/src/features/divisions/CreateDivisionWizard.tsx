@@ -697,7 +697,7 @@ export function CreateDivisionWizard({
                 {formData.coreServices.map((service, index) => (
                   <div
                     key={`${service.name}-${index}`}
-                    className="relative grid grid-cols-1 gap-3 rounded-xl border p-4 bg-card group shadow-sm transition-shadow hover:shadow-md"
+                    className="relative grid grid-cols-1 gap-3 rounded-xl border p-4 bg-card group shadow-sm transition-shadow hover:shadow-sm"
                   >
                     <Input
                       placeholder="Service Name"

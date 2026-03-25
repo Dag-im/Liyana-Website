@@ -118,7 +118,7 @@ export default function EditTeamMemberDialog({
         )}
 
         {isHidden && (
-          <div className="flex items-start gap-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
             <AlertCircle className="mt-0.5 h-4 w-4 text-amber-600 shrink-0" />
             <div className="space-y-1">
               <h5 className="font-semibold text-amber-800 leading-none tracking-tight">Visibility Warning</h5>
@@ -153,7 +153,7 @@ export default function EditTeamMemberDialog({
               </div>
 
               <div className="space-y-4 pt-2">
-                <div className="flex items-center justify-between space-x-2 rounded-lg border p-3 shadow-sm">
+                <div className="flex items-center justify-between space-x-2 rounded-xl border p-3 shadow-sm">
                   <div className="space-y-0.5">
                     <Label htmlFor="edit-type-corporate">Corporate Member</Label>
                     <p className="text-[0.8rem] text-muted-foreground">
@@ -190,7 +190,7 @@ export default function EditTeamMemberDialog({
                 )}
 
                 {isCorporate && (
-                  <div className="flex items-start gap-2 rounded-lg bg-cyan-50 p-3 text-sm text-cyan-800 border border-cyan-100">
+                  <div className="flex items-start gap-2 rounded-xl bg-cyan-50 p-3 text-sm text-cyan-800 border border-cyan-100">
                     <InfoIcon className="h-4 w-4 mt-0.5 shrink-0" />
                     <p>Corporate members are displayed under the main headquarters team.</p>
                   </div>

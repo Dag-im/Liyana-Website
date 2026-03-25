@@ -20,7 +20,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { formatDate, truncate } from '@/lib/utils';
 import type { Blog, BlogStatus } from '@/types/blogs.types';
-import { Edit, Eye, FolderEdit, Star, Trash2, UploadCloud } from 'lucide-react';
+import { Edit, Eye, FolderEdit, Plus, Send, Star, StarOff, Trash2, UploadCloud } from 'lucide-react';
 import BlogStatusBadge from './components/BlogStatusBadge';
 import RejectBlogDialog from './components/RejectBlogDialog';
 import {
@@ -135,31 +135,24 @@ export default function BlogsPage() {
                 </Link>
               </Button>
               {canEditBlog(blog) ? (
-                <Button size="sm" variant="outline" className="h-8 gap-2" asChild>
+                <Button size="icon" variant="outline" aria-label="Edit blog" asChild>
                   <Link to={`/blogs/${blog.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
-                    <Edit className="h-3.5 w-3.5" />
-                    Edit
+                    <Edit className="h-4 w-4" />
                   </Link>
                 </Button>
               ) : null}
               {isBlogger &&
               blog.authorId === user?.id &&
               (blog.status === 'DRAFT' || blog.status === 'REJECTED') ? (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-8"
-                  onClick={() => submitMutation.mutate(blog.id)}
-                >
-                  <UploadCloud className="mr-2 h-4 w-4" />
-                  Submit
+                <Button size="icon" variant="secondary" aria-label="Submit blog" onClick={() => submitMutation.mutate(blog.id)}>
+                  <UploadCloud className="h-4 w-4" />
                 </Button>
               ) : null}
               {isAdminOrComm ? (
                 <>
                   <Button
-                    size="sm"
-                    className="h-8"
+                    size="icon"
+                    aria-label="Publish blog"
                     disabled={
                       !(
                         blog.status === 'PENDING_REVIEW' ||
@@ -168,7 +161,7 @@ export default function BlogsPage() {
                     }
                     onClick={() => publishMutation.mutate(blog.id)}
                   >
-                    Publish
+                    <Send className="h-4 w-4" />
                   </Button>
                   <RejectBlogDialog
                     blogId={blog.id}
@@ -176,23 +169,23 @@ export default function BlogsPage() {
                   />
                   {blog.featured ? (
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="secondary"
-                      className="h-8"
+                      aria-label="Unfeature blog"
                       disabled={blog.status !== 'PUBLISHED'}
                       onClick={() => unfeatureMutation.mutate(blog.id)}
                     >
-                      Unfeature
+                      <StarOff className="h-4 w-4" />
                     </Button>
                   ) : (
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="secondary"
-                      className="h-8"
+                      aria-label="Feature blog"
                       disabled={blog.status !== 'PUBLISHED'}
                       onClick={() => featureMutation.mutate(blog.id)}
                     >
-                      Feature
+                      <Star className="h-4 w-4" />
                     </Button>
                   )}
                 </>
@@ -243,13 +236,14 @@ export default function BlogsPage() {
               to="/blogs/categories"
               state={{ from: `${location.pathname}${location.search}` }}
             >
-            <FolderEdit className="mr-2 h-4 w-4" />
-            Manage Categories
+              <FolderEdit className="mr-2 h-4 w-4" />
+              Manage Categories
             </Link>
           </Button>
           {user?.role ? (
             <Button asChild>
               <Link to="/blogs/new" state={{ from: `${location.pathname}${location.search}` }}>
+                <Plus className="mr-2 h-4 w-4" />
                 Create Blog
               </Link>
             </Button>

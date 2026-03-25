@@ -42,8 +42,20 @@ export const APP_NAVIGATION: AppRoute[] = [
     icon: Bell,
     group: 'overview',
   },
-  { path: '/bookings', label: 'Bookings', icon: CalendarCheck, roles: ['ADMIN', 'CUSTOMER_SERVICE'], group: 'operations' },
-  { path: '/users', label: 'Users', icon: Users, roles: ['ADMIN'], group: 'operations' },
+  {
+    path: '/bookings',
+    label: 'Bookings',
+    icon: CalendarCheck,
+    roles: ['ADMIN', 'CUSTOMER_SERVICE'],
+    group: 'operations',
+  },
+  {
+    path: '/users',
+    label: 'Users',
+    icon: Users,
+    roles: ['ADMIN'],
+    group: 'operations',
+  },
   {
     path: '/service-categories',
     label: 'Service Categories',

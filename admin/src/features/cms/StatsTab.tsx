@@ -36,13 +36,18 @@ export default function StatsTab() {
               <div className="flex items-center justify-between">
                 <Badge variant="secondary">Sort: {stat.sortOrder}</Badge>
                 <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => setEditingStat(stat)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Edit stat"
+                    onClick={() => setEditingStat(stat)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive"
+                    variant="destructive"
+                    aria-label="Delete stat"
                     onClick={() => setDeletingStat(stat)}
                   >
                     <Trash2 className="h-4 w-4" />

@@ -64,7 +64,7 @@ export function MediaLightbox({
 
         <div className="flex h-full w-full items-center justify-center p-4">
           {item.type === 'video' ? (
-            <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-lg bg-black shadow-2xl">
+            <div className="aspect-video w-full max-w-5xl overflow-hidden rounded-xl bg-black ring-1 ring-white/10">
               <iframe
                 src={getYouTubeEmbedUrl(item.url) + '?autoplay=1'}
                 title={item.title}

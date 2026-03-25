@@ -68,7 +68,7 @@ function TreeNode({
     <div className={cn('space-y-2', depth > 0 && 'ml-6')}>
       <Card
         className={cn(
-          'group relative p-4 transition-all hover:shadow-md border-l-4',
+          'group relative p-4 transition-all hover:shadow-sm border-l-4',
           node.relation.name === 'Strategic'
             ? 'border-l-indigo-500'
             : 'border-l-cyan-500'
@@ -78,7 +78,7 @@ function TreeNode({
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className={cn(
-              'mt-1 p-0.5 rounded-md hover:bg-accent opacity-60 hover:opacity-100 transition-opacity',
+              'mt-1 p-0.5 rounded-xl hover:bg-accent opacity-60 hover:opacity-100 transition-opacity',
               !hasChildren && 'invisible'
             )}
           >
@@ -89,7 +89,7 @@ function TreeNode({
             )}
           </button>
 
-          <div className="p-2 rounded-lg bg-accent/50 text-accent-foreground">
+          <div className="p-2 rounded-xl bg-accent/50 text-accent-foreground">
             <Icon className="h-5 w-5" />
           </div>
 

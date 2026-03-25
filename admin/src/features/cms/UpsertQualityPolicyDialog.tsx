@@ -151,7 +151,7 @@ export default function UpsertQualityPolicyDialog({
             </div>
 
             {goals.map((goal, index) => (
-              <div key={`goal-${index}`} className="space-y-2 rounded-md border p-3">
+              <div key={`goal-${index}`} className="space-y-2 rounded-xl border p-3">
                 <Textarea
                   value={goal}
                   onChange={(event) => updateGoal(index, event.target.value)}

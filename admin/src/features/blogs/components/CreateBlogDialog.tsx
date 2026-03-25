@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { useCreateBlog } from '../useBlogs'
@@ -10,7 +11,9 @@ export default function CreateBlogDialog() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Create Blog</Button>
+      <Button onClick={() => setOpen(true)} size="icon" aria-label="Create blog">
+        <Plus className="h-4 w-4" />
+      </Button>
       <BlogWizard
         isLoading={createMutation.isPending}
         mode="create"

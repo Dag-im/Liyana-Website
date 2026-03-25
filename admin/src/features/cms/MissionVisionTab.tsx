@@ -1,11 +1,12 @@
 import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getCmsIcon } from '@/lib/cms-icons'
 import { formatDate } from '@/lib/utils'
 import EditMissionVisionDialog from './EditMissionVisionDialog'
 import { useMissionVision } from './useCms'
+import IconButton from '@/components/system/IconButton'
+import { Pencil } from 'lucide-react'
 
 export default function MissionVisionTab() {
   const missionVisionQuery = useMissionVision()
@@ -50,7 +51,12 @@ export default function MissionVisionTab() {
 
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">Last updated: {formatDate(missionVision.updatedAt)}</p>
-        <Button onClick={() => setEditOpen(true)}>Edit</Button>
+        <IconButton
+          tooltip="Edit"
+          ariaLabel="Edit Mission & Vision"
+          onClick={() => setEditOpen(true)}
+          icon={<Pencil />}
+        />
       </div>
 
       <EditMissionVisionDialog

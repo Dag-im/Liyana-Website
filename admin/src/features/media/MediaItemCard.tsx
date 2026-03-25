@@ -30,7 +30,7 @@ export function MediaItemCard({
 
   return (
     <div
-      className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted shadow-sm transition-all hover:shadow-md"
+      className="group relative cursor-pointer overflow-hidden rounded-xl bg-muted shadow-sm transition-all hover:shadow-sm"
       onClick={onClick}
     >
       <div className="relative aspect-square w-full">
@@ -53,7 +53,7 @@ export function MediaItemCard({
 
         {item.type === 'video' && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white shadow-sm backdrop-blur-sm transition-transform group-hover:scale-110">
               <Play className="h-6 w-6 fill-current" />
             </div>
           </div>

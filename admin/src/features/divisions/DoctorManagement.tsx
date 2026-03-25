@@ -18,11 +18,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Plus, Pencil, Trash2, Users, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Users, Loader2, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import IconButton from '@/components/system/IconButton';
 import { useCreateDoctor, useUpdateDoctor, useDeleteDoctor, useDivisionDoctors } from './useDivisions';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { FileImage } from '@/components/shared/FileImage';
@@ -130,7 +131,7 @@ export function DoctorManagement({ divisionId }: { divisionId: string }) {
           <Card key={doctor.id} className="overflow-hidden group">
             <CardHeader className="p-4 pb-2">
               <div className="flex items-start justify-between gap-4">
-                <div className="h-12 w-12 rounded-full bg-muted overflow-hidden flex-shrink-0 border-2 border-primary/10">
+                <div className="h-12 w-12 rounded-full bg-muted overflow-hidden shrink-0 border-2 border-primary/10">
                   {doctor.image ? (
                     <FileImage path={doctor.image} alt={doctor.name} className="h-full w-full object-cover" />
                   ) : (
@@ -141,13 +142,20 @@ export function DoctorManagement({ divisionId }: { divisionId: string }) {
                   <h4 className="font-semibold text-sm truncate">{doctor.name}</h4>
                   <p className="text-xs text-primary font-medium truncate">{doctor.specialty}</p>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(doctor)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingDoctorId(doctor.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                  <IconButton
+                    tooltip="Edit Doctor"
+                    ariaLabel={`Edit doctor ${doctor.name}`}
+                    onClick={() => handleEdit(doctor)}
+                    icon={<Pencil />}
+                  />
+                  <IconButton
+                    tooltip="Delete Doctor"
+                    ariaLabel={`Delete doctor ${doctor.name}`}
+                    onClick={() => setDeletingDoctorId(doctor.id)}
+                    icon={<Trash2 />}
+                    destructive
+                  />
                 </div>
               </div>
             </CardHeader>
@@ -236,7 +244,12 @@ export function DoctorManagement({ divisionId }: { divisionId: string }) {
                 )}
               />
               <DialogFooter className="pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <IconButton
+                  tooltip="Cancel"
+                  ariaLabel="Cancel"
+                  onClick={() => setIsDialogOpen(false)}
+                  icon={<X />}
+                />
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                   {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {editingDoctor ? 'Update Doctor' : 'Add Doctor'}

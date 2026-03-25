@@ -266,17 +266,16 @@ export default function DivisionsPage() {
                   </Link>
                 </Button>
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="outline"
-                  className="h-8 gap-2"
+                  aria-label="Edit division"
                   asChild
                 >
                   <Link
                     to={`/divisions/${row.original.id}/edit`}
                     state={{ from: `${location.pathname}${location.search}` }}
                   >
-                    <Edit className="h-3.5 w-3.5" />
-                    Edit
+                    <Edit className="h-4 w-4" />
                   </Link>
                 </Button>
                 <ConfirmDialog

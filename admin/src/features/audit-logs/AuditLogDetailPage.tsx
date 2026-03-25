@@ -7,7 +7,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import {
   getEntityLabel,
   getPerformedByLabel,
-  sanitizeMetadata,
+  getMetadataReadable,
 } from '@/features/audit-logs/auditLogDisplay';
 import { formatDate, formatEnumLabel } from '@/lib/utils';
 
@@ -30,7 +30,14 @@ export default function AuditLogDetailPage() {
   }
 
   const log = query.data;
-  const metadata = sanitizeMetadata(log?.metadata);
+  const metadataReadable = log
+    ? getMetadataReadable(log, { maxEntries: 10, maxLength: 120 })
+    : {
+        entries: [],
+        preview: 'No metadata',
+        remainingCount: 0,
+        totalCount: 0,
+      };
 
   return (
     <div className="space-y-6">
@@ -68,18 +75,60 @@ export default function AuditLogDetailPage() {
           </dl>
 
           <div className="border-t border-border p-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Metadata
-            </h2>
-            {Object.keys(metadata).length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No metadata available.
-              </p>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="aura-label text-slate-500">Metadata</h2>
+              {metadataReadable.totalCount > 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Showing {metadataReadable.entries.length} of {metadataReadable.totalCount}
+                </p>
+              ) : null}
+            </div>
+
+            {metadataReadable.entries.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No metadata available.</p>
             ) : (
-              <pre className="max-h-130 overflow-auto rounded-lg bg-muted/40 p-4 text-xs leading-relaxed text-foreground">
-                {JSON.stringify(metadata, null, 2)}
-              </pre>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {metadataReadable.entries.map((entry) => (
+                  <div
+                    key={entry.key}
+                    className="rounded-xl border border-border/70 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+                  >
+                    <div className="aura-label text-slate-500">{entry.label}</div>
+
+                    {entry.oldValue || entry.newValue ? (
+                      <div className="mt-2 space-y-2">
+                        <div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+                            Old
+                          </div>
+                          <div className="aura-body text-sm font-medium">
+                            {entry.oldValue ?? '—'}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+                            New
+                          </div>
+                          <div className="aura-body text-sm font-medium">
+                            {entry.newValue ?? '—'}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 aura-body text-sm font-medium">
+                        {entry.value}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
+
+            {metadataReadable.remainingCount > 0 ? (
+              <p className="mt-4 text-xs text-muted-foreground">
+                +{metadataReadable.remainingCount} more fields
+              </p>
+            ) : null}
           </div>
         </div>
       )}

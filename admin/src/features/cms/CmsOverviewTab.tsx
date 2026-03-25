@@ -1,10 +1,11 @@
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getCmsIcon } from '@/lib/cms-icons'
 import { formatDate, truncate } from '@/lib/utils'
 import { useCoreValues, useMissionVision, useQualityPolicy, useStats, useWhoWeAre } from './useCms'
 import type { CmsTabValue } from './CmsPage'
+import IconButton from '@/components/system/IconButton'
+import { Pencil } from 'lucide-react'
 
 type CmsOverviewTabProps = {
   onEditSection: (tab: CmsTabValue) => void
@@ -54,9 +55,14 @@ export default function CmsOverviewTab({ onEditSection }: CmsOverviewTabProps) {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={() => onEditSection('mission-vision')}>
-            Edit
-          </Button>
+          <div className="flex justify-end">
+            <IconButton
+              tooltip="Edit Mission & Vision"
+              ariaLabel="Edit Mission & Vision"
+              onClick={() => onEditSection('mission-vision')}
+              icon={<Pencil />}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -71,9 +77,14 @@ export default function CmsOverviewTab({ onEditSection }: CmsOverviewTabProps) {
           <p className="text-sm text-muted-foreground">
             {truncate(whoWeAre?.content ?? '', 240) || 'No content available'}
           </p>
-          <Button variant="outline" onClick={() => onEditSection('who-we-are')}>
-            Edit
-          </Button>
+          <div className="flex justify-end">
+            <IconButton
+              tooltip="Edit Who We Are"
+              ariaLabel="Edit Who We Are"
+              onClick={() => onEditSection('who-we-are')}
+              icon={<Pencil />}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -83,9 +94,14 @@ export default function CmsOverviewTab({ onEditSection }: CmsOverviewTabProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">{coreValues.length} core values defined</p>
-          <Button variant="outline" onClick={() => onEditSection('core-values')}>
-            Edit
-          </Button>
+          <div className="flex justify-end">
+            <IconButton
+              tooltip="Edit Core Values"
+              ariaLabel="Edit Core Values"
+              onClick={() => onEditSection('core-values')}
+              icon={<Pencil />}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -103,9 +119,14 @@ export default function CmsOverviewTab({ onEditSection }: CmsOverviewTabProps) {
             ))}
             {!stats.length && <p className="text-sm text-muted-foreground">No stats configured</p>}
           </div>
-          <Button variant="outline" onClick={() => onEditSection('stats')}>
-            Edit
-          </Button>
+          <div className="flex justify-end">
+            <IconButton
+              tooltip="Edit Stats"
+              ariaLabel="Edit Stats"
+              onClick={() => onEditSection('stats')}
+              icon={<Pencil />}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -122,9 +143,14 @@ export default function CmsOverviewTab({ onEditSection }: CmsOverviewTabProps) {
             ))}
             {!policies.length && <p className="text-sm text-muted-foreground">No languages configured</p>}
           </div>
-          <Button variant="outline" onClick={() => onEditSection('quality-policy')}>
-            Edit
-          </Button>
+          <div className="flex justify-end">
+            <IconButton
+              tooltip="Edit Quality Policy"
+              ariaLabel="Edit Quality Policy"
+              onClick={() => onEditSection('quality-policy')}
+              icon={<Pencil />}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

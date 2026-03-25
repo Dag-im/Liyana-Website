@@ -46,7 +46,7 @@ export default function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-88 rounded-xl border border-border/80 p-0 shadow-lg"
+        className="w-88 rounded-xl border border-border/80 p-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
@@ -68,7 +68,7 @@ export default function NotificationBell() {
               {(unreadNotificationsQuery.data?.data ?? []).map(
                 (notification) => (
                   <div
-                    className="rounded-lg border border-border/80 bg-card p-3"
+                    className="rounded-xl border border-border/80 bg-card p-3"
                     key={notification.id}
                   >
                     <div className="mb-2 flex items-center justify-between gap-2">

@@ -19,7 +19,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
 import { formatDate, truncate } from '@/lib/utils'
 import type { NewsEvent, NewsEventStatus, NewsEventType } from '@/types/news-events.types'
-import { Edit, Eye, Trash2 } from 'lucide-react'
+import { Edit, Eye, EyeOff, Plus, Send, Trash2 } from 'lucide-react'
 import {
   useDeleteNewsEvent,
   useNewsEvents,
@@ -71,39 +71,38 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
 
     return (
       <div className="flex items-center gap-2">
-        <Button size="icon" variant="ghost" asChild title="View">
+        <Button size="icon" variant="ghost" asChild aria-label="View entry">
           <Link to={`${basePath}/${entry.id}`}>
             <Eye className="h-4 w-4" />
           </Link>
         </Button>
         {canEdit ? (
-          <Button size="sm" variant="outline" className="h-8 gap-2" asChild>
+          <Button size="icon" variant="outline" aria-label="Edit entry" asChild>
             <Link to={`${basePath}/${entry.id}/edit`} state={{ from: `${location.pathname}${location.search}` }}>
-              <Edit className="h-3.5 w-3.5" />
-              Edit
+              <Edit className="h-4 w-4" />
             </Link>
           </Button>
         ) : null}
         {canPublish ? (
           entry.status === 'PUBLISHED' ? (
             <Button
-              size="sm"
+              size="icon"
+              aria-label="Unpublish entry"
               variant="secondary"
-              className="h-8"
               onClick={() => unpublishMutation.mutate(entry.id)}
               disabled={unpublishMutation.isPending}
             >
-              Unpublish
+              <EyeOff className="h-4 w-4" />
             </Button>
           ) : (
             <Button
-              size="sm"
+              size="icon"
               variant="default"
-              className="h-8"
+              aria-label="Publish entry"
               onClick={() => publishMutation.mutate(entry.id)}
               disabled={publishMutation.isPending}
             >
-              Publish
+              <Send className="h-4 w-4" />
             </Button>
           )
         ) : null}
@@ -114,7 +113,7 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
             onConfirm={() => deleteMutation.mutate(entry.id)}
             isLoading={deleteMutation.isPending}
             trigger={
-              <Button size="icon" variant="ghost" className="text-destructive" title="Delete">
+              <Button size="icon" variant="ghost" className="text-destructive" aria-label="Delete entry">
                 <Trash2 className="h-4 w-4" />
               </Button>
             }
@@ -171,6 +170,7 @@ export default function NewsEventsPage({ type, basePath, title }: Props) {
         {isEditor ? (
           <Button asChild>
             <Link to={`${basePath}/new`} state={{ from: `${location.pathname}${location.search}` }}>
+              <Plus className="mr-2 h-4 w-4" />
               Create
             </Link>
           </Button>

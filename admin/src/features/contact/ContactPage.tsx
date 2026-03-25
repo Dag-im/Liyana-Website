@@ -245,7 +245,7 @@ export default function ContactPage() {
       </div>
 
       {/* Data Table */}
-      <div className="rounded-md border bg-white">
+      <div className="rounded-xl border bg-white">
         <DataTable
           columns={columns}
           data={contactsQuery.data?.data ?? []}

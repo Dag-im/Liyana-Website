@@ -8,13 +8,12 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Search,
   Settings,
   Stethoscope,
   Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -22,7 +21,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { logout } from '@/api/auth.api';
 import NotificationBell from '@/components/layout/NotificationBell';
-import AppInput from '@/components/system/AppInput';
+import CommandPalette, {
+  type CommandItem,
+} from '@/components/system/CommandPalette';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/features/auth/useAuth';
@@ -30,6 +31,7 @@ import { useMyDivision } from '@/features/my-division/useMyDivision';
 import { showErrorToast } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
 import { APP_NAVIGATION } from '@/types/navigation';
+import SidebarItem from '@/components/layout/SidebarItem';
 
 export default function AppShell() {
   const location = useLocation();
@@ -148,6 +150,30 @@ export default function AppShell() {
     [effectiveRoutes]
   );
 
+  const commandItems = useMemo<CommandItem[]>(() => {
+    const items: CommandItem[] = [];
+
+    const addRoute = (route: (typeof APP_NAVIGATION)[number]) => {
+      items.push({
+        label: route.label,
+        path: route.path,
+        icon: route.icon,
+        disabled: route.path === '/bookings',
+      });
+      route.children?.forEach((child) => {
+        items.push({
+          label: child.label,
+          path: child.path,
+          icon: child.icon,
+          disabled: child.path === '/bookings',
+        });
+      });
+    };
+
+    effectiveRoutes.forEach(addRoute);
+    return items;
+  }, [effectiveRoutes]);
+
   const currentRoute = effectiveRoutes.find(
     (route) =>
       location.pathname === route.path ||
@@ -195,13 +221,8 @@ export default function AppShell() {
           </div>
 
           <div className="hidden justify-center px-4 md:flex">
-            <div className="relative w-full max-w-md">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <AppInput
-                className="pl-9"
-                placeholder="Command palette"
-                type="search"
-              />
+            <div className="w-full max-w-md">
+              <CommandPalette commands={commandItems} />
             </div>
           </div>
 
@@ -232,10 +253,10 @@ export default function AppShell() {
           )}
           data-collapsed={isSidebarCollapsed}
         >
-          <div className="flex h-full min-h-0 flex-col rounded-2xl border border-border/70 bg-white/80 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+          <div className="flex h-full min-h-0 flex-col rounded-md border border-border/70 bg-white/80 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
             <Link
               className={cn(
-                'block shrink-0 rounded-xl px-3 py-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity',
+                'block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity',
                 isSidebarCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : 'opacity-100'
               )}
               to="/"
@@ -369,52 +390,32 @@ function NavSection({
 
         return (
           <div key={route.path} className="space-y-1">
-            <NavLink
-              className={({ isActive }) =>
-                cn(
-                  'group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm transition-all',
-                  isActive
-                    ? 'border-slate-200/80 bg-white text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]'
-                    : 'text-slate-500 hover:border-slate-200/60 hover:bg-white/80 hover:text-slate-900',
-                  collapsed && 'justify-center px-2.5'
-                )
-              }
-              end={!route.children?.length}
-              onClick={onNavigate}
+            <SidebarItem
               to={route.path}
-            >
-              <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-              <span
-                className={cn(
-                  'truncate transition-opacity',
-                  collapsed ? 'hidden group-hover/sidebar:inline' : 'inline'
-                )}
-              >
-                {route.label}
-              </span>
-            </NavLink>
+              label={route.label}
+              Icon={Icon}
+              collapsed={!!collapsed}
+              onNavigate={onNavigate}
+              comingSoon={route.path === '/bookings'}
+              end={!route.children?.length}
+            />
 
             {route.children?.length && !collapsed ? (
               <div className="ml-5 space-y-1 border-l border-border/80 pl-2">
                 {route.children.map((child) => {
                   const ChildIcon = child.icon;
                   return (
-                    <NavLink
+                    <SidebarItem
                       key={child.path}
-                      className={({ isActive }) =>
-                        cn(
-                          'flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors',
-                          isActive
-                            ? 'bg-slate-100 font-medium text-slate-900'
-                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                        )
-                      }
-                      onClick={onNavigate}
                       to={child.path}
-                    >
-                      <ChildIcon className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{child.label}</span>
-                    </NavLink>
+                      label={child.label}
+                      Icon={ChildIcon}
+                      collapsed={false}
+                      onNavigate={onNavigate}
+                      variant="child"
+                      comingSoon={child.path === '/bookings'}
+                      end
+                    />
                   );
                 })}
               </div>

@@ -25,7 +25,7 @@ export function MediaFolderCard({
   const canManage = user?.role === 'ADMIN' || user?.role === 'COMMUNICATION'
 
   return (
-    <Card className="group relative h-full overflow-hidden transition-all hover:shadow-md">
+    <Card className="group relative h-full overflow-hidden transition-all hover:shadow-sm">
       <Link to={`/media/${folder.id}`} className="block h-full">
         <div className="relative aspect-video w-full overflow-hidden bg-muted">
           <FileImage

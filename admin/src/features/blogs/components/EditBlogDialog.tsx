@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Edit } from 'lucide-react'
 
 import ErrorState from '@/components/shared/ErrorState'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
@@ -31,8 +32,13 @@ export default function EditBlogDialog({ blogId, trigger }: Props) {
       {trigger ? (
         <div onClick={() => setOpen(true)}>{trigger}</div>
       ) : (
-        <Button onClick={() => setOpen(true)} variant="outline">
-          Edit
+        <Button
+          onClick={() => setOpen(true)}
+          variant="outline"
+          size="icon"
+          aria-label="Edit blog"
+        >
+          <Edit className="h-4 w-4" />
         </Button>
       )}
 
@@ -45,7 +51,7 @@ export default function EditBlogDialog({ blogId, trigger }: Props) {
       ) : blogQuery.isError || !blogQuery.data ? (
         open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-6">
-             <div className="bg-background rounded-xl border shadow-lg p-6 max-w-md w-full">
+             <div className="bg-background rounded-xl border shadow-sm p-6 max-w-md w-full">
                 <ErrorState onRetry={() => blogQuery.refetch()} />
                 <Button onClick={() => setOpen(false)} className="mt-4 w-full" variant="ghost">Close</Button>
              </div>

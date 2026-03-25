@@ -236,14 +236,14 @@ export default function TeamPage() {
             header: 'Actions',
             id: 'actions',
             cell: ({ row }: { row: { original: User } }) => (
-              <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => openEdit(row.original)}>
+              <div className="flex items-center gap-1 justify-end">
+                <Button size="icon" variant="ghost" aria-label="Edit team member" onClick={() => openEdit(row.original)}>
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => openPassword(row.original)}>
+                <Button size="icon" variant="ghost" aria-label="Change password" onClick={() => openPassword(row.original)}>
                   <KeyRound className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => openDeactivate(row.original)}>
+                <Button size="icon" variant="destructive" aria-label="Deactivate user" onClick={() => openDeactivate(row.original)}>
                   <UserMinus className="h-4 w-4" />
                 </Button>
               </div>

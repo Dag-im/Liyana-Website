@@ -1,4 +1,4 @@
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react'
+import { ArrowLeft, Edit, EyeOff, Send, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
@@ -67,30 +67,31 @@ export default function NewsEventDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           {isEditor ? (
-            <Button size="sm" variant="outline" asChild>
+            <Button size="icon" variant="outline" aria-label="Edit entry" asChild>
               <Link to={`${backPath}/${entry.id}/edit`} state={{ from: `${backPath}/${entry.id}` }}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
+                <Edit className="h-4 w-4" />
               </Link>
             </Button>
           ) : null}
           {isEditor ? (
             entry.status === 'PUBLISHED' ? (
               <Button
-                size="sm"
+                size="icon"
                 variant="secondary"
+                aria-label="Unpublish entry"
                 onClick={() => unpublishMutation.mutate(entry.id)}
                 disabled={unpublishMutation.isPending}
               >
-                Unpublish
+                <EyeOff className="h-4 w-4" />
               </Button>
             ) : (
               <Button
-                size="sm"
+                size="icon"
                 onClick={() => publishMutation.mutate(entry.id)}
+                aria-label="Publish entry"
                 disabled={publishMutation.isPending}
               >
-                Publish
+                <Send className="h-4 w-4" />
               </Button>
             )
           ) : null}
@@ -107,9 +108,8 @@ export default function NewsEventDetailPage() {
               }
               isLoading={deleteMutation.isPending}
               trigger={
-                <Button size="sm" variant="destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                <Button size="icon" variant="destructive" aria-label="Delete entry">
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               }
             />

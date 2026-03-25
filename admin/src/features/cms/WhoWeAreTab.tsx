@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Pencil, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatDate } from '@/lib/utils'
 import { useUpdateWhoWeAre, useWhoWeAre } from './useCms'
+import IconButton from '@/components/system/IconButton'
 
 export default function WhoWeAreTab() {
   const whoWeAreQuery = useWhoWeAre()
@@ -40,15 +42,15 @@ export default function WhoWeAreTab() {
             <Button onClick={save} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? 'Saving...' : 'Save'}
             </Button>
-            <Button
-              variant="outline"
+            <IconButton
+              tooltip="Cancel"
+              ariaLabel="Cancel editing"
               onClick={() => {
                 setContent(whoWeAreQuery.data?.content ?? '')
                 setIsEditing(false)
               }}
-            >
-              Cancel
-            </Button>
+              icon={<X />}
+            />
           </div>
         </div>
       ) : (
@@ -58,7 +60,12 @@ export default function WhoWeAreTab() {
           </blockquote>
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">Last updated: {formatDate(whoWeAreQuery.data.updatedAt)}</p>
-            <Button onClick={() => setIsEditing(true)}>Edit</Button>
+            <IconButton
+              tooltip="Edit"
+              ariaLabel="Edit Who We Are"
+              onClick={() => setIsEditing(true)}
+              icon={<Pencil />}
+            />
           </div>
         </>
       )}

@@ -7,7 +7,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Activity, ArrowLeft, Building2, Globe, Image as ImageIcon, Mail, MapPin, Phone, PieChart, Settings } from 'lucide-react'
+import { Activity, ArrowLeft, Building2, CalendarDays, Globe, Image as ImageIcon, Mail, MapPin, Phone, PieChart, Settings } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useDivision } from './useDivisions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -43,14 +43,15 @@ export default function DivisionDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" asChild>
+          <Button size="icon" aria-label="Edit division" asChild>
             <Link to={`/divisions/${division.id}/edit`} state={{ from: `/divisions/${division.id}` }}>
-              <Settings className="mr-2 h-4 w-4" />
-              Edit Division
+              <Settings className="h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild size="sm">
-            <Link to={`/bookings?divisionId=${division.id}`}>View Bookings</Link>
+          <Button asChild size="icon" aria-label="View bookings">
+            <Link to={`/bookings?divisionId=${division.id}`}>
+              <CalendarDays className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
       </div>

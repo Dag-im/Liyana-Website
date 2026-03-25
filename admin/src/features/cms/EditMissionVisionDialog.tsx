@@ -73,7 +73,7 @@ export default function EditMissionVisionDialog({
 
         <form className="space-y-6" onSubmit={onSubmit}>
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-4 rounded-md border p-4">
+            <div className="space-y-4 rounded-xl border p-4">
               <h3 className="font-semibold">Mission</h3>
 
               <div className="space-y-2">
@@ -100,7 +100,7 @@ export default function EditMissionVisionDialog({
 
               <div className="space-y-2">
                 <Label>Icon</Label>
-                <div className="flex items-center gap-2 rounded-md bg-muted/40 p-2">
+                <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2">
                   <MissionIcon className="h-5 w-5 text-cyan-700" />
                   <span className="text-sm">{formData.missionIcon}</span>
                 </div>
@@ -113,7 +113,7 @@ export default function EditMissionVisionDialog({
               </div>
             </div>
 
-            <div className="space-y-4 rounded-md border p-4">
+            <div className="space-y-4 rounded-xl border p-4">
               <h3 className="font-semibold">Vision</h3>
 
               <div className="space-y-2">
@@ -140,7 +140,7 @@ export default function EditMissionVisionDialog({
 
               <div className="space-y-2">
                 <Label>Icon</Label>
-                <div className="flex items-center gap-2 rounded-md bg-muted/40 p-2">
+                <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2">
                   <VisionIcon className="h-5 w-5 text-cyan-700" />
                   <span className="text-sm">{formData.visionIcon}</span>
                 </div>

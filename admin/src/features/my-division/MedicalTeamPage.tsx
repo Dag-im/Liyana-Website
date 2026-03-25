@@ -216,13 +216,19 @@ export default function MedicalTeamPage() {
             header: 'Actions',
             id: 'actions',
             cell: ({ row }: { row: { original: Doctor } }) => (
-              <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => openEdit(row.original)}>
+              <div className="flex items-center gap-1 justify-end">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  aria-label="Edit doctor"
+                  onClick={() => openEdit(row.original)}
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
                   size="icon"
-                  variant="ghost"
+                  variant="destructive"
+                  aria-label="Delete doctor"
                   onClick={() => setDeletingId(row.original.id)}
                 >
                   <Trash2 className="h-4 w-4" />

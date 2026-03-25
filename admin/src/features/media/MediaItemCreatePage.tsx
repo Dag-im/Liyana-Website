@@ -112,7 +112,7 @@ export default function MediaItemCreatePage() {
                   </div>
 
                   {youtubeThumbnail ? (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted shadow-sm">
+                    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted shadow-sm">
                       <img
                         alt="YouTube Preview"
                         className="h-full w-full object-cover"

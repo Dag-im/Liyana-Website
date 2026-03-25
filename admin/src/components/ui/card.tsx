@@ -18,7 +18,7 @@ function Card({
       )}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
-      {...props}
+      {...(props as any)}
     />
   )
 }

@@ -120,7 +120,7 @@ export default function BlogCategoriesDialog({
 
         <div className="space-y-4 py-4">
           {isCreating && (
-            <div className="flex items-center gap-2 rounded-lg border bg-slate-50/50 p-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 rounded-xl border bg-slate-50/50 p-3 animate-in fade-in slide-in-from-top-2">
               <Input
                 autoFocus
                 value={newName}
@@ -147,7 +147,7 @@ export default function BlogCategoriesDialog({
           )}
 
           {editingCategory && (
-            <div className="flex items-center gap-2 rounded-lg border border-cyan-200 bg-cyan-50/30 p-3">
+            <div className="flex items-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50/30 p-3">
               <Input
                 autoFocus
                 value={editName}
@@ -175,7 +175,7 @@ export default function BlogCategoriesDialog({
             </div>
           )}
 
-          <div className="rounded-md border">
+          <div className="rounded-xl border">
             <DataTable
               columns={columns}
               data={categories ?? []}

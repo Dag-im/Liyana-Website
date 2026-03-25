@@ -11,10 +11,11 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { BookingStatus } from '@/types/booking.types'
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { CheckCircle2, Loader2, X, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useUpdateBookingStatus } from './useBookings'
+import IconButton from '@/components/system/IconButton'
 
 export function UpdateBookingStatusDialog({
   id,
@@ -83,7 +84,12 @@ export function UpdateBookingStatusDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <IconButton
+              tooltip="Cancel"
+              ariaLabel="Cancel"
+              onClick={() => onOpenChange(false)}
+              icon={<X />}
+            />
             <Button type="submit" disabled={updateMutation.isPending} variant={status === 'CANCELLED' ? 'destructive' : 'default'}>
               {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Apply {status === 'CONFIRMED' ? 'Confirmation' : 'Cancellation'}

@@ -119,7 +119,7 @@ export default function TeamPage() {
           </Tabs>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 rounded-lg border bg-slate-50/50 p-4">
+        <div className="flex flex-wrap items-center gap-6 rounded-xl border bg-slate-50/50 p-4">
           <div className="flex items-center space-x-2">
             <Switch
               id="isCorporate"

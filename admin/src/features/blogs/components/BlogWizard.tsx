@@ -398,7 +398,7 @@ export default function BlogWizard({
                         filteredCategories.map((category) => (
                           <div
                             key={category.id}
-                            className="flex items-center justify-between gap-2 p-2 rounded-lg border bg-background group"
+                            className="flex items-center justify-between gap-2 p-2 rounded-xl border bg-background group"
                           >
                             <span className="text-sm truncate font-medium">{category.name}</span>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -467,7 +467,7 @@ export default function BlogWizard({
 
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 max-w-4xl mx-auto">
-              <div className="rounded-2xl border bg-primary/5 p-8 border-primary/10 flex items-start gap-4">
+              <div className="rounded-xl border bg-primary/5 p-8 border-primary/10 flex items-start gap-4">
                 <div className="bg-primary/10 p-3 rounded-xl">
                   <CheckSquare className="h-6 w-6 text-primary" />
                 </div>
@@ -502,7 +502,7 @@ export default function BlogWizard({
                 <div className="space-y-6">
                   <ReviewBlock title="Visual Theme">
                     {values.image ? (
-                      <div className="aspect-video relative rounded-lg overflow-hidden border">
+                      <div className="aspect-video relative rounded-xl overflow-hidden border">
                          <img 
                           src={values.image} 
                           alt="Preview" 
@@ -510,7 +510,7 @@ export default function BlogWizard({
                         /> 
                       </div>
                     ) : (
-                      <div className="aspect-video flex items-center justify-center bg-muted rounded-lg border border-dashed">
+                      <div className="aspect-video flex items-center justify-center bg-muted rounded-xl border border-dashed">
                         <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
                       </div>
                     )}
@@ -616,7 +616,7 @@ export default function BlogWizard({
 
 function ReviewBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3 rounded-2xl border bg-background p-6 shadow-sm">
+    <section className="space-y-3 rounded-xl border bg-background p-6 shadow-sm">
       <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">{title}</h4>
       {children}
     </section>

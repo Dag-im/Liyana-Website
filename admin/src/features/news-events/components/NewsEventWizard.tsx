@@ -499,7 +499,7 @@ export default function NewsEventWizard({
 
           {step === 4 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 max-w-4xl mx-auto">
-              <div className="rounded-2xl border bg-primary/5 p-8 border-primary/10 flex items-start gap-4">
+              <div className="rounded-xl border bg-primary/5 p-8 border-primary/10 flex items-start gap-4">
                 <div className="bg-primary/10 p-3 rounded-xl">
                   <CheckSquare className="h-6 w-6 text-primary" />
                 </div>
@@ -567,7 +567,7 @@ export default function NewsEventWizard({
 
 function ReviewBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3 rounded-2xl border bg-background p-6 shadow-sm">
+    <section className="space-y-3 rounded-xl border bg-background p-6 shadow-sm">
       <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">{title}</h4>
       {children}
     </section>

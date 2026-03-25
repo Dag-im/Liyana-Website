@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import type { NewsEventType } from '@/types/news-events.types'
@@ -15,7 +16,9 @@ export default function CreateNewsEventDialog({ defaultType }: CreateNewsEventDi
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Create</Button>
+      <Button onClick={() => setOpen(true)} size="icon" aria-label="Create entry">
+        <Plus className="h-4 w-4" />
+      </Button>
       <NewsEventWizard
         fixedType={defaultType}
         isLoading={createMutation.isPending}

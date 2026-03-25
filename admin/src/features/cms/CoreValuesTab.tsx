@@ -50,13 +50,18 @@ export default function CoreValuesTab() {
                 </p>
 
                 <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => setEditingValue(value)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Edit core value"
+                    onClick={() => setEditingValue(value)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive"
+                    variant="destructive"
+                    aria-label="Delete core value"
                     onClick={() => setDeletingValue(value)}
                   >
                     <Trash2 className="h-4 w-4" />

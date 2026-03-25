@@ -1,4 +1,4 @@
-import { ArrowLeft, Edit, Star, Trash2, UploadCloud } from 'lucide-react'
+import { ArrowLeft, Edit, Send, Star, StarOff, Trash2, UploadCloud } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
@@ -65,34 +65,33 @@ export default function BlogDetailPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {canEdit ? (
-            <Button size="sm" variant="outline" asChild>
+            <Button size="icon" variant="outline" aria-label="Edit blog" asChild>
               <Link to={`/blogs/${blog.id}/edit`} state={{ from: `/blogs/${blog.id}` }}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
+                <Edit className="h-4 w-4" />
               </Link>
             </Button>
           ) : null}
           {isBlogger && blog.authorId === user?.id && (blog.status === 'DRAFT' || blog.status === 'REJECTED') ? (
-            <Button size="sm" variant="secondary" onClick={() => submitMutation.mutate(blog.id)}>
-              <UploadCloud className="mr-2 h-4 w-4" />
-              Submit
+            <Button size="icon" variant="secondary" aria-label="Submit blog" onClick={() => submitMutation.mutate(blog.id)}>
+              <UploadCloud className="h-4 w-4" />
             </Button>
           ) : null}
           {isAdminOrComm && (blog.status === 'PENDING_REVIEW' || blog.status === 'DRAFT') ? (
             <>
-              <Button size="sm" onClick={() => publishMutation.mutate(blog.id)}>Publish</Button>
+              <Button size="icon" aria-label="Publish blog" onClick={() => publishMutation.mutate(blog.id)}>
+                <Send className="h-4 w-4" />
+              </Button>
               <RejectBlogDialog blogId={blog.id} disabled={blog.status !== 'PENDING_REVIEW'} />
             </>
           ) : null}
           {isAdminOrComm && blog.status === 'PUBLISHED' ? (
             blog.featured ? (
-              <Button size="sm" variant="secondary" onClick={() => unfeatureMutation.mutate(blog.id)}>
-                Unfeature
+              <Button size="icon" variant="secondary" aria-label="Unfeature blog" onClick={() => unfeatureMutation.mutate(blog.id)}>
+                <StarOff className="h-4 w-4" />
               </Button>
             ) : (
-              <Button size="sm" variant="secondary" onClick={() => featureMutation.mutate(blog.id)}>
-                <Star className="mr-2 h-4 w-4" />
-                Feature
+              <Button size="icon" variant="secondary" aria-label="Feature blog" onClick={() => featureMutation.mutate(blog.id)}>
+                <Star className="h-4 w-4" />
               </Button>
             )
           ) : null}
@@ -103,9 +102,8 @@ export default function BlogDetailPage() {
               onConfirm={() => deleteMutation.mutate(blog.id, { onSuccess: () => navigate('/blogs') })}
               isLoading={deleteMutation.isPending}
               trigger={
-                <Button size="sm" variant="destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                <Button size="icon" variant="destructive" aria-label="Delete blog">
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               }
             />

@@ -22,7 +22,7 @@ export function TeamMemberCard({ member, onEdit, onDelete, onView }: TeamMemberC
     .slice(0, 2)
 
   return (
-    <Card className="group relative overflow-hidden transition-all hover:shadow-md">
+    <Card className="group relative overflow-hidden transition-all hover:shadow-sm">
       <CardContent className="p-0">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
           <FileImage
@@ -54,17 +54,17 @@ export function TeamMemberCard({ member, onEdit, onDelete, onView }: TeamMemberC
 
           {/* Hover Overlay */}
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button size="icon" variant="secondary" onClick={onView}>
+            <Button size="icon" variant="ghost" aria-label="View team member" onClick={onView}>
               <Eye className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="secondary" onClick={onEdit}>
+            <Button size="icon" variant="ghost" aria-label="Edit team member" onClick={onEdit}>
               <Edit className="h-4 w-4" />
             </Button>
             <Button
               size="icon"
               variant="destructive"
+              aria-label="Delete team member"
               onClick={onDelete}
-              className="bg-red-500 hover:bg-red-600"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

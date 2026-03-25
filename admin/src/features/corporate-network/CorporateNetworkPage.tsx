@@ -100,7 +100,7 @@ export default function CorporateNetworkPage() {
       {/* Meta Bar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4 flex items-center gap-4 bg-indigo-50/50 border-indigo-100">
-          <div className="p-2 rounded-lg bg-indigo-100 text-indigo-700">
+          <div className="p-2 rounded-xl bg-indigo-100 text-indigo-700">
             <Layers className="h-5 w-5" />
           </div>
           <div>
@@ -111,7 +111,7 @@ export default function CorporateNetworkPage() {
           </div>
         </Card>
         <Card className="p-4 flex items-center gap-4 bg-cyan-50/50 border-cyan-100">
-          <div className="p-2 rounded-lg bg-cyan-100 text-cyan-700">
+          <div className="p-2 rounded-xl bg-cyan-100 text-cyan-700">
             <Calendar className="h-5 w-5" />
           </div>
           <div>
@@ -126,7 +126,7 @@ export default function CorporateNetworkPage() {
           </div>
         </Card>
         <Card className="p-4 flex items-center gap-4 bg-muted/50 border-muted">
-          <div className="p-2 rounded-lg bg-background text-muted-foreground border">
+          <div className="p-2 rounded-xl bg-background text-muted-foreground border">
             <Activity className="h-5 w-5" />
           </div>
           <div>

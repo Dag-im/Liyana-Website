@@ -29,7 +29,7 @@ export function DashboardHero({
   actions,
 }: DashboardHeroProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-linear-to-br from-slate-950 via-slate-900 to-cyan-950 p-6 text-slate-100 shadow-lg">
+    <div className="relative overflow-hidden rounded-xl border border-border/70 bg-linear-to-br from-slate-950 via-slate-900 to-cyan-950 p-6 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] z-40">
       <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
       <div className="absolute -bottom-16 -left-10 h-48 w-48 rounded-full bg-indigo-500/15 blur-3xl" />
       <div className="relative space-y-4">
@@ -105,14 +105,14 @@ export function MetricCard({
   to,
 }: MetricCardProps) {
   return (
-    <Card className="group border-border/70 bg-card/70 backdrop-blur transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <Card className="group border-border/70 bg-card/70 backdrop-blur transition-all hover:-translate-y-0.5 hover:shadow-sm">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             {title}
           </CardTitle>
           <div
-            className={cn('rounded-lg p-2 transition-colors', toneMap[tone])}
+            className={cn('rounded-xl p-2 transition-colors', toneMap[tone])}
           >
             <Icon className="h-4 w-4" />
           </div>
@@ -193,7 +193,7 @@ export function QuickActionGrid({ actions }: { actions: QuickActionProps[] }) {
           key={action.to}
           asChild
           variant="outline"
-          className="h-10 justify-start gap-2 rounded-lg border-border/70"
+          className="h-10 justify-start gap-2 rounded-xl border-border/70"
         >
           <Link to={action.to}>
             <action.icon className="h-4 w-4 text-muted-foreground" />

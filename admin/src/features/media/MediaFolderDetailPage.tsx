@@ -77,7 +77,7 @@ export default function MediaFolderDetailPage() {
       ) : (
         folder && (
           <div className="mb-8 flex flex-col gap-6 sm:flex-row">
-            <div className="h-32 w-32 shrink-0 overflow-hidden rounded-lg bg-muted shadow-sm">
+            <div className="h-32 w-32 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm">
               <FileImage
                 path={folder.coverImage}
                 alt={folder.name}

@@ -14,7 +14,7 @@ import BlogCategoriesPage from '@/features/blogs/BlogCategoriesPage';
 import BlogDetailPage from '@/features/blogs/BlogDetailPage';
 import BlogEditPage from '@/features/blogs/BlogEditPage';
 import BlogsPage from '@/features/blogs/BlogsPage';
-import BookingsPage from '@/features/bookings/BookingsPage';
+import BookingsComingSoonPage from '@/features/bookings/BookingsComingSoonPage';
 import ContactPage from '@/features/contact/ContactPage';
 import CorporateNetworkPage from '@/features/corporate-network/CorporateNetworkPage';
 import NetworkEntityCreatePage from '@/features/corporate-network/NetworkEntityCreatePage';
@@ -93,7 +93,7 @@ export default function App() {
           <Route
             element={<RoleRoute allowedRoles={['ADMIN', 'CUSTOMER_SERVICE']} />}
           >
-            <Route element={<BookingsPage />} path="bookings" />
+            <Route element={<BookingsComingSoonPage />} path="bookings" />
           </Route>
 
           <Route element={<DivisionManagerRoute />}>

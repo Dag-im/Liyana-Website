@@ -105,7 +105,7 @@ export function CreateNetworkEntityDialog({
           </DialogHeader>
         )}
 
-        <div className="flex items-center gap-2 p-3 rounded-md bg-muted/50 text-sm text-muted-foreground border border-dashed">
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 text-sm text-muted-foreground border border-dashed">
           <Info className="h-4 w-4" />
           {parentId ? (
             <span>Adding child to: <strong className="text-foreground">{parentName}</strong></span>
