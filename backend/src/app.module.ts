@@ -34,6 +34,9 @@ import { AwardsModule } from './modules/awards/awards.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { FaqsModule } from './modules/faqs/faqs.module';
 import { CmsModule } from './modules/cms/cms.module';
+import { EsgModule } from './modules/esg/esg.module';
+import { IrModule } from './modules/investor-relations/ir.module';
+import { LucsModule } from './modules/lucs/lucs.module';
 
 @Module({
   imports: [
@@ -70,6 +73,9 @@ import { CmsModule } from './modules/cms/cms.module';
     TimelineModule,
     FaqsModule,
     CmsModule,
+    EsgModule,
+    IrModule,
+    LucsModule,
   ],
   controllers: [AppController],
   providers: [

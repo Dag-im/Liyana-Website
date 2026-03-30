@@ -40,6 +40,9 @@ const awards_module_1 = require("./modules/awards/awards.module");
 const timeline_module_1 = require("./modules/timeline/timeline.module");
 const faqs_module_1 = require("./modules/faqs/faqs.module");
 const cms_module_1 = require("./modules/cms/cms.module");
+const esg_module_1 = require("./modules/esg/esg.module");
+const ir_module_1 = require("./modules/investor-relations/ir.module");
+const lucs_module_1 = require("./modules/lucs/lucs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -79,6 +82,9 @@ exports.AppModule = AppModule = __decorate([
             timeline_module_1.TimelineModule,
             faqs_module_1.FaqsModule,
             cms_module_1.CmsModule,
+            esg_module_1.EsgModule,
+            ir_module_1.IrModule,
+            lucs_module_1.LucsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
