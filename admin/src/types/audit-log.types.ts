@@ -1,16 +1,12 @@
-export type AuditAction =
-  | 'USER_CREATED'
-  | 'USER_UPDATED'
-  | 'USER_DEACTIVATED'
-  | 'PASSWORD_CHANGED_BY_ADMIN'
-  | 'USER_LOGIN'
-  | 'USER_LOGOUT'
-  | 'NOTIFICATION_CREATED'
+import type { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@/lib/constants'
+
+export type AuditAction = (typeof AUDIT_ACTIONS)[number]
+export type AuditEntityType = (typeof AUDIT_ENTITY_TYPES)[number]
 
 export type AuditLog = {
   id: string
   action: AuditAction
-  entityType: string
+  entityType: AuditEntityType | string
   entityId: string
   entityName?: string
   performedBy: string

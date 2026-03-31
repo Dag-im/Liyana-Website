@@ -6,62 +6,60 @@ export const contentType = 'image/png';
 
 export default function OGImage() {
   return new ImageResponse(
-    (
+    <div
+      style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #0c4a6e 100%)',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px',
+      }}
+    >
+      <img
+        src={`${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png`}
+        alt="Liyana Healthcare"
+        width={280}
+        height={140}
+        style={{ objectFit: 'contain', marginBottom: '48px' }}
+      />
       <div
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #0c4a6e 100%)',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '60px',
+          fontSize: '48px',
+          fontWeight: 'bold',
+          color: 'white',
+          textAlign: 'center',
+          marginBottom: '24px',
+          maxWidth: '900px',
         }}
       >
-        <img
-          src={`${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png`}
-          alt="Liyana Healthcare"
-          width={280}
-          height={140}
-          style={{ objectFit: 'contain', marginBottom: '48px' }}
-        />
-        <div
-          style={{
-            fontSize: '48px',
-            fontWeight: 'bold',
-            color: 'white',
-            textAlign: 'center',
-            marginBottom: '24px',
-            maxWidth: '900px',
-          }}
-        >
-          Excellence in Patient-Centered Care
-        </div>
-        <div
-          style={{
-            fontSize: '22px',
-            color: '#94a3b8',
-            textAlign: 'center',
-            maxWidth: '760px',
-            lineHeight: 1.5,
-          }}
-        >
-          Subspecialized medical care across Ethiopia and East Africa
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '40px',
-            fontSize: '18px',
-            color: '#009ad6',
-            fontWeight: '600',
-          }}
-        >
-          liyanahealthcare.com
-        </div>
+        Excellence in Patient-Centered Care
       </div>
-    ),
+      <div
+        style={{
+          fontSize: '22px',
+          color: '#94a3b8',
+          textAlign: 'center',
+          maxWidth: '760px',
+          lineHeight: 1.5,
+        }}
+      >
+        Subspecialized medical care across Ethiopia and East Africa
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '40px',
+          fontSize: '18px',
+          color: '#009ad6',
+          fontWeight: '600',
+        }}
+      >
+        liyanahealthcare.com
+      </div>
+    </div>,
     { ...size }
   );
 }

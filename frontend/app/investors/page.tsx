@@ -3,7 +3,6 @@ import { JsonLd } from '@/components/shared/JsonLd';
 import RichTextViewer from '@/components/shared/RichTextViewer';
 import {
   getIrContact,
-  getIrDivisionPerformance,
   getIrDocuments,
   getIrFinancialTable,
   getIrHero,
@@ -17,7 +16,6 @@ import {
 } from '@/lib/seo/structured-data';
 import type {
   IrContact,
-  IrDivisionPerformance,
   IrDocument,
   IrFinancialColumn,
   IrFinancialRow,
@@ -62,7 +60,6 @@ export default async function InvestorsPage() {
     contact,
     kpis,
     financialTable,
-    divisionPerformance,
     documents,
   ] = await Promise.all([
     safeFetch<IrHero | null>(getIrHero(), null),
@@ -73,7 +70,6 @@ export default async function InvestorsPage() {
       getIrFinancialTable(),
       { columns: [], rows: [] }
     ),
-    safeFetch<IrDivisionPerformance[]>(getIrDivisionPerformance(), []),
     safeFetch<IrDocument[]>(getIrDocuments(), []),
   ]);
 

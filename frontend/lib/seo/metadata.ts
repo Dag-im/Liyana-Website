@@ -7,6 +7,11 @@ const SITE_NAME =
 
 export const DEFAULT_METADATA: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: '/images/logo.png',
+    shortcut: '/images/logo.png',
+    apple: '/images/logo.png',
+  },
   title: {
     default: `${SITE_NAME} | Excellence in Patient-Centered Care`,
     template: `%s | ${SITE_NAME}`,
