@@ -5,7 +5,7 @@ export class LucsWhoWeAre {
   @PrimaryColumn({ type: 'varchar', default: 'singleton' })
   id: string;
 
-  @Column({ type: 'text', default: '' })
+  @Column({ type: 'text' })
   content: string;
 
   @Column({ type: 'boolean', default: false })

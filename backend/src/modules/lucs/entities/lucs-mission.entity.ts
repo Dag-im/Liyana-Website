@@ -8,7 +8,7 @@ export class LucsMission {
   @Column({ type: 'varchar', default: 'Our Mission' })
   missionTitle: string;
 
-  @Column({ type: 'text', default: '' })
+  @Column({ type: 'text' })
   missionDescription: string;
 
   @Column({ type: 'varchar', default: 'Target' })
@@ -17,7 +17,7 @@ export class LucsMission {
   @Column({ type: 'varchar', default: 'Our Vision' })
   visionTitle: string;
 
-  @Column({ type: 'text', default: '' })
+  @Column({ type: 'text' })
   visionDescription: string;
 
   @Column({ type: 'varchar', default: 'Eye' })

@@ -5,10 +5,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { UploadsModule } from '../../uploads/uploads.module';
 import { IrController } from './ir.controller';
 import { IrService } from './ir.service';
-import { IrChartDataPoint } from './entities/ir-chart-data-point.entity';
-import { IrChart } from './entities/ir-chart.entity';
 import { IrContact } from './entities/ir-contact.entity';
-import { IrDivisionPerformance } from './entities/ir-division-performance.entity';
 import { IrDocument } from './entities/ir-document.entity';
 import { IrFinancialCell } from './entities/ir-financial-cell.entity';
 import { IrFinancialColumn } from './entities/ir-financial-column.entity';
@@ -28,9 +25,6 @@ import { IrStrategy } from './entities/ir-strategy.entity';
       IrFinancialColumn,
       IrFinancialRow,
       IrFinancialCell,
-      IrDivisionPerformance,
-      IrChart,
-      IrChartDataPoint,
       IrDocument,
       IrInquiry,
     ]),

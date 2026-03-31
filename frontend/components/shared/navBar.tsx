@@ -83,17 +83,10 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
         { label: 'Leadership', href: '/about/leadership' },
         { label: 'Quality Policy', href: '/about/quality-policy' },
         { label: 'Awards & Recognition', href: '/about/awards' },
+        { label: 'Investor Relations', href: '/investors' },
       ],
     },
     { label: 'Services', href: '/services', dropdown: servicesDropdown },
-    {
-      label: 'ESG',
-      href: '/esg',
-      dropdown: [
-        { label: 'Sustainability', href: '/esg/sustainability' },
-        { label: 'Corporate Social Responsibility', href: '/esg/csr' },
-      ],
-    },
     {
       label: 'Media & Insights',
       dropdown: [
@@ -102,8 +95,14 @@ const NavBar = ({ categories = [] }: NavBarProps) => {
         { label: 'Media Gallery', href: '/media' },
       ],
     },
+    {
+      label: 'ESG',
+      dropdown: [
+        { label: 'Environmental, Social & Governance', href: '/esg' },
+        { label: 'LUCS', href: '/esg/lucs' },
+      ],
+    },
     { label: 'Testimonials', href: '/testimonials' },
-    { label: 'Contact', href: '/contact' },
   ];
 
   // --- Type Guards ---

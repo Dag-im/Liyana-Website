@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import type { MouseEventHandler, ReactElement } from 'react'
 import * as React from 'react'
 
@@ -39,12 +38,11 @@ export default function IconButton({
 
   return (
     <TooltipWrapper content={tooltip}>
-      <motion.button
+      <button
         type={type}
         aria-label={label}
         onClick={onClick}
         disabled={disabled}
-        whileTap={{ scale: 0.98 }}
         className={cn(
           'h-9 w-9 flex items-center justify-center rounded-lg transition-colors duration-200',
           'focus:outline-none focus:ring-2 focus:ring-[#009bd9]/20',
@@ -57,8 +55,7 @@ export default function IconButton({
         )}
       >
         {normalizedIcon}
-      </motion.button>
+      </button>
     </TooltipWrapper>
   )
 }
-

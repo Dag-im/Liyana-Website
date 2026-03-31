@@ -79,13 +79,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/esg/csr`,
+      url: `${SITE_URL}/esg`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/esg/lucs`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
-      url: `${SITE_URL}/esg/sustainability`,
+      url: `${SITE_URL}/investors`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.5,

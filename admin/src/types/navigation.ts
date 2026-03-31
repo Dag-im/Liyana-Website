@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  BarChart3,
   Bell,
   BookOpen,
   Building2,
@@ -7,6 +8,7 @@ import {
   CalendarDays,
   CircleHelp,
   ClipboardCheck,
+  FileText,
   FolderTree,
   Home,
   Image,
@@ -19,6 +21,7 @@ import {
   Newspaper,
   ScrollText,
   Tag,
+  Target,
   Trophy,
   UserCircle,
   Users,
@@ -198,6 +201,43 @@ export const APP_NAVIGATION: AppRoute[] = [
     icon: ClipboardCheck,
     roles: ['ADMIN'],
     group: 'system',
+    children: [
+      {
+        path: '/cms/mission-vision',
+        label: 'Mission & Vision',
+        icon: Target,
+        roles: ['ADMIN'],
+        group: 'system',
+      },
+      {
+        path: '/cms/who-we-are',
+        label: 'Who We Are',
+        icon: FileText,
+        roles: ['ADMIN'],
+        group: 'system',
+      },
+      {
+        path: '/cms/core-values',
+        label: 'Core Values',
+        icon: BookOpen,
+        roles: ['ADMIN'],
+        group: 'system',
+      },
+      {
+        path: '/cms/stats',
+        label: 'Stats',
+        icon: BarChart3,
+        roles: ['ADMIN'],
+        group: 'system',
+      },
+      {
+        path: '/cms/quality-policy',
+        label: 'Quality Policy',
+        icon: ScrollText,
+        roles: ['ADMIN'],
+        group: 'system',
+      },
+    ],
   },
   {
     path: '/audit-logs',

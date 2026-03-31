@@ -7,6 +7,7 @@ export type UserRole =
   | 'BLOGGER'
   | 'CUSTOMER_SERVICE'
   | 'DIVISION_MANAGER'
+  | 'LUCS_ADMIN'
 
 export type User = {
   id: string

@@ -31,17 +31,13 @@ import { FileValidationPipe } from '../../common/pipes/file-validation.pipe';
 import { ApiEnvelope } from '../../common/types/api-envelope.type';
 import { UserRole } from '../../common/types/user-role.enum';
 import { UploadsService } from '../../uploads/uploads.service';
-import { CreateIrChartDto } from './dto/create-ir-chart.dto';
-import { CreateIrDivisionPerformanceDto } from './dto/create-ir-division-performance.dto';
 import { CreateIrDocumentDto } from './dto/create-ir-document.dto';
 import { CreateIrFinancialColumnDto } from './dto/create-ir-financial-column.dto';
 import { CreateIrFinancialRowDto } from './dto/create-ir-financial-row.dto';
 import { CreateIrInquiryDto } from './dto/create-ir-inquiry.dto';
 import { CreateIrKpiDto } from './dto/create-ir-kpi.dto';
 import { QueryIrInquiryDto } from './dto/query-ir-inquiry.dto';
-import { UpdateIrChartDto } from './dto/update-ir-chart.dto';
 import { UpdateIrContactDto } from './dto/update-ir-contact.dto';
-import { UpdateIrDivisionPerformanceDto } from './dto/update-ir-division-performance.dto';
 import { UpdateIrDocumentDto } from './dto/update-ir-document.dto';
 import { UpdateIrFinancialColumnDto } from './dto/update-ir-financial-column.dto';
 import { UpdateIrFinancialRowDto } from './dto/update-ir-financial-row.dto';
@@ -387,129 +383,6 @@ export class IrController {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   removeFinancialRow(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.irService.removeFinancialRow(id, req.user.sub);
-  }
-
-  @Get('division-performance')
-  @UseGuards(OptionalJwtAuthGuard)
-  @Throttle({ default: { limit: 120, ttl: 60000 } })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns published division performance items for public requests and all items for admin or communication users.',
-  })
-  findAllDivisionPerformance(
-    @Req() req: { user?: AuthenticatedRequest['user'] | null },
-  ) {
-    return this.irService.findAllDivisionPerformance(req.user);
-  }
-
-  @Post('division-performance')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
-  createDivisionPerformance(@Body() dto: CreateIrDivisionPerformanceDto) {
-    return this.irService.createDivisionPerformance(dto);
-  }
-
-  @Patch('division-performance/:id/publish')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  publishDivisionPerformance(@Param('id') id: string) {
-    return this.irService.publishDivisionPerformance(id);
-  }
-
-  @Patch('division-performance/:id/unpublish')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  unpublishDivisionPerformance(@Param('id') id: string) {
-    return this.irService.unpublishDivisionPerformance(id);
-  }
-
-  @Patch('division-performance/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
-  updateDivisionPerformance(
-    @Param('id') id: string,
-    @Body() dto: UpdateIrDivisionPerformanceDto,
-  ) {
-    return this.irService.updateDivisionPerformance(id, dto);
-  }
-
-  @Delete('division-performance/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  removeDivisionPerformance(@Param('id') id: string) {
-    return this.irService.removeDivisionPerformance(id);
-  }
-
-  @Get('charts')
-  @UseGuards(OptionalJwtAuthGuard)
-  @Throttle({ default: { limit: 120, ttl: 60000 } })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns published charts for public requests and all charts for admin or communication users.',
-  })
-  findAllCharts(@Req() req: { user?: AuthenticatedRequest['user'] | null }) {
-    return this.irService.findAllCharts(req.user);
-  }
-
-  @Post('charts')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
-  createChart(@Body() dto: CreateIrChartDto, @Req() req: AuthenticatedRequest) {
-    return this.irService.createChart(dto, req.user.sub);
-  }
-
-  @Patch('charts/:id/publish')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  publishChart(@Param('id') id: string) {
-    return this.irService.publishChart(id);
-  }
-
-  @Patch('charts/:id/unpublish')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  unpublishChart(@Param('id') id: string) {
-    return this.irService.unpublishChart(id);
-  }
-
-  @Patch('charts/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COMMUNICATION)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
-  updateChart(
-    @Param('id') id: string,
-    @Body() dto: UpdateIrChartDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
-    return this.irService.updateChart(id, dto, req.user.sub);
-  }
-
-  @Delete('charts/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @ApiCookieAuth()
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  removeChart(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.irService.removeChart(id, req.user.sub);
   }
 
   @Get('documents')

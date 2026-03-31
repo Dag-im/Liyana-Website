@@ -2,7 +2,6 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import * as React from "react"
-import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -48,12 +47,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // `base-ui` passes through DOM drag handlers, which can conflict with framer-motion's
-    // internal pan/drag typing. Casting at the motion boundary keeps runtime identical
-    // while allowing TypeScript to compile.
-    const MotionButton = motion(ButtonPrimitive as unknown as React.ComponentType<any>)
-    const MotionSlot = motion(Slot as unknown as React.ComponentType<any>)
-    const Comp = asChild ? MotionSlot : MotionButton
+    const Comp = asChild ? Slot : ButtonPrimitive
 
     const isIconOnly =
       typeof size === 'string' && size.startsWith('icon') && size !== 'default'
@@ -72,7 +66,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        whileTap={{ scale: 0.98 }}
         title={computedTitle}
         {...(props as any)}
       />

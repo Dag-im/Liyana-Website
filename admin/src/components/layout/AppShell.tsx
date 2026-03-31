@@ -1,26 +1,32 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  BarChart3,
   Bell,
   CalendarDays,
   FileText,
+  HandHeart,
   Image,
+  Inbox,
   Info,
   LayoutDashboard,
+  Leaf,
+  LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   Stethoscope,
+  Target,
+  TrendingUp,
   Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { AnimatePresence, motion } from 'framer-motion';
 
 import { logout } from '@/api/auth.api';
 import NotificationBell from '@/components/layout/NotificationBell';
+import SidebarItem from '@/components/layout/SidebarItem';
 import CommandPalette, {
   type CommandItem,
 } from '@/components/system/CommandPalette';
@@ -30,8 +36,8 @@ import { useAuth } from '@/features/auth/useAuth';
 import { useMyDivision } from '@/features/my-division/useMyDivision';
 import { showErrorToast } from '@/lib/error-utils';
 import { cn } from '@/lib/utils';
+import type { AppRoute } from '@/types/navigation';
 import { APP_NAVIGATION } from '@/types/navigation';
-import SidebarItem from '@/components/layout/SidebarItem';
 
 export default function AppShell() {
   const location = useLocation();
@@ -51,9 +57,9 @@ export default function AppShell() {
     onError: (error) => showErrorToast(error, 'Failed to log out'),
   });
 
-  const routes = useMemo(
-    () =>
-      APP_NAVIGATION.reduce<typeof APP_NAVIGATION>((acc, route) => {
+  const routes = useMemo(() => {
+    const baseRoutes = APP_NAVIGATION.reduce<typeof APP_NAVIGATION>(
+      (acc, route) => {
         if (route.roles && (!user?.role || !route.roles.includes(user.role))) {
           return acc;
         }
@@ -68,11 +74,236 @@ export default function AppShell() {
           children,
         });
         return acc;
-      }, []),
-    [user]
-  );
+      },
+      []
+    );
+
+    if (user?.role === 'ADMIN' || user?.role === 'COMMUNICATION') {
+      const contentIndex = baseRoutes.findIndex(
+        (route) => route.path === '/cms'
+      );
+      const insertAt = contentIndex >= 0 ? contentIndex + 1 : baseRoutes.length;
+      const extraRoutes: AppRoute[] = [
+        {
+          path: '/esg-admin',
+          label: 'ESG',
+          icon: Leaf,
+          roles: ['ADMIN', 'COMMUNICATION'],
+          group: 'system',
+          children: [
+            {
+              path: '/esg-admin/hero',
+              label: 'Hero',
+              icon: Image,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/strategy',
+              label: 'Strategy',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/pillars',
+              label: 'Pillars',
+              icon: Leaf,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/metrics',
+              label: 'Metrics',
+              icon: BarChart3,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/governance',
+              label: 'Governance',
+              icon: Target,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/reports',
+              label: 'Reports',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/esg-admin/lucs-bridge',
+              label: 'LUCS Bridge',
+              icon: HandHeart,
+              group: 'system',
+            },
+          ],
+        },
+        {
+          path: '/ir-admin',
+          label: 'IR',
+          icon: TrendingUp,
+          roles: ['ADMIN', 'COMMUNICATION'],
+          group: 'system',
+          children: [
+            {
+              path: '/ir-admin/hero',
+              label: 'Hero',
+              icon: Image,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/kpis',
+              label: 'KPIs',
+              icon: BarChart3,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/strategy',
+              label: 'Strategy',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/financials',
+              label: 'Financials',
+              icon: TrendingUp,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/documents',
+              label: 'Documents',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/contact',
+              label: 'Contact',
+              icon: Info,
+              group: 'system',
+            },
+            {
+              path: '/ir-admin/inquiries',
+              label: 'Inquiries',
+              icon: Inbox,
+              group: 'system',
+            },
+          ],
+        },
+      ];
+
+      if (user.role === 'ADMIN') {
+        extraRoutes.push({
+          path: '/lucs-admin',
+          label: 'LUCS',
+          icon: HandHeart,
+          roles: ['ADMIN', 'LUCS_ADMIN'],
+          group: 'system',
+          children: [
+            {
+              path: '/lucs-admin/hero',
+              label: 'Hero',
+              icon: Image,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/who-we-are',
+              label: 'Who We Are',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/mission',
+              label: 'Mission & Vision',
+              icon: Target,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/pillars',
+              label: 'What We Do',
+              icon: BarChart3,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/cta',
+              label: 'CTA',
+              icon: HandHeart,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/inquiries',
+              label: 'Inquiries',
+              icon: Inbox,
+              group: 'system',
+            },
+          ],
+        });
+      }
+
+      baseRoutes.splice(insertAt, 0, ...extraRoutes);
+    }
+
+    return baseRoutes;
+  }, [user]);
 
   const effectiveRoutes = useMemo(() => {
+    if (user?.role === 'LUCS_ADMIN') {
+      return [
+        {
+          path: '/dashboard',
+          label: 'Dashboard',
+          icon: LayoutDashboard,
+          group: 'overview',
+        },
+        {
+          path: '/lucs-admin',
+          label: 'LUCS Overview',
+          icon: HandHeart,
+          group: 'system',
+          children: [
+            {
+              path: '/lucs-admin/hero',
+              label: 'Hero',
+              icon: Image,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/who-we-are',
+              label: 'Who We Are',
+              icon: FileText,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/mission',
+              label: 'Mission & Vision',
+              icon: Target,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/pillars',
+              label: 'What We Do',
+              icon: BarChart3,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/cta',
+              label: 'CTA',
+              icon: HandHeart,
+              group: 'system',
+            },
+            {
+              path: '/lucs-admin/inquiries',
+              label: 'Inquiries',
+              icon: Inbox,
+              group: 'system',
+            },
+          ],
+        },
+        {
+          path: '/notifications',
+          label: 'Notifications',
+          icon: Bell,
+          group: 'overview',
+        },
+      ] satisfies AppRoute[];
+    }
+
     if (user?.role !== 'DIVISION_MANAGER') return routes;
 
     const divisionManagerRoutes: typeof APP_NAVIGATION = [
@@ -177,6 +408,7 @@ export default function AppShell() {
   const currentRoute = effectiveRoutes.find(
     (route) =>
       location.pathname === route.path ||
+      location.pathname.startsWith(`${route.path}/`) ||
       route.children?.some((child) => child.path === location.pathname)
   );
 
@@ -257,7 +489,9 @@ export default function AppShell() {
             <Link
               className={cn(
                 'block shrink-0 rounded-md px-3 py-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity',
-                isSidebarCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : 'opacity-100'
+                isSidebarCollapsed
+                  ? 'opacity-0 group-hover/sidebar:opacity-100'
+                  : 'opacity-100'
               )}
               to="/"
             >
@@ -342,17 +576,9 @@ export default function AppShell() {
 
         <main className="custom-scrollbar min-h-0 min-w-0 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
           <div className="mx-auto w-full max-w-290 pb-12">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                initial={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
+            <div key={location.pathname}>
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>
@@ -380,7 +606,9 @@ function NavSection({
       <p
         className={cn(
           'px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 transition-opacity',
-          collapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : 'opacity-100'
+          collapsed
+            ? 'opacity-0 group-hover/sidebar:opacity-100'
+            : 'opacity-100'
         )}
       >
         {title}
@@ -397,7 +625,14 @@ function NavSection({
               collapsed={!!collapsed}
               onNavigate={onNavigate}
               comingSoon={route.path === '/bookings'}
-              end={!route.children?.length}
+              end={
+                route.path === '/cms' ||
+                route.path === '/esg-admin' ||
+                route.path === '/ir-admin' ||
+                route.path === '/lucs-admin'
+                  ? false
+                  : !route.children?.length
+              }
             />
 
             {route.children?.length && !collapsed ? (

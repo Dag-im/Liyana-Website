@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import type { LucideIcon } from 'lucide-react';
 import { Search } from 'lucide-react';
@@ -169,28 +168,23 @@ export default function CommandPalette({ commands }: CommandPaletteProps) {
       </div>
 
       {createPortal(
-        <AnimatePresence>
-          {isOpen ? (
-            <motion.div
-              ref={dropdownRef}
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
-              style={
-                anchor
-                  ? {
-                      position: 'fixed',
-                      top: anchor.top,
-                      left: anchor.left,
-                      width: anchor.width,
-                    }
-                  : undefined
-              }
-              className="z-50 rounded-xl border border-border/80 bg-white/90 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-md"
-              role="dialog"
-              aria-label="Command palette results"
-            >
+        isOpen ? (
+          <div
+            ref={dropdownRef}
+            style={
+              anchor
+                ? {
+                    position: 'fixed',
+                    top: anchor.top,
+                    left: anchor.left,
+                    width: anchor.width,
+                  }
+                : undefined
+            }
+            className="z-50 rounded-xl border border-border/80 bg-white/90 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-md"
+            role="dialog"
+            aria-label="Command palette results"
+          >
               <div className="flex items-start justify-between gap-3 px-2 py-2">
                 <div className="min-w-0">
                   <p className="aura-label text-slate-500">Quick navigation</p>
@@ -255,9 +249,8 @@ export default function CommandPalette({ commands }: CommandPaletteProps) {
                   })}
                 </div>
               )}
-            </motion.div>
-          ) : null}
-        </AnimatePresence>,
+          </div>
+        ) : null,
         document.body
       )}
     </div>

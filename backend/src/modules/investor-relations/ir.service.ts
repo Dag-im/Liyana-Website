@@ -11,27 +11,20 @@ import { NotificationUrgency } from '../../common/types/notification-urgency.enu
 import { UserRole } from '../../common/types/user-role.enum';
 import { UploadsService } from '../../uploads/uploads.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { CreateIrChartDto } from './dto/create-ir-chart.dto';
-import { CreateIrDivisionPerformanceDto } from './dto/create-ir-division-performance.dto';
 import { CreateIrDocumentDto } from './dto/create-ir-document.dto';
 import { CreateIrFinancialColumnDto } from './dto/create-ir-financial-column.dto';
 import { CreateIrFinancialRowDto } from './dto/create-ir-financial-row.dto';
 import { CreateIrInquiryDto } from './dto/create-ir-inquiry.dto';
 import { CreateIrKpiDto } from './dto/create-ir-kpi.dto';
 import { QueryIrInquiryDto } from './dto/query-ir-inquiry.dto';
-import { UpdateIrChartDto } from './dto/update-ir-chart.dto';
 import { UpdateIrContactDto } from './dto/update-ir-contact.dto';
-import { UpdateIrDivisionPerformanceDto } from './dto/update-ir-division-performance.dto';
 import { UpdateIrDocumentDto } from './dto/update-ir-document.dto';
 import { UpdateIrFinancialColumnDto } from './dto/update-ir-financial-column.dto';
 import { UpdateIrFinancialRowDto } from './dto/update-ir-financial-row.dto';
 import { UpdateIrHeroDto } from './dto/update-ir-hero.dto';
 import { UpdateIrKpiDto } from './dto/update-ir-kpi.dto';
 import { UpdateIrStrategyDto } from './dto/update-ir-strategy.dto';
-import { IrChartDataPoint } from './entities/ir-chart-data-point.entity';
-import { IrChart } from './entities/ir-chart.entity';
 import { IrContact } from './entities/ir-contact.entity';
-import { IrDivisionPerformance } from './entities/ir-division-performance.entity';
 import { IrDocument } from './entities/ir-document.entity';
 import { IrFinancialCell } from './entities/ir-financial-cell.entity';
 import { IrFinancialColumn } from './entities/ir-financial-column.entity';
@@ -63,12 +56,6 @@ export class IrService {
     private readonly rowRepo: Repository<IrFinancialRow>,
     @InjectRepository(IrFinancialCell)
     private readonly cellRepo: Repository<IrFinancialCell>,
-    @InjectRepository(IrDivisionPerformance)
-    private readonly divisionPerformanceRepo: Repository<IrDivisionPerformance>,
-    @InjectRepository(IrChart)
-    private readonly chartRepo: Repository<IrChart>,
-    @InjectRepository(IrChartDataPoint)
-    private readonly chartDataPointRepo: Repository<IrChartDataPoint>,
     @InjectRepository(IrDocument)
     private readonly documentRepo: Repository<IrDocument>,
     @InjectRepository(IrInquiry)
@@ -384,151 +371,6 @@ export class IrService {
     return { message: 'IR financial row deleted successfully' };
   }
 
-  async findAllDivisionPerformance(user?: JwtUser | null) {
-    return this.divisionPerformanceRepo.find({
-      where: this.canViewUnpublished(user) ? {} : { isPublished: true },
-      order: { sortOrder: 'ASC' },
-    });
-  }
-
-  async createDivisionPerformance(dto: CreateIrDivisionPerformanceDto) {
-    const item = this.divisionPerformanceRepo.create({
-      ...dto,
-      divisionId: dto.divisionId ?? null,
-      sortOrder: dto.sortOrder ?? 0,
-    });
-    return this.divisionPerformanceRepo.save(item);
-  }
-
-  async updateDivisionPerformance(id: string, dto: UpdateIrDivisionPerformanceDto) {
-    const item = await this.findDivisionPerformance(id);
-    this.divisionPerformanceRepo.merge(item, {
-      ...dto,
-      ...(dto.divisionId !== undefined ? { divisionId: dto.divisionId ?? null } : {}),
-    });
-    return this.divisionPerformanceRepo.save(item);
-  }
-
-  async publishDivisionPerformance(id: string) {
-    const item = await this.findDivisionPerformance(id);
-    item.isPublished = true;
-    return this.divisionPerformanceRepo.save(item);
-  }
-
-  async unpublishDivisionPerformance(id: string) {
-    const item = await this.findDivisionPerformance(id);
-    item.isPublished = false;
-    return this.divisionPerformanceRepo.save(item);
-  }
-
-  async removeDivisionPerformance(id: string) {
-    const item = await this.findDivisionPerformance(id);
-    await this.divisionPerformanceRepo.remove(item);
-    return { message: 'IR division performance deleted successfully' };
-  }
-
-  async findAllCharts(user?: JwtUser | null) {
-    return this.chartRepo.find({
-      where: this.canViewUnpublished(user) ? {} : { isPublished: true },
-      relations: ['dataPoints'],
-      order: { sortOrder: 'ASC', dataPoints: { sortOrder: 'ASC' } },
-    });
-  }
-
-  async createChart(dto: CreateIrChartDto, performedBy: string) {
-    const saved = await this.dataSource.transaction(async (manager) => {
-      const chart = manager.create(IrChart, {
-        title: dto.title,
-        type: dto.type,
-        sortOrder: dto.sortOrder ?? 0,
-      });
-      const savedChart = await manager.save(IrChart, chart);
-
-      const points = dto.dataPoints.map((dataPoint, index) =>
-        manager.create(IrChartDataPoint, {
-          chartId: savedChart.id,
-          label: dataPoint.label,
-          value: dataPoint.value.toFixed(2),
-          color: dataPoint.color ?? null,
-          sortOrder: dataPoint.sortOrder ?? index,
-        }),
-      );
-      await manager.save(IrChartDataPoint, points);
-
-      return manager.findOneOrFail(IrChart, {
-        where: { id: savedChart.id },
-        relations: ['dataPoints'],
-      });
-    });
-
-    this.auditLogService.log(AuditAction.IR_CHART_CREATED, performedBy, saved.id);
-    return saved;
-  }
-
-  async updateChart(id: string, dto: UpdateIrChartDto, performedBy: string) {
-    const saved = await this.dataSource.transaction(async (manager) => {
-      const chart = await manager.findOne(IrChart, {
-        where: { id },
-        relations: ['dataPoints'],
-      });
-
-      if (!chart) {
-        throw new NotFoundException('IR chart not found');
-      }
-
-      manager.merge(IrChart, chart, {
-        title: dto.title ?? chart.title,
-        type: dto.type ?? chart.type,
-        sortOrder: dto.sortOrder ?? chart.sortOrder,
-      });
-      const savedChart = await manager.save(IrChart, chart);
-
-      if (dto.dataPoints) {
-        await manager.delete(IrChartDataPoint, { chartId: id });
-
-        if (dto.dataPoints.length > 0) {
-          const points = dto.dataPoints.map((dataPoint, index) =>
-            manager.create(IrChartDataPoint, {
-              chartId: id,
-              label: dataPoint.label,
-              value: dataPoint.value.toFixed(2),
-              color: dataPoint.color ?? null,
-              sortOrder: dataPoint.sortOrder ?? index,
-            }),
-          );
-          await manager.save(IrChartDataPoint, points);
-        }
-      }
-
-      return manager.findOneOrFail(IrChart, {
-        where: { id: savedChart.id },
-        relations: ['dataPoints'],
-      });
-    });
-
-    this.auditLogService.log(AuditAction.IR_CHART_UPDATED, performedBy, saved.id);
-    return saved;
-  }
-
-  async publishChart(id: string) {
-    const chart = await this.findChart(id);
-    chart.isPublished = true;
-    return this.chartRepo.save(chart);
-  }
-
-  async unpublishChart(id: string) {
-    const chart = await this.findChart(id);
-    chart.isPublished = false;
-    return this.chartRepo.save(chart);
-  }
-
-  async removeChart(id: string, performedBy: string) {
-    const chart = await this.findChart(id);
-    await this.chartRepo.remove(chart);
-    this.auditLogService.log(AuditAction.IR_CHART_DELETED, performedBy, id);
-    return { message: 'IR chart deleted successfully' };
-  }
-
   async findAllDocuments(user?: JwtUser | null) {
     return this.documentRepo.find({
       where: this.canViewUnpublished(user) ? {} : { isPublished: true },
@@ -738,25 +580,6 @@ export class IrService {
       throw new NotFoundException('IR financial row not found');
     }
     return row;
-  }
-
-  private async findDivisionPerformance(id: string) {
-    const item = await this.divisionPerformanceRepo.findOne({ where: { id } });
-    if (!item) {
-      throw new NotFoundException('IR division performance item not found');
-    }
-    return item;
-  }
-
-  private async findChart(id: string) {
-    const chart = await this.chartRepo.findOne({
-      where: { id },
-      relations: ['dataPoints'],
-    });
-    if (!chart) {
-      throw new NotFoundException('IR chart not found');
-    }
-    return chart;
   }
 
   private async findDocument(id: string) {

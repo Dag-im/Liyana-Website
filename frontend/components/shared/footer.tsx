@@ -70,6 +70,7 @@ export default function Footer({ description }: FooterProps) {
               <FooterLink href="/about/leadership">Leadership</FooterLink>
               <FooterLink href="/about/awards">Awards</FooterLink>
               <FooterLink href="/about/quality-policy">Quality Policy</FooterLink>
+              <FooterLink href="/investors">Investors</FooterLink>
               <FooterLink href="/contact">Contact</FooterLink>
             </ul>
           </div>
@@ -91,8 +92,8 @@ export default function Footer({ description }: FooterProps) {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-6">ESG & Sustainability</h3>
               <ul className="space-y-4 text-sm">
-                <FooterLink href="/esg/sustainability">Sustainability</FooterLink>
-                <FooterLink href="/esg/csr">CSR Initiatives</FooterLink>
+                <FooterLink href="/esg">ESG</FooterLink>
+                <FooterLink href="/esg/lucs">LUCS</FooterLink>
               </ul>
             </div>
 

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,24 +34,29 @@ export function IconPicker({
   const filteredIcons = options.filter((option) =>
     option.label.toLowerCase().includes(search.toLowerCase())
   );
-
-  const SelectedIcon = getIcon(value);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2"
-            type="button"
-          >
-            <SelectedIcon className="h-4 w-4" />
-            <span>{value || 'Select an icon'}</span>
-          </Button>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setSearch('');
         }
-      />
-      <PopoverContent className="w-80" align="start">
+      }}
+    >
+      <PopoverTrigger>
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2"
+          type="button"
+        >
+          {React.createElement(getIcon(value), {
+            className: 'h-4 w-4 shrink-0',
+          })}
+          <span className="truncate">{value || 'Select an icon'}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="start" sideOffset={6}>
         <div className="flex flex-col gap-4">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -61,7 +67,7 @@ export function IconPicker({
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 gap-2 max-h-60 overflow-y-auto p-1">
+          <div className="grid max-h-60 grid-cols-4 gap-2 overflow-y-auto p-1">
             {filteredIcons.map((option) => {
               const Icon = option.Icon;
               return (
@@ -76,6 +82,7 @@ export function IconPicker({
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);
+                    setSearch('');
                   }}
                 >
                   <Icon className="h-5 w-5" />

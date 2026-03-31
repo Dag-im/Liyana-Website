@@ -20,11 +20,50 @@ import CorporateNetworkPage from '@/features/corporate-network/CorporateNetworkP
 import NetworkEntityCreatePage from '@/features/corporate-network/NetworkEntityCreatePage';
 import NetworkEntityEditPage from '@/features/corporate-network/NetworkEntityEditPage';
 import NetworkRelationsPage from '@/features/corporate-network/NetworkRelationsPage';
-import CmsPage from '@/features/cms/CmsPage';
+import CmsCoreValuesPage from '@/features/cms/pages/CmsCoreValuesPage';
+import CmsCoreValueFormPage from '@/features/cms/pages/CmsCoreValueFormPage';
+import CmsMissionVisionFormPage from '@/features/cms/pages/CmsMissionVisionFormPage';
+import CmsMissionVisionPage from '@/features/cms/pages/CmsMissionVisionPage';
+import CmsOverviewPage from '@/features/cms/pages/CmsOverviewPage';
+import CmsQualityPolicyFormPage from '@/features/cms/pages/CmsQualityPolicyFormPage';
+import CmsQualityPolicyPage from '@/features/cms/pages/CmsQualityPolicyPage';
+import CmsStatFormPage from '@/features/cms/pages/CmsStatFormPage';
+import CmsStatsPage from '@/features/cms/pages/CmsStatsPage';
+import CmsWhoWeArePage from '@/features/cms/pages/CmsWhoWeArePage';
 import DashboardPage from '@/features/dashboard/DashboardPage';
+import EsgBridgePage from '@/features/esg/pages/EsgBridgePage';
+import EsgGovernancePage from '@/features/esg/pages/EsgGovernancePage';
+import EsgGovernanceFormPage from '@/features/esg/pages/EsgGovernanceFormPage';
+import EsgHeroPage from '@/features/esg/pages/EsgHeroPage';
+import EsgMetricsPage from '@/features/esg/pages/EsgMetricsPage';
+import EsgMetricFormPage from '@/features/esg/pages/EsgMetricFormPage';
+import EsgOverviewPage from '@/features/esg/pages/EsgOverviewPage';
+import EsgPillarsPage from '@/features/esg/pages/EsgPillarsPage';
+import EsgPillarFormPage from '@/features/esg/pages/EsgPillarFormPage';
+import EsgReportFormPage from '@/features/esg/pages/EsgReportFormPage';
+import EsgReportsPage from '@/features/esg/pages/EsgReportsPage';
+import EsgStrategyPage from '@/features/esg/pages/EsgStrategyPage';
 import DivisionCategoriesPage from '@/features/division-categories/DivisionCategoriesPage';
 import DivisionCategoryCreatePage from '@/features/division-categories/DivisionCategoryCreatePage';
 import DivisionCategoryEditPage from '@/features/division-categories/DivisionCategoryEditPage';
+import IrContactPage from '@/features/ir/pages/IrContactPage';
+import IrDocumentFormPage from '@/features/ir/pages/IrDocumentFormPage';
+import IrDocumentsPage from '@/features/ir/pages/IrDocumentsPage';
+import IrFinancialsPage from '@/features/ir/pages/IrFinancialsPage';
+import IrHeroPage from '@/features/ir/pages/IrHeroPage';
+import IrInquiriesPage from '@/features/ir/pages/IrInquiriesPage';
+import IrKpiFormPage from '@/features/ir/pages/IrKpiFormPage';
+import IrKpisPage from '@/features/ir/pages/IrKpisPage';
+import IrOverviewPage from '@/features/ir/pages/IrOverviewPage';
+import IrStrategyPage from '@/features/ir/pages/IrStrategyPage';
+import LucsCtaPage from '@/features/lucs/pages/LucsCtaPage';
+import LucsHeroPage from '@/features/lucs/pages/LucsHeroPage';
+import LucsInquiriesPage from '@/features/lucs/pages/LucsInquiriesPage';
+import LucsMissionPage from '@/features/lucs/pages/LucsMissionPage';
+import LucsOverviewPage from '@/features/lucs/pages/LucsOverviewPage';
+import LucsPillarFormPage from '@/features/lucs/pages/LucsPillarFormPage';
+import LucsPillarsPage from '@/features/lucs/pages/LucsPillarsPage';
+import LucsWhoWeArePage from '@/features/lucs/pages/LucsWhoWeArePage';
 import DivisionCreatePage from '@/features/divisions/DivisionCreatePage';
 import DivisionDetailPage from '@/features/divisions/DivisionDetailPage';
 import DivisionEditPage from '@/features/divisions/DivisionEditPage';
@@ -149,6 +188,46 @@ export default function App() {
             <Route element={<TimelinePage />} path="timeline" />
             <Route element={<TimelineCreatePage />} path="timeline/new" />
             <Route element={<TimelineEditPage />} path="timeline/:id/edit" />
+            <Route element={<EsgOverviewPage />} path="esg-admin" />
+            <Route element={<EsgHeroPage />} path="esg-admin/hero" />
+            <Route element={<EsgStrategyPage />} path="esg-admin/strategy" />
+            <Route element={<EsgPillarsPage />} path="esg-admin/pillars" />
+            <Route element={<EsgPillarFormPage />} path="esg-admin/pillars/new" />
+            <Route element={<EsgPillarFormPage />} path="esg-admin/pillars/:id/edit" />
+            <Route element={<EsgMetricsPage />} path="esg-admin/metrics" />
+            <Route element={<EsgMetricFormPage />} path="esg-admin/metrics/new" />
+            <Route element={<EsgMetricFormPage />} path="esg-admin/metrics/:id/edit" />
+            <Route element={<EsgGovernancePage />} path="esg-admin/governance" />
+            <Route element={<EsgGovernanceFormPage />} path="esg-admin/governance/new" />
+            <Route element={<EsgGovernanceFormPage />} path="esg-admin/governance/:id/edit" />
+            <Route element={<EsgReportsPage />} path="esg-admin/reports" />
+            <Route element={<EsgReportFormPage />} path="esg-admin/reports/new" />
+            <Route element={<EsgReportFormPage />} path="esg-admin/reports/:id/edit" />
+            <Route element={<EsgBridgePage />} path="esg-admin/lucs-bridge" />
+            <Route element={<IrOverviewPage />} path="ir-admin" />
+            <Route element={<IrHeroPage />} path="ir-admin/hero" />
+            <Route element={<IrKpisPage />} path="ir-admin/kpis" />
+            <Route element={<IrKpiFormPage />} path="ir-admin/kpis/new" />
+            <Route element={<IrKpiFormPage />} path="ir-admin/kpis/:id/edit" />
+            <Route element={<IrStrategyPage />} path="ir-admin/strategy" />
+            <Route element={<IrFinancialsPage />} path="ir-admin/financials" />
+            <Route element={<IrDocumentsPage />} path="ir-admin/documents" />
+            <Route element={<IrDocumentFormPage />} path="ir-admin/documents/new" />
+            <Route element={<IrDocumentFormPage />} path="ir-admin/documents/:id/edit" />
+            <Route element={<IrContactPage />} path="ir-admin/contact" />
+            <Route element={<IrInquiriesPage />} path="ir-admin/inquiries" />
+          </Route>
+
+          <Route element={<RoleRoute allowedRoles={['ADMIN', 'LUCS_ADMIN']} />}>
+            <Route element={<LucsOverviewPage />} path="lucs-admin" />
+            <Route element={<LucsHeroPage />} path="lucs-admin/hero" />
+            <Route element={<LucsWhoWeArePage />} path="lucs-admin/who-we-are" />
+            <Route element={<LucsMissionPage />} path="lucs-admin/mission" />
+            <Route element={<LucsPillarsPage />} path="lucs-admin/pillars" />
+            <Route element={<LucsPillarFormPage />} path="lucs-admin/pillars/new" />
+            <Route element={<LucsPillarFormPage />} path="lucs-admin/pillars/:id/edit" />
+            <Route element={<LucsCtaPage />} path="lucs-admin/cta" />
+            <Route element={<LucsInquiriesPage />} path="lucs-admin/inquiries" />
           </Route>
 
           {/* Admin Only */}
@@ -211,7 +290,19 @@ export default function App() {
             <Route element={<FaqCategoriesPage />} path="faq-categories" />
             <Route element={<FaqCategoryCreatePage />} path="faq-categories/new" />
             <Route element={<FaqCategoryEditPage />} path="faq-categories/:id/edit" />
-            <Route element={<CmsPage />} path="cms" />
+            <Route element={<CmsOverviewPage />} path="cms" />
+            <Route element={<CmsMissionVisionPage />} path="cms/mission-vision" />
+            <Route element={<CmsMissionVisionFormPage />} path="cms/mission-vision/edit" />
+            <Route element={<CmsWhoWeArePage />} path="cms/who-we-are" />
+            <Route element={<CmsCoreValuesPage />} path="cms/core-values" />
+            <Route element={<CmsCoreValueFormPage />} path="cms/core-values/new" />
+            <Route element={<CmsCoreValueFormPage />} path="cms/core-values/:id/edit" />
+            <Route element={<CmsStatsPage />} path="cms/stats" />
+            <Route element={<CmsStatFormPage />} path="cms/stats/new" />
+            <Route element={<CmsStatFormPage />} path="cms/stats/:id/edit" />
+            <Route element={<CmsQualityPolicyPage />} path="cms/quality-policy" />
+            <Route element={<CmsQualityPolicyFormPage />} path="cms/quality-policy/new" />
+            <Route element={<CmsQualityPolicyFormPage />} path="cms/quality-policy/:lang/edit" />
             <Route element={<AuditLogsPage />} path="audit-logs" />
             <Route element={<AuditLogDetailPage />} path="audit-logs/:id" />
           </Route>

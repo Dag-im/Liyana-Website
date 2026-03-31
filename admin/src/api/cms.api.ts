@@ -115,14 +115,14 @@ export const cmsApi = {
       sortOrder?: number
     }
   ): Promise<QualityPolicy> {
-    return apiRequest<QualityPolicy>(`/cms/quality-policy/${lang}`, {
+    return apiRequest<QualityPolicy>(`/cms/quality-policy/${encodeURIComponent(lang)}`, {
       method: 'PUT',
       body: JSON.stringify(dto),
     })
   },
 
   deleteQualityPolicy(lang: string): Promise<{ message: string }> {
-    return apiRequest<{ message: string }>(`/cms/quality-policy/${lang}`, {
+    return apiRequest<{ message: string }>(`/cms/quality-policy/${encodeURIComponent(lang)}`, {
       method: 'DELETE',
     })
   },
