@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -38,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
         port: '4000',
         pathname: '/api/v1/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.liyanahealthcare.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },

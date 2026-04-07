@@ -1,41 +1,45 @@
-import { Check, ChevronsUpDown, Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@/lib/constants'
-import { cn, formatEnumLabel } from '@/lib/utils'
-import type { AuditAction, AuditEntityType } from '@/types/audit-log.types'
+} from '@/components/ui/popover';
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from '@/lib/constants';
+import { cn, formatEnumLabel } from '@/lib/utils';
+import type { AuditAction, AuditEntityType } from '@/types/audit-log.types';
 
 type AuditLogFilterValues = {
-  action?: AuditAction
-  entityType?: AuditEntityType | string
-  performedBy?: string
-  startDate?: string
-  endDate?: string
-}
+  action?: AuditAction;
+  entityType?: AuditEntityType | string;
+  performedBy?: string;
+  startDate?: string;
+  endDate?: string;
+};
 
 type AuditLogFiltersProps = {
-  value: AuditLogFilterValues
-  onChange: (value: AuditLogFilterValues) => void
-}
+  value: AuditLogFilterValues;
+  onChange: (value: AuditLogFilterValues) => void;
+};
 
-export default function AuditLogFilters({ value, onChange }: AuditLogFiltersProps) {
+export default function AuditLogFilters({
+  value,
+  onChange,
+}: AuditLogFiltersProps) {
   return (
     <div className="mb-4 flex flex-wrap gap-3">
       <AuditLogCombobox
-        className="w-[280px]"
+        className="w-70"
         emptyLabel="No matching actions"
         label="Action"
         onSelect={(nextValue) =>
           onChange({
             ...value,
-            action: nextValue === 'ALL' ? undefined : (nextValue as AuditAction),
+            action:
+              nextValue === 'ALL' ? undefined : (nextValue as AuditAction),
           })
         }
         options={[
@@ -50,13 +54,14 @@ export default function AuditLogFilters({ value, onChange }: AuditLogFiltersProp
       />
 
       <AuditLogCombobox
-        className="w-[220px]"
+        className="w-55"
         emptyLabel="No matching entity types"
         label="Entity Type"
         onSelect={(nextValue) =>
           onChange({
             ...value,
-            entityType: nextValue === 'ALL' ? undefined : (nextValue as AuditEntityType),
+            entityType:
+              nextValue === 'ALL' ? undefined : (nextValue as AuditEntityType),
           })
         }
         options={[
@@ -71,31 +76,37 @@ export default function AuditLogFilters({ value, onChange }: AuditLogFiltersProp
       />
 
       <Input
-        className="max-w-[180px]"
-        onChange={(event) => onChange({ ...value, performedBy: event.target.value || undefined })}
+        className="max-w-45"
+        onChange={(event) =>
+          onChange({ ...value, performedBy: event.target.value || undefined })
+        }
         placeholder="Performed by"
         value={value.performedBy ?? ''}
       />
       <Input
-        className="max-w-[180px]"
-        onChange={(event) => onChange({ ...value, startDate: event.target.value || undefined })}
+        className="max-w-45"
+        onChange={(event) =>
+          onChange({ ...value, startDate: event.target.value || undefined })
+        }
         type="date"
         value={value.startDate ?? ''}
       />
       <Input
-        className="max-w-[180px]"
-        onChange={(event) => onChange({ ...value, endDate: event.target.value || undefined })}
+        className="max-w-45"
+        onChange={(event) =>
+          onChange({ ...value, endDate: event.target.value || undefined })
+        }
         type="date"
         value={value.endDate ?? ''}
       />
     </div>
-  )
+  );
 }
 
 type AuditLogComboboxOption = {
-  label: string
-  value: string
-}
+  label: string;
+  value: string;
+};
 
 function AuditLogCombobox({
   value,
@@ -106,28 +117,35 @@ function AuditLogCombobox({
   emptyLabel,
   className,
 }: {
-  value: string
-  options: AuditLogComboboxOption[]
-  onSelect: (value: string) => void
-  placeholder: string
-  label: string
-  emptyLabel: string
-  className?: string
+  value: string;
+  options: AuditLogComboboxOption[];
+  onSelect: (value: string) => void;
+  placeholder: string;
+  label: string;
+  emptyLabel: string;
+  className?: string;
 }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
-  const selected = options.find((option) => option.value === value)
+  const selected = options.find((option) => option.value === value);
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase()
-    if (!normalized) return options
-    return options.filter((option) => option.label.toLowerCase().includes(normalized))
-  }, [options, query])
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return options;
+    return options.filter((option) =>
+      option.label.toLowerCase().includes(normalized)
+    );
+  }, [options, query]);
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger render={<Button type="button" variant="outline" />} className={cn('justify-between', className)}>
-        <span className="truncate text-left">{selected?.label ?? placeholder}</span>
+      <PopoverTrigger
+        render={<Button type="button" variant="outline" />}
+        className={cn('justify-between', className)}
+      >
+        <span className="truncate text-left">
+          {selected?.label ?? placeholder}
+        </span>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[320px] p-0">
@@ -149,7 +167,7 @@ function AuditLogCombobox({
         <div className="max-h-72 overflow-y-auto p-2">
           {filtered.length ? (
             filtered.map((option) => {
-              const isSelected = option.value === value
+              const isSelected = option.value === value;
 
               return (
                 <button
@@ -162,15 +180,20 @@ function AuditLogCombobox({
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   )}
                   onClick={() => {
-                    onSelect(option.value)
-                    setQuery('')
-                    setOpen(false)
+                    onSelect(option.value);
+                    setQuery('');
+                    setOpen(false);
                   }}
                 >
-                  <Check className={cn('h-4 w-4 shrink-0', isSelected ? 'opacity-100' : 'opacity-0')} />
+                  <Check
+                    className={cn(
+                      'h-4 w-4 shrink-0',
+                      isSelected ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
                   <span className="truncate">{option.label}</span>
                 </button>
-              )
+              );
             })
           ) : (
             <div className="px-3 py-4 text-sm text-slate-500">{emptyLabel}</div>
@@ -178,5 +201,5 @@ function AuditLogCombobox({
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

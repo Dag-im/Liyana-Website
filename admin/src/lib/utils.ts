@@ -49,5 +49,6 @@ export function formatEnumLabel(value: string): string {
 export function getFileUrl(path: string): string {
   if (!path) return '';
   if (path.startsWith('http')) return path; // already absolute
-  return `${import.meta.env.VITE_API_URL.replace('/api/v1', '')}${path}`;
+  const apiUrl = import.meta.env.VITE_API_URL ?? 'https://api.liyanahealthcare.com'
+  return `${apiUrl}${path}`;
 }

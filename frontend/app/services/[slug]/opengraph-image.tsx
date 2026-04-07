@@ -1,5 +1,6 @@
 import { getFileUrl } from '@/lib/api-client';
 import { getDivisionBySlug } from '@/lib/api/services.api';
+import { OG_IMAGE_CONFIG } from '@/lib/seo/og-image';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'nodejs';
@@ -69,7 +70,7 @@ export default async function OGImage({ params }: OGProps) {
           }}
         >
           <img
-            src={`${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png`}
+            src={`${OG_IMAGE_CONFIG.logoUrl}`}
             alt="Liyana Healthcare"
             width={160}
             height={80}

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1';
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://api.liyanahealthcare.com';
 
 /**
  * Resolves a filename or path to a full serving URL.
@@ -11,5 +11,5 @@ export function getUploadUrl(path: string | null | undefined): string {
   }
   // The backend serves files at /uploads/:filename
   // We assume the filename is stored in the database
-  return `${API_BASE_URL}/uploads/${path}`;
+  return `${API_URL}/uploads/${path}`;
 }
