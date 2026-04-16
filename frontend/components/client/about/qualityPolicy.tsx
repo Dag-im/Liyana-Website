@@ -1,9 +1,10 @@
 'use client';
 
 import { SectionHeading } from '@/components/shared/sectionHeading';
+import type { QualityPolicy } from '@/types/cms.types';
 import gsap from 'gsap';
 import { CheckCircle2, Globe } from 'lucide-react';
-import type { QualityPolicy } from '@/types/cms.types';
+import Image from 'next/image';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 interface PolicyLanguage {
@@ -49,7 +50,8 @@ export default function QualityPolicyShowcase({
 }: QualityPolicyProps) {
   const [activeLang, setActiveLang] = useState<string>(policies[0]?.lang ?? '');
   const listRef = useRef<HTMLDivElement>(null);
-  const currentPolicy = policies.find((p) => p.lang === activeLang) ?? policies[0];
+  const currentPolicy =
+    policies.find((p) => p.lang === activeLang) ?? policies[0];
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -129,6 +131,13 @@ export default function QualityPolicyShowcase({
           </div>
         </div>
       </div>
+      <Image
+        src="/images/A3-1.jpg"
+        alt="Quality Policy Illustration"
+        width={600}
+        height={400}
+        className="mx-auto mt-16 opacity-80"
+      />
     </section>
   );
 }
