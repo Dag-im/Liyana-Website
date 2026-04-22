@@ -20,7 +20,7 @@ const SimpleGoogleMap: React.FC<SimpleGoogleMapProps> = ({
       style={{ width, height }}
     >
       <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.086963139274!2d-122.41941508468102!3d37.77492927975925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808c5f0a6e1f%3A0x49d6ed3a68e8a0!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1697058486200!5m2!1sen!2sus"
+        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d708.6380808074242!2d38.82733565464453!3d9.020802970087932!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b9aaec595a7ff%3A0x4a1e50dbaf526f5f!2sCheshire%20Ethiopia%20-%20Head%20Office!5e0!3m2!1sen!2set!4v1776842541922!5m2!1sen!2set"
         width="100%"
         height="100%"
         style={{ border: 0 }}

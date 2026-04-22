@@ -50,7 +50,7 @@ function ContactForm({
       setError(
         err instanceof Error
           ? err.message
-          : 'Something went wrong. Please try again.',
+          : 'Something went wrong. Please try again.'
       );
     } finally {
       setStatus('idle');
@@ -258,8 +258,6 @@ export default function ContactSection({
                   </p>
                   <p className="text-sm font-medium text-slate-900 leading-relaxed">
                     Addis Ababa, Ethiopia
-                    <br />
-                    Global Corporate Center
                   </p>
                 </div>
               </div>
@@ -275,10 +273,10 @@ export default function ContactSection({
                       General Inquiries
                     </p>
                     <a
-                      href="tel:+251911000000"
+                      href="tel:+251904776464"
                       className="text-sm font-medium text-slate-900 hover:text-[#0880b9] transition-colors"
                     >
-                      +251 911 000 000
+                      +251 904 77 64 64
                     </a>
                   </div>
                 </div>
@@ -292,10 +290,10 @@ export default function ContactSection({
                       Email Support
                     </p>
                     <a
-                      href="mailto:contact@liyanahc.com"
+                      href="mailto:info@liyanahealthcare.com"
                       className="text-sm font-medium text-slate-900 hover:text-[#0880b9] transition-colors"
                     >
-                      contact@liyanahc.com
+                      info@liyanahealthcare.com
                     </a>
                   </div>
                 </div>

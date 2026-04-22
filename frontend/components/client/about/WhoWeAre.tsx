@@ -12,7 +12,7 @@ interface WhoWeAreProps {
 
 export default function WhoWeAreLuxury({
   content = 'A collective of innovators, problem solvers, and dreamers. We create impact through technology, healthcare, and sustainable solutions — empowering businesses and communities worldwide.',
-  image = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80',
+  image = '/images/who-we-are.jpg',
 }: WhoWeAreProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
