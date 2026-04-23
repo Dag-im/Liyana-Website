@@ -273,10 +273,10 @@ export default function ContactSection({
                       General Inquiries
                     </p>
                     <a
-                      href="tel:+251904776464"
+                      href="tel:+251937557878"
                       className="text-sm font-medium text-slate-900 hover:text-[#0880b9] transition-colors"
                     >
-                      +251 904 77 64 64
+                      +251 937 55 78 78
                     </a>
                   </div>
                 </div>

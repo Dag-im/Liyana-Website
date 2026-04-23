@@ -12,9 +12,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // Custom X (formerly Twitter) brand logo component
-const XLogo = ({ size = 16 }: { size?: number }) => (
+const TikTokLogo = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+    <path d="M16.5 3c.4 2.1 2 3.7 4.1 4.1v3.1c-1.5 0-2.9-.5-4.1-1.3v6.3c0 3.4-2.8 6.2-6.2 6.2S4.1 18.6 4.1 15.2 6.9 9 10.3 9c.4 0 .8 0 1.2.1v3.2c-.4-.1-.8-.2-1.2-.2-1.8 0-3.2 1.4-3.2 3.2s1.4 3.2 3.2 3.2 3.2-1.4 3.2-3.2V3h3z" />
   </svg>
 );
 
@@ -115,7 +115,7 @@ export default function Footer({ description }: FooterProps) {
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-[#33bde9] shrink-0" />
-                  <span>+251 904 77 64 64</span>
+                  <span>+251 937 55 78 78</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail size={18} className="text-[#33bde9] shrink-0" />
@@ -145,27 +145,27 @@ export default function Footer({ description }: FooterProps) {
           {/* Social Icons */}
           <div className="flex items-center space-x-3">
             <SocialIcon
-              href="https://facebook.com"
+              href="https://web.facebook.com/yanet.specializedmedicalcenter"
               icon={<Facebook size={16} />}
               label="Facebook"
             />
             <SocialIcon
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/company/liyana-healthcare/"
               icon={<Linkedin size={16} />}
               label="LinkedIn"
             />
             <SocialIcon
-              href="https://instagram.com"
+              href="https://www.instagram.com/yanethealth/"
               icon={<Instagram size={16} />}
               label="Instagram"
             />
             <SocialIcon
-              href="https://x.com"
-              icon={<XLogo size={14} />}
-              label="X (formerly Twitter)"
+              href="https://www.tiktok.com/@yanethospitals"
+              icon={<TikTokLogo size={14} />}
+              label="TikTok"
             />
             <SocialIcon
-              href="https://youtube.com"
+              href="https://www.youtube.com/@YanetHospitals"
               icon={<Youtube size={16} />}
               label="YouTube"
             />
